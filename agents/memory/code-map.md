@@ -74,3 +74,7 @@ ReportAnalysisRequest.num_speakers1..8 →routes.analyze détecte écheccourant 
 ## Moteurs locaux de voix
 
 `backend/api/memora/diarization.py` choisit MEMORA_DIARIZATION_ENGINE, gardeSilero/cellules0.4s/versionnement et applique un veto de cohérence au compte automatique. `diarization_ecapa.py` : disponibilité, SHA et architecture localeSpeechBrain ; aucunréseau/YAML. `scripts/memora-prepare-ecapa.py` : poids officiels épinglés/reprise copie vérifiée. `scripts/memora-qa-speaker-consistency.py --engine ecapa-tdnn --include-holdout` : comptes/abstentions/erreurs réelles distinctes. Fixtureecapa-holdout-v1.json etgénérateurprepare-speaker-holdout.py :12cassynthétiques figés. Configurationdans.env.memora.example,env.py/install.sh ; sélectionmodèleautoriséeparrunnerisolé ettestprovenancenavigateur.
+
+## Exports versionnés
+
+`backend/api/memora/exports.py` : modèles de document, rendu TXT/PDF/DOCX/Markdown/SRT/VTT, polices et nom de fichier sûr. `routes.py` GET `/meetings/{mid}/export` : sélection source, droits avant/après rendu, limites taille/quota/concurrence, réponse binaire. `frontend/src/features/memora/export-button.tsx` +CSS : dialogue format/version, requête annulable, téléchargement via `/mapi`, erreurs accessibles. `app.tsx` intègre les deux boutons. Tests backend `test_memora_exports.py`, navigateur `frontend/tests/memora-exports-audit.mjs` appelé par auditUIisolé. OpenAPI/SDK générés à partir des routes.

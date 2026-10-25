@@ -132,3 +132,7 @@ Palette unique de la connexion/inscription aux réunions, profil et administrati
 ## Éviter les faux intervenants sur un monologue25/10
 
 ECAPA local pin/SHA +fenêtres3.2s etveto1.6s, source conservée ; Resemblyzerlegacyveto1.6/3.2. Modulesdiarization.py/diarization_ecapa.py, préparateurpoids etconfigurationexemple. Testsunitaires/intégrationbackend,comparaison48inférences+12holdout etrecetteapplicationréelle :voirtesting.md/state.md. Lecompte resteestimé, bruits/changementsdecanalpeuventencorefragmenter. Aucun échantillonpersonnelniidentifiant dansnotes/logs ; détailsautorisésprivés uniquement.memora/accuracy-private/. Anciennesréunionsinchangées, relancesvolontairesversionnées.
+
+## Export transcription et rapport — demande utilisateur25/10
+
+Transcription TXT/PDF/DOCX/SRT/VTT et rapport TXT/PDF/DOCX/Markdown : implémentés et vérifiés. Backend `exports.py` +route `/meetings/{mid}/export`, interface `export-button.tsx` dans chaque onglet. Version sélectionnée/historique, révisions humaines, sources limitées aux droits, invité sans compte selon partage. Tests `test_memora_exports.py` (30cas), `memora-exports-audit.mjs` intégré à la recette isolée, rendu visuel PDF/DOCX synthétique. État/preuves/limites dans testing.md ; usage dans docs/MEMORA.md. Aucune exigence de PDF traitée comme autorisation supplémentaire.

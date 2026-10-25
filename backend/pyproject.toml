@@ -49,6 +49,8 @@ dependencies = [
     "speechbrain==1.1.2 ; platform_machine == 'arm64' and sys_platform == 'darwin'",
     "torchaudio==2.11.0 ; platform_machine == 'arm64' and sys_platform == 'darwin'",
     "setuptools>=80.9,<81 ; platform_machine == 'arm64' and sys_platform == 'darwin'",
+    "reportlab>=4.4,<5",
+    "python-docx>=1.2,<2",
 ]
 
 [build-system]
@@ -61,7 +63,10 @@ module-name = "api"
 module-root = "."
 
 [dependency-groups]
-dev = ["ruff==0.17.1"]
+dev = [
+    "pypdf>=6,<7",
+    "ruff==0.17.1",
+]
 
 [tool.ruff]
 target-version = "py311"

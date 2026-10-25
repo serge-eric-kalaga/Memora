@@ -1,0 +1,124 @@
+.trigger,
+.cancel,
+.download {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 9px 13px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  min-height: 36px;
+}
+.trigger:hover,
+.cancel:hover {
+  background: var(--soft);
+}
+.trigger:disabled,
+.download:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.source {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  background: var(--background);
+  color: var(--muted);
+  font-size: 12px;
+  margin: 18px 0;
+  overflow-wrap: anywhere;
+}
+.formats {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+  display: grid;
+  gap: 9px;
+}
+.formats legend {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--ink);
+}
+.option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.option input {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  accent-color: var(--accent);
+}
+.option:focus-within {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+.selected {
+  background: var(--soft);
+  border-color: var(--accent);
+}
+.extension {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
+  width: 43px;
+  flex-shrink: 0;
+}
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+.download {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent);
+}
+.download:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+.error,
+.message {
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 14px 0 0;
+}
+.error {
+  color: var(--danger);
+}
+.message {
+  color: var(--success);
+}
+@media (max-width: 480px) {
+  .option {
+    gap: 9px;
+    padding: 11px;
+  }
+  .actions > * {
+    flex: 1;
+  }
+  .source {
+    align-items: flex-start;
+  }
+}

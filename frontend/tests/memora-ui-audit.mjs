@@ -3,6 +3,7 @@ import {
   auditPublicPalette,
   auditAccountPalette,
 } from "./memora-theme-audit.mjs";
+import { auditExports } from "./memora-exports-audit.mjs";
 import { chromium } from "@playwright/test";
 import assert from "node:assert/strict";
 import { readFile, mkdir, writeFile } from "node:fs/promises";
@@ -275,6 +276,10 @@ try {
       }
     }
     assert.ok(meeting, "Réunion synthétique dédiée présente pour audit mobile");
+    await auditExports(page, browser, base, meeting, artifactPath);
+    pass(
+      "Exports réels transcription/rapport, neuf formats, historique, erreurs, quatre vues et droits invités protégés/révocation",
+    );
     // Display-state regression only: no backend data or real job is changed.
     const detailRoute = base + "/mapi/meetings/" + meeting.id;
     await page.route(detailRoute, async (route) => {

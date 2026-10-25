@@ -4293,6 +4293,157 @@
         ]
       }
     },
+    "/api/memora/meetings/{mid}/export": {
+      "get": {
+        "operationId": "export_meeting_api_memora_meetings__mid__export_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mid",
+            "required": true,
+            "schema": {
+              "title": "Mid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "content",
+            "required": true,
+            "schema": {
+              "enum": [
+                "transcript",
+                "report"
+              ],
+              "title": "Content",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "format",
+            "required": true,
+            "schema": {
+              "enum": [
+                "txt",
+                "pdf",
+                "docx",
+                "srt",
+                "vtt",
+                "md"
+              ],
+              "title": "Format",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "version",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Version"
+            }
+          },
+          {
+            "in": "query",
+            "name": "report_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Report Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              },
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              },
+              "application/x-subrip": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              },
+              "text/markdown": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              },
+              "text/vtt": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Document téléchargé, généré à partir de la version sélectionnée et des contenus autorisés.",
+            "headers": {
+              "Cache-Control": {
+                "description": "no-store",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Disposition": {
+                "description": "Pièce jointe avec nom ASCII et nom UTF-8 RFC 5987.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Contenu vide ou réunion modifiée pendant la génération ; relancer l’export."
+          },
+          "413": {
+            "description": "Source supérieure à 5 Mo ou document généré supérieur à 20 Mo."
+          },
+          "422": {
+            "description": "Format ou paramètres de version incompatibles avec le contenu demandé."
+          },
+          "429": {
+            "description": "Quota de requêtes ou limite de génération simultanée atteint."
+          }
+        },
+        "summary": "Export Meeting",
+        "tags": [
+          "Memora"
+        ]
+      }
+    },
     "/api/memora/meetings/{mid}/finalize": {
       "post": {
         "operationId": "finalize_api_memora_meetings__mid__finalize_post",

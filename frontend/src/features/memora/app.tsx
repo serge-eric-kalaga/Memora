@@ -1,5 +1,6 @@
 "use client";
 import { useConfirmation } from "@/components/ui/confirmation";
+import { ExportButton } from "./export-button";
 import { MeetingChat } from "./meeting-chat";
 import { useMemoraText } from "./i18n";
 import { CaptureSlot as Recorder } from "./capture-session";
@@ -1082,8 +1083,17 @@ function MeetingContent({
           )}
           {currentTab === "report" && (!access.token || permissions.report) && (
             <section className={`${s.card} ${s.report}`}>
-              <div className={s.row}>
+              <div className={`${s.row} ${s.exportHeader}`}>
                 <h2>{tr("Compte rendu")}</h2>
+                {report && (
+                  <ExportButton
+                    meetingId={id}
+                    content="report"
+                    reportId={report.id}
+                    label={`${tr("Compte rendu")} · ${tr("Version")} ${report.revision || report.version} · source v${report.version}`}
+                    access={access}
+                  />
+                )}
                 {reports.length > 0 && (
                   <select
                     className={s.select}
@@ -1131,11 +1141,21 @@ function MeetingContent({
           )}
           {currentTab === "transcript" && (
             <section className={`${s.card} ${s.transcriptCard}`}>
-              <div className={s.row}>
+              <div className={`${s.row} ${s.exportHeader}`}>
                 <h2>
                   Transcription{" "}
                   <span className={s.badge}>v{viewedTranscriptVersion}</span>
                 </h2>
+                {viewedTranscriptVersion > 0 && (
+                  <ExportButton
+                    meetingId={id}
+                    content="transcript"
+                    version={viewedTranscriptVersion}
+                    label={`Transcription · v${viewedTranscriptVersion} · ${tr(isHistoricalTranscript ? "Historique" : "Courante")}`}
+                    access={access}
+                    disabled={editing || viewedSegments.length === 0}
+                  />
+                )}
                 {canEdit &&
                   meeting.version > 0 &&
                   !editing &&
@@ -1168,6 +1188,7 @@ function MeetingContent({
                     <span>{tr("Version de la transcription")}</span>
                     <select
                       className={s.select}
+                      aria-label={tr("Version de la transcription")}
                       value={viewedTranscriptVersion}
                       onChange={(e) =>
                         setSelectedTranscriptVersion(

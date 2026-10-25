@@ -2780,6 +2780,63 @@ export type DiarizeMeetingApiMemoraMeetingsMidDiarizePostResponses = {
     200: unknown;
 };
 
+export type ExportMeetingApiMemoraMeetingsMidExportGetData = {
+    body?: never;
+    path: {
+        /**
+         * Mid
+         */
+        mid: string;
+    };
+    query: {
+        /**
+         * Content
+         */
+        content: 'transcript' | 'report';
+        /**
+         * Format
+         */
+        format: 'txt' | 'pdf' | 'docx' | 'srt' | 'vtt' | 'md';
+        /**
+         * Version
+         */
+        version?: number | null;
+        /**
+         * Report Id
+         */
+        report_id?: string | null;
+    };
+    url: '/api/memora/meetings/{mid}/export';
+};
+
+export type ExportMeetingApiMemoraMeetingsMidExportGetErrors = {
+    /**
+     * Contenu vide ou réunion modifiée pendant la génération ; relancer l’export.
+     */
+    409: unknown;
+    /**
+     * Source supérieure à 5 Mo ou document généré supérieur à 20 Mo.
+     */
+    413: unknown;
+    /**
+     * Format ou paramètres de version incompatibles avec le contenu demandé.
+     */
+    422: unknown;
+    /**
+     * Quota de requêtes ou limite de génération simultanée atteint.
+     */
+    429: unknown;
+};
+
+export type ExportMeetingApiMemoraMeetingsMidExportGetResponses = {
+    /**
+     * Document téléchargé, généré à partir de la version sélectionnée et des contenus autorisés.
+     */
+    200: Blob | File;
+};
+
+export type ExportMeetingApiMemoraMeetingsMidExportGetResponse = ExportMeetingApiMemoraMeetingsMidExportGetResponses[keyof ExportMeetingApiMemoraMeetingsMidExportGetResponses];
+
 export type FinalizeApiMemoraMeetingsMidFinalizePostData = {
     body: Finalize;
     path: {

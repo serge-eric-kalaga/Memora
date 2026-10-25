@@ -11,12 +11,14 @@ import time
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
+from starlette.concurrency import run_in_threadpool
+import threading
 from pydantic import BaseModel, Field, EmailStr
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from api.services.authorization import current_user
-from . import store as s, ai, capture_awake
+from . import store as s, ai, capture_awake, exports
 from .worker import queue_mail
 
 AUTH_USER = Depends(current_user)
@@ -192,7 +194,8 @@ def public_meeting(c, m, rights, actor):
     if rights.get("report"):
         reports = []
         for r in c.execute(
-            "SELECT * FROM reports WHERE meeting=? ORDER BY created DESC", (m["id"],)
+            "SELECT * FROM reports WHERE meeting=? ORDER BY created DESC,id DESC",
+            (m["id"],),
         ):
             d = dict(r)
             d.pop("meeting", None)
@@ -703,6 +706,191 @@ async def read_transcript(mid: str, request: Request, version: int | None = None
             "created": row["created"],
             "provenance": s.transcript_edit(c, mid, version),
         }
+
+
+_export_slots = threading.BoundedSemaphore(2)
+
+
+@router.get(
+    "/meetings/{mid}/export",
+    response_class=Response,
+    responses={
+        200: {
+            "description": "Document téléchargé, généré à partir de la version sélectionnée et des contenus autorisés.",
+            "content": {
+                media_type: {"schema": {"type": "string", "format": "binary"}}
+                for media_type in (
+                    "text/plain",
+                    "text/markdown",
+                    "application/pdf",
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    "application/x-subrip",
+                    "text/vtt",
+                )
+            },
+            "headers": {
+                "Content-Disposition": {
+                    "description": "Pièce jointe avec nom ASCII et nom UTF-8 RFC 5987.",
+                    "schema": {"type": "string"},
+                },
+                "Cache-Control": {
+                    "description": "no-store",
+                    "schema": {"type": "string"},
+                },
+            },
+        },
+        409: {
+            "description": "Contenu vide ou réunion modifiée pendant la génération ; relancer l’export."
+        },
+        413: {
+            "description": "Source supérieure à 5 Mo ou document généré supérieur à 20 Mo."
+        },
+        422: {
+            "description": "Format ou paramètres de version incompatibles avec le contenu demandé."
+        },
+        429: {
+            "description": "Quota de requêtes ou limite de génération simultanée atteint."
+        },
+    },
+)
+async def export_meeting(
+    mid: str,
+    request: Request,
+    content: Literal["transcript", "report"],
+    format: Literal["txt", "pdf", "docx", "srt", "vtt", "md"],
+    version: int | None = None,
+    report_id: str | None = None,
+):
+    m, rights, actor = await access(request, mid, content)
+    if format not in exports.FORMATS[content]:
+        error(422, "Format indisponible pour ce contenu.")
+    if (
+        (content == "report" and version is not None)
+        or (content == "transcript" and report_id is not None)
+        or (version is not None and version < 1)
+    ):
+        error(422, "Paramètres de version incompatibles avec ce contenu.")
+    with s.db() as c:
+        quota_actor = (
+            ("share:" + request.headers["x-share-token"])
+            if request.headers.get("x-share-token")
+            else actor
+        )
+        limit(c, "export:" + mid + ":" + quota_actor, 20)
+        c.execute("BEGIN")
+        # Read a consistent snapshot, then release the DB before document generation.
+        current = s.meeting(c, mid)
+        if not current:
+            error(404, "Réunion indisponible.")
+        snapshot = {"meeting": current, "content": content, "source_map": {}}
+        if content == "transcript":
+            selected = current["version"] if version is None else version
+            row = c.execute(
+                "SELECT created,length(CAST(data AS BLOB)) AS bytes FROM transcripts WHERE meeting=? AND version=?",
+                (mid, selected),
+            ).fetchone()
+            if not row:
+                error(404, "Version de transcription indisponible.")
+            if row["bytes"] > 5 * 1024 * 1024:
+                error(413, "Cette transcription dépasse la limite d’export de 5 Mo.")
+            segments = s.transcript(c, mid, selected)
+            if not segments:
+                error(409, "Cette transcription ne contient aucun passage à exporter.")
+            snapshot.update(
+                version=selected,
+                revision=selected,
+                segments=segments,
+                created=row["created"],
+                historical=selected != current["version"],
+            )
+        else:
+            rid = current.get("report_id") if report_id is None else report_id
+            size = c.execute(
+                "SELECT length(CAST(data AS BLOB)) FROM reports WHERE meeting=? AND id=?",
+                (mid, rid),
+            ).fetchone()
+            if not size:
+                error(404, "Rapport indisponible.")
+            if size[0] > 5 * 1024 * 1024:
+                error(413, "Ce rapport dépasse la limite d’export de 5 Mo.")
+            row = readable_report(c, mid, rid)
+            report = exports.normalized_report(json.loads(row["data"]))
+            if not any(
+                report.get(key)
+                for key in (
+                    "summary",
+                    "topics",
+                    "decisions",
+                    "actions",
+                    "open_questions",
+                )
+            ):
+                error(409, "Ce rapport ne contient aucun élément à exporter.")
+            ordered = [
+                r["id"]
+                for r in c.execute(
+                    "SELECT id FROM reports WHERE meeting=? ORDER BY created,id", (mid,)
+                )
+            ]
+            snapshot.update(
+                version=row["version"],
+                revision=ordered.index(rid) + 1,
+                report=report,
+                report_id=rid,
+                created=row["created"],
+                reviews=s.report_reviews(c, rid),
+                historical=rid != current.get("report_id"),
+                stale=row["version"] != current["version"]
+                or rid != current.get("report_id"),
+            )
+            if rights.get("transcript"):
+                source_size = c.execute(
+                    "SELECT length(CAST(data AS BLOB)) FROM transcripts WHERE meeting=? AND version=?",
+                    (mid, row["version"]),
+                ).fetchone()
+                if source_size and source_size[0] > 5 * 1024 * 1024:
+                    error(
+                        413,
+                        "Les sources de ce rapport dépassent la limite d’export de 5 Mo.",
+                    )
+                snapshot["source_map"] = {
+                    seg["id"]: exports.timestamp(seg.get("start"))
+                    + " · "
+                    + str(seg.get("speaker") or "Intervenant")
+                    for seg in s.transcript(c, mid, row["version"])
+                }
+    if not _export_slots.acquire(blocking=False):
+        error(429, "Des exports sont déjà en cours. Réessayez dans un instant.")
+    try:
+        data = await run_in_threadpool(exports.render, snapshot, format)
+    except Exception:
+        error(503, "Export indisponible. Réessayez ou choisissez le format texte.")
+    finally:
+        _export_slots.release()
+    if len(data) > 20 * 1024 * 1024:
+        error(413, "Cet export est trop volumineux. Choisissez le format texte.")
+    # A revoked/expired link or deleted account must never receive generated bytes.
+    latest, latest_rights, latest_actor = await access(request, mid, content)
+    if (actor.startswith("user:") and latest_actor != actor) or (
+        content == "report"
+        and bool(latest_rights.get("transcript")) != bool(rights.get("transcript"))
+    ):
+        error(403, "Les droits de ce partage ont changé. Relancez l’export.")
+    if latest["version"] != current["version"] or latest.get(
+        "report_id"
+    ) != current.get("report_id"):
+        error(409, "La réunion a changé pendant l’export. Relancez-le.")
+    return Response(
+        data,
+        media_type=exports.MEDIA_TYPES[format],
+        headers={
+            "Content-Disposition": exports.disposition(
+                current["title"], content, snapshot["revision"], format
+            ),
+            "Cache-Control": "no-store",
+            "X-Content-Type-Options": "nosniff",
+        },
+    )
 
 
 class Segment(BaseModel):

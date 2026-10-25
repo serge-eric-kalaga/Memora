@@ -1,6 +1,6 @@
 # Audit UI ciblé
 
-2026-10-25T15:43:18.032Z
+2026-10-25T16:02:33.214Z
 
 - VALIDÉ : Palette commune sur six pages publiques, quatre vues chacune et contrastes vérifiés
 - VALIDÉ : Dashboard desktop sans débordement
@@ -10,6 +10,7 @@
 - VALIDÉ : Thème sombre appliqué
 - VALIDÉ : Bornes administratives invalides détectées sans requête PUT ; can_administer=true
 - VALIDÉ : Dashboard et paramètres mobile sans débordement
+- VALIDÉ : Exports réels transcription/rapport, neuf formats, historique, erreurs, quatre vues et droits invités protégés/révocation
 - VALIDÉ : Analyse en cours : un seul bandeau, rappel de rapport périmé masqué
 - VALIDÉ : Carte action : validation réelle confirmée, métadonnées et historique accessibles
 - VALIDÉ : Cartes actions et formulaire : desktop/mobile clair/sombre sans débordement

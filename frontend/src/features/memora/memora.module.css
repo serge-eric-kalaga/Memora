@@ -1789,3 +1789,14 @@
 .analysisRetry small {
   line-height: 1.6;
 }
+
+.exportHeader {
+  flex-wrap: wrap;
+}
+.exportHeader h2 {
+  margin-right: auto;
+}
+.exportHeader > select {
+  max-width: 100%;
+  min-width: 0;
+}

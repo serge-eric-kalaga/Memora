@@ -2,6 +2,12 @@
 
 Mis à jour 2026-10-25 15:44 UTC, Africa/Ouagadougou. Livraison locale V1 et jalon supplémentaire de précision intégrés. Commits locaux autorisés par l’utilisateur après livraison ; aucun push, achat, déploiement public ou email réel. Lire AGENTS.md → agents/README.md → ce fichier, puis uniquement les preuves utiles. Les notes/fichiers actuels priment sur les anciens points de reprise.
 
+## Exports transcription et rapport — livrés localement
+
+Transcription TXT/PDF/DOCX/SRT/VTT ; rapport TXT/PDF/DOCX/Markdown. Bouton Exporter dans chaque onglet, version affichée explicitement transmise ; historique et corrections humaines conservés/distingués. GET /meetings/{mid}/export vérifie les droits avant/après génération et les versions ; invité autorisé sans compte, contenu source masqué si rapport seul. Génération en mémoire, sources5MiB/fichier20MiB,2générations simultanées,20requêtes/min par propriétaire ou lien. Dépendances verrouillées, aucune migration ni donnée personnelle utilisée.
+
+Preuves :363backend PASS/3SKIP/3warnings27,54s dont30exports ; Ruff/OpenAPI/API-SDK/lint/types/build PASS. Recette isolée32,12s,20groupes UI PASS/zéroexceptionJS :9formats téléchargés réellement, historique, erreur409 présentée, partage protégé rapportseul/403transcription/révocation404. PDF10pages et DOCX11pages synthétiques rendues et inspectées, Unicode/texte long/HTML littéral/révisions. Limite : PDF représente explicitement les rares caractères hors police par [U+XXXX], TXT préserve Unicode ; libellés des documents français, source inchangée. Test hérité generated-api bloqué EPERM au premier GET sans mutation, pas déclaré réussi. Détails testing.md/docs/MEMORA.md. Activation après garde zéro capture/tâche/audio récent :4HTTP200, toutes les empreintes de tables domaine inchangées et intégritéOK (.memora/exports-activation.json privé). Le premier appel sandbox ne pouvait pas lire les commandes des processus et a perdu les fichiers PID ; suivi restauré après vérification identité/répertoire, puis arrêt/démarrage réel réussi avec permissions adaptées. Actualiser hors capture pour essayer ; commit local sans coauteur ni push.
+
 ## Sur-segmentation des intervenants — correction intégrée localement
 
 Autorisation explicite reçue pour la copie locale du seul test désigné. Diagnostic et résultats exclusivement .memora/accuracy-private/ ; original audio SHA inchangé et réunion non modifiée. Aucune donnée privée, identifiant ou contenu dans ces notes/logs. Validation du moteur intégré sur la copie effectuée ; détails restent privés.
