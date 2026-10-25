@@ -16,8 +16,8 @@ backend/.venv/bin/python scripts/memora-migrate.py
 memora_asr_engine=$(backend/.venv/bin/python -c 'from dotenv import dotenv_values; print(dotenv_values(".memora/backend.env").get("MEMORA_ASR_ENGINE", "faster-whisper"))')
 memora_french_asr_engine=$(backend/.venv/bin/python -c 'import os; from dotenv import dotenv_values; print(os.environ.get("MEMORA_FRENCH_ASR_ENGINE") or dotenv_values(".memora/backend.env").get("MEMORA_FRENCH_ASR_ENGINE") or "")')
 memora_parakeet_path=$(backend/.venv/bin/python -c 'import os; from pathlib import Path; from dotenv import dotenv_values; print(os.environ.get("MEMORA_PARAKEET_MODEL_PATH") or dotenv_values(".memora/backend.env").get("MEMORA_PARAKEET_MODEL_PATH") or Path(".memora/models/parakeet-v3").resolve())')
-if [ "$memora_asr_engine" = "parakeet-mlx" ] || [ "$memora_french_asr_engine" = "parakeet-mlx" ]; then
-  backend/.venv/bin/python -c 'import platform,sys; sys.exit(0 if sys.platform == "darwin" and platform.machine() == "arm64" else "Parakeet MLX nécessite macOS Apple Silicon.")'
+if [ "$memora_asr_engine" = "parakeet-mlx" ] || [ "$memora_french_asr_engine" = "parakeet-mlx" ] || [ "$memora_french_asr_engine" = "mlx-whisper" ]; then
+  backend/.venv/bin/python -c 'import platform,sys; sys.exit(0 if sys.platform == "darwin" and platform.machine() == "arm64" else "Les moteurs MLX nécessitent macOS Apple Silicon.")'
 fi
 case "$memora_asr_engine" in
   mlx-whisper)
@@ -42,6 +42,12 @@ esac
 
 case "$memora_french_asr_engine" in
   "") ;;
+  mlx-whisper)
+    if [ "$memora_asr_engine" != "mlx-whisper" ]; then
+      memora_mlx_path=$(backend/.venv/bin/python -c 'from pathlib import Path; from dotenv import dotenv_values; print(dotenv_values(".memora/backend.env").get("MEMORA_MLX_MODEL_PATH") or Path(".memora/models/mlx-large-v3-turbo").resolve())')
+      MEMORA_MLX_MODEL_PATH="$memora_mlx_path" backend/.venv/bin/python scripts/memora-download-mlx.py
+    fi
+    ;;
   parakeet-mlx)
     if [ "$memora_asr_engine" != "parakeet-mlx" ]; then
       backend/.venv/bin/python scripts/memora-download-parakeet.py --target "$memora_parakeet_path"

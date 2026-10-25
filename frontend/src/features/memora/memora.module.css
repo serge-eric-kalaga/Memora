@@ -1574,3 +1574,50 @@
 .retranscribe .languageHelp {
   font-size: 10px;
 }
+
+/* Keep the transcript bounded while preserving the heading and edit action. */
+.meetingApp .transcriptCard {
+  height: clamp(22rem, 76dvh, 56rem);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.transcriptCard > .row {
+  flex: 0 0 auto;
+}
+.transcriptScroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  overscroll-behavior-y: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: var(--muted) var(--surface);
+  padding-inline-end: 12px;
+  scroll-padding-block: 12px;
+}
+.transcriptScroll::-webkit-scrollbar {
+  width: 8px;
+}
+.transcriptScroll::-webkit-scrollbar-track {
+  background: var(--surface);
+}
+.transcriptScroll::-webkit-scrollbar-thumb {
+  background: var(--muted);
+  border: 2px solid var(--surface);
+  border-radius: 8px;
+}
+
+.citationDisclosure {
+  margin-block: 6px 14px;
+}
+.citationDisclosure > summary {
+  width: fit-content;
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+.citationDisclosure[open] > summary {
+  margin-bottom: 8px;
+}

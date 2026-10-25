@@ -1,0 +1,12 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import ts from 'typescript';
+const source=await readFile(new URL('../src/features/memora/recording-signal.helpers.ts',import.meta.url),'utf8');
+const compiled=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
+const {recordingSignalState:state,releaseRecordingSignal:release}=await import(`data:text/javascript;base64,${Buffer.from(compiled).toString('base64')}`);
+const live={readyState:'live',muted:false,enabled:true};
+test('paused and inactive never claim active capture',()=>{assert.equal(state('paused',[live],'running',.1,false,0),'paused');assert.equal(state('ready',[live],'running',.1,false,0),'inactive');});
+test('missing, ended, muted, disabled and suspended inputs are distinguished',()=>{assert.equal(state('recording',[],'running',0,false,0),'missing');assert.equal(state('recording',[{...live,readyState:'ended'}],'running',0,false,0),'ended');for(const track of [{...live,muted:true},{...live,enabled:false}])assert.equal(state('recording',[track],'running',0,false,0),'muted');assert.equal(state('recording',[live],'suspended',.1,false,0),'suspended');});
+test('silence requires persistent quiet and clipping is explicit',()=>{assert.equal(state('recording',[live],'running',0,false,3999),'recording');assert.equal(state('recording',[live],'running',0,false,4000),'silence');assert.equal(state('recording',[live],'running',.1,false,5000),'recording');assert.equal(state('recording',[live],'running',.2,true,0),'clipping');});
+test('cleanup cancels own frame, disconnects and closes without stopping parent tracks',async()=>{let cancelled,disconnected=0,closed=0;const context={state:'running',close:async()=>{closed++;}};release(context,[{disconnect(){disconnected++;}},{disconnect(){throw Error('already gone');}}],14,id=>cancelled=id);await Promise.resolve();assert.equal(cancelled,14);assert.equal(disconnected,1);assert.equal(closed,1);assert.doesNotMatch(source,/\.stop\(/);});

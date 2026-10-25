@@ -5,6 +5,7 @@ import { PlaybackTools } from "./playback-tools";
 import { ReportReview } from "./report-review";
 import { SpeakerTools } from "./speaker-tools";
 import { MicrophoneCheck } from "./microphone-check";
+import { RecordingSignal } from "./recording-signal";
 import { segmentAt } from "./playback";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import {
@@ -574,7 +575,7 @@ function MeetingContent({
     version: number;
     segments: Segment[];
   } | null>(null);
-  const transcriptPanel = useRef<HTMLElement>(null);
+  const transcriptPanel = useRef<HTMLDivElement>(null);
   const [renaming, setRenaming] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [retranscriptionLanguage, setRetranscriptionLanguage] = useState<
@@ -696,11 +697,21 @@ function MeetingContent({
   ]);
   useEffect(() => {
     if (selectedStart === null || tab !== "transcript") return;
-    const frame = requestAnimationFrame(() =>
-      transcriptPanel.current
-        ?.querySelector<HTMLElement>(`[data-segment-start="${selectedStart}"]`)
-        ?.scrollIntoView({ behavior: "smooth", block: "center" }),
-    );
+    const frame = requestAnimationFrame(() => {
+      const panel = transcriptPanel.current;
+      const passage = panel?.querySelector<HTMLElement>(
+        `[data-segment-start="${selectedStart}"]`,
+      );
+      if (panel && passage)
+        panel.scrollTo({
+          top:
+            panel.scrollTop +
+            passage.getBoundingClientRect().top -
+            panel.getBoundingClientRect().top -
+            (panel.clientHeight - passage.clientHeight) / 2,
+          behavior: "smooth",
+        });
+    });
     return () => cancelAnimationFrame(frame);
   }, [selectedStart, tab, meeting?.version, historicalTranscript]);
   async function action(path: string, method = "POST", body?: unknown) {
@@ -1050,7 +1061,7 @@ function MeetingContent({
               </section>
             )}
           {currentTab === "transcript" && (
-            <section ref={transcriptPanel} className={s.card}>
+            <section className={`${s.card} ${s.transcriptCard}`}>
               <div className={s.row}>
                 <h2>
                   Transcription{" "}
@@ -1072,244 +1083,262 @@ function MeetingContent({
                     </button>
                   )}
               </div>
-              {meeting.version > 0 && (
-                <label className={s.field}>
-                  <span>{tr("Version de la transcription")}</span>
-                  <select
-                    className={s.select}
-                    value={viewedTranscriptVersion}
-                    onChange={(e) =>
-                      setSelectedTranscriptVersion(
-                        Number(e.target.value) === meeting.version
-                          ? null
-                          : Number(e.target.value),
-                      )
-                    }
-                  >
-                    <option value={meeting.version}>
-                      v{meeting.version} · {tr("Courante")}
-                    </option>
-                    {(meeting.transcript_versions || [])
-                      .filter((v) => v.version !== meeting.version)
-                      .map((v) => (
-                        <option value={v.version} key={v.version}>
-                          v{v.version} · {tr("Historique")} ·{" "}
-                          {new Date(v.created).toLocaleString("fr-FR")}
-                        </option>
-                      ))}
-                  </select>
-                </label>
-              )}
-              {isHistoricalTranscript && (
-                <div className={s.notice}>
-                  {tr(
-                    "Version historique en lecture seule. Les corrections s’effectuent uniquement sur la transcription courante.",
-                  )}
-                </div>
-              )}
-              {isHistoricalTranscript &&
-                historicalTranscript?.version !== viewedTranscriptVersion && (
-                  <p className={s.muted}>
-                    {tr("Chargement de la transcription historique…")}
-                  </p>
+              <div
+                ref={transcriptPanel}
+                className={s.transcriptScroll}
+                role="region"
+                tabIndex={0}
+                aria-label={
+                  language === "en"
+                    ? "Transcript content"
+                    : "Contenu de la transcription"
+                }
+              >
+                {meeting.version > 0 && (
+                  <label className={s.field}>
+                    <span>{tr("Version de la transcription")}</span>
+                    <select
+                      className={s.select}
+                      value={viewedTranscriptVersion}
+                      onChange={(e) =>
+                        setSelectedTranscriptVersion(
+                          Number(e.target.value) === meeting.version
+                            ? null
+                            : Number(e.target.value),
+                        )
+                      }
+                    >
+                      <option value={meeting.version}>
+                        v{meeting.version} · {tr("Courante")}
+                      </option>
+                      {(meeting.transcript_versions || [])
+                        .filter((v) => v.version !== meeting.version)
+                        .map((v) => (
+                          <option value={v.version} key={v.version}>
+                            v{v.version} · {tr("Historique")} ·{" "}
+                            {new Date(v.created).toLocaleString("fr-FR")}
+                          </option>
+                        ))}
+                    </select>
+                  </label>
                 )}
-              {meeting.diarization && !isHistoricalTranscript && (
-                <div className={s.notice}>
-                  {language === "en"
-                    ? "Speakers estimated locally; no identity inferred. Simultaneous speech is not separated."
-                    : "Intervenants estimés localement ; aucune identité déduite. Les paroles simultanées ne sont pas séparées."}
-                  {meeting.diarization.warnings?.map((warning, index) => (
-                    <p key={index}>{tr(warning)}</p>
-                  ))}
-                </div>
-              )}
-              {canEdit &&
-                !isHistoricalTranscript &&
-                !editing &&
-                meeting.segments.length > 0 && (
-                  <SpeakerTools
-                    key={`speakers:${meeting.version}`}
-                    segments={meeting.segments}
-                    version={meeting.version}
-                    guest={!!access.token}
+                {isHistoricalTranscript && (
+                  <div className={s.notice}>
+                    {tr(
+                      "Version historique en lecture seule. Les corrections s’effectuent uniquement sur la transcription courante.",
+                    )}
+                  </div>
+                )}
+                {isHistoricalTranscript &&
+                  historicalTranscript?.version !== viewedTranscriptVersion && (
+                    <p className={s.muted}>
+                      {tr("Chargement de la transcription historique…")}
+                    </p>
+                  )}
+                {meeting.diarization && !isHistoricalTranscript && (
+                  <div className={s.notice}>
+                    {language === "en"
+                      ? "Speakers estimated locally; no identity inferred. Simultaneous speech is not separated."
+                      : "Intervenants estimés localement ; aucune identité déduite. Les paroles simultanées ne sont pas séparées."}
+                    {meeting.diarization.warnings?.map((warning, index) => (
+                      <p key={index}>{tr(warning)}</p>
+                    ))}
+                  </div>
+                )}
+                {canEdit &&
+                  !isHistoricalTranscript &&
+                  !editing &&
+                  meeting.segments.length > 0 && (
+                    <SpeakerTools
+                      key={`speakers:${meeting.version}`}
+                      segments={meeting.segments}
+                      version={meeting.version}
+                      guest={!!access.token}
+                      english={language === "en"}
+                      canSeparate={!!canAudio}
+                      busy={
+                        busy ||
+                        ["queued", "transcribing", "analyzing"].includes(
+                          meeting.state,
+                        )
+                      }
+                      run={action}
+                    />
+                  )}
+                {canAudio && audioUrl && (
+                  <PlaybackTools
+                    key={`${audioUrl}:${viewedTranscriptVersion}`}
+                    getAudio={getAudio}
+                    segments={viewedSegments}
+                    selectedStart={selectedStart}
+                    onPosition={setPlaybackTime}
                     english={language === "en"}
-                    canSeparate={!!canAudio}
-                    busy={
-                      busy ||
-                      ["queued", "transcribing", "analyzing"].includes(
-                        meeting.state,
-                      )
-                    }
-                    run={action}
                   />
                 )}
-              {canAudio && audioUrl && (
-                <PlaybackTools
-                  key={`${audioUrl}:${viewedTranscriptVersion}`}
-                  getAudio={getAudio}
-                  segments={viewedSegments}
-                  selectedStart={selectedStart}
-                  onPosition={setPlaybackTime}
-                  english={language === "en"}
-                />
-              )}
-              {editing && !isHistoricalTranscript ? (
-                <>
-                  {access.token && (
-                    <label className={s.field}>
-                      <span>{tr("Votre nom (éditeur invité)")}</span>
-                      <input
-                        required
-                        minLength={2}
-                        className={s.input}
-                        value={editorName}
-                        onChange={(e) => setEditorName(e.target.value)}
-                      />
-                    </label>
-                  )}
-                  <p className={s.muted}>
-                    {tr(
-                      "Les corrections créent une nouvelle version. Les anciennes analyses sont conservées.",
-                    )}
-                  </p>
-                  {segments.map((seg, i) => (
-                    <div
-                      key={seg.id}
-                      data-segment-start={seg.start}
-                      className={`${s.segment} ${activeSegmentId === seg.id ? s.selectedSegment : ""}`}
-                    >
-                      {canAudio && (
-                        <button
-                          className={s.time}
-                          onClick={() => seek(seg.start, editVersion)}
-                        >
-                          {clock(seg.start)} → {clock(seg.end)}
-                        </button>
-                      )}
+                {editing && !isHistoricalTranscript ? (
+                  <>
+                    {access.token && (
                       <label className={s.field}>
-                        <span>
-                          {tr("Intervenant ·")}
-                          {clock(seg.start)}
-                        </span>
+                        <span>{tr("Votre nom (éditeur invité)")}</span>
                         <input
-                          aria-label={`Intervenant ${i + 1}`}
+                          required
+                          minLength={2}
                           className={s.input}
-                          value={seg.speaker || ""}
+                          value={editorName}
+                          onChange={(e) => setEditorName(e.target.value)}
+                        />
+                      </label>
+                    )}
+                    <p className={s.muted}>
+                      {tr(
+                        "Les corrections créent une nouvelle version. Les anciennes analyses sont conservées.",
+                      )}
+                    </p>
+                    {segments.map((seg, i) => (
+                      <div
+                        key={seg.id}
+                        data-segment-start={seg.start}
+                        className={`${s.segment} ${activeSegmentId === seg.id ? s.selectedSegment : ""}`}
+                      >
+                        {canAudio && (
+                          <button
+                            className={s.time}
+                            onClick={() => seek(seg.start, editVersion)}
+                          >
+                            {clock(seg.start)} → {clock(seg.end)}
+                          </button>
+                        )}
+                        <label className={s.field}>
+                          <span>
+                            {tr("Intervenant ·")}
+                            {clock(seg.start)}
+                          </span>
+                          <input
+                            aria-label={`Intervenant ${i + 1}`}
+                            className={s.input}
+                            value={seg.speaker || ""}
+                            onChange={(e) =>
+                              setSegments(
+                                segments.map((v, j) =>
+                                  i === j
+                                    ? { ...v, speaker: e.target.value }
+                                    : v,
+                                ),
+                              )
+                            }
+                          />
+                        </label>
+                        <textarea
+                          aria-label={`Passage ${i + 1}`}
+                          className={s.textarea}
+                          value={seg.text}
                           onChange={(e) =>
                             setSegments(
                               segments.map((v, j) =>
-                                i === j ? { ...v, speaker: e.target.value } : v,
+                                i === j ? { ...v, text: e.target.value } : v,
                               ),
                             )
                           }
                         />
-                      </label>
-                      <textarea
-                        aria-label={`Passage ${i + 1}`}
-                        className={s.textarea}
-                        value={seg.text}
-                        onChange={(e) =>
-                          setSegments(
-                            segments.map((v, j) =>
-                              i === j ? { ...v, text: e.target.value } : v,
-                            ),
-                          )
-                        }
-                      />
-                      {(seg.text !== meeting.segments[i]?.text ||
-                        seg.speaker !== meeting.segments[i]?.speaker) && (
-                        <details className={s.notice}>
-                          <summary>
-                            {language === "en"
-                              ? "Compare this correction"
-                              : "Comparer cette correction"}
-                          </summary>
-                          <p>
-                            <strong>
-                              {language === "en" ? "Before:" : "Avant :"}
-                            </strong>{" "}
-                            {meeting.segments[i]?.speaker}
-                            <br />
-                            <del>{meeting.segments[i]?.text}</del>
-                          </p>
-                          <p>
-                            <strong>
-                              {language === "en" ? "After:" : "Après :"}
-                            </strong>{" "}
-                            {seg.speaker}
-                            <br />
-                            <ins>{seg.text}</ins>
-                          </p>
-                        </details>
-                      )}
-                    </div>
-                  ))}
-                  <div className={s.actions}>
-                    <button
-                      className={primary}
-                      disabled={
-                        busy || (!!access.token && editorName.trim().length < 2)
-                      }
-                      onClick={async () => {
-                        if (
-                          await action("/transcript", "PUT", {
-                            version: editVersion,
-                            segments,
-                            ...(access.token
-                              ? { editor_name: editorName }
-                              : {}),
-                          })
-                        )
-                          setEditing(false);
-                      }}
-                    >
-                      {tr("Enregistrer les corrections")}
-                    </button>
-                    <button className={btn} onClick={() => setEditing(false)}>
-                      {tr("Annuler")}
-                    </button>
-                  </div>
-                </>
-              ) : (
-                viewedSegments.map((seg) => (
-                  <div
-                    data-segment-start={seg.start}
-                    className={`${s.segment} ${selectedStart === seg.start || activeSegmentId === seg.id ? s.selectedSegment : ""}`}
-                    key={seg.id}
-                  >
+                        {(seg.text !== meeting.segments[i]?.text ||
+                          seg.speaker !== meeting.segments[i]?.speaker) && (
+                          <details className={s.notice}>
+                            <summary>
+                              {language === "en"
+                                ? "Compare this correction"
+                                : "Comparer cette correction"}
+                            </summary>
+                            <p>
+                              <strong>
+                                {language === "en" ? "Before:" : "Avant :"}
+                              </strong>{" "}
+                              {meeting.segments[i]?.speaker}
+                              <br />
+                              <del>{meeting.segments[i]?.text}</del>
+                            </p>
+                            <p>
+                              <strong>
+                                {language === "en" ? "After:" : "Après :"}
+                              </strong>{" "}
+                              {seg.speaker}
+                              <br />
+                              <ins>{seg.text}</ins>
+                            </p>
+                          </details>
+                        )}
+                      </div>
+                    ))}
                     <div className={s.actions}>
                       <button
-                        className={s.time}
-                        onClick={() => seek(seg.start, viewedTranscriptVersion)}
+                        className={primary}
+                        disabled={
+                          busy ||
+                          (!!access.token && editorName.trim().length < 2)
+                        }
+                        onClick={async () => {
+                          if (
+                            await action("/transcript", "PUT", {
+                              version: editVersion,
+                              segments,
+                              ...(access.token
+                                ? { editor_name: editorName }
+                                : {}),
+                            })
+                          )
+                            setEditing(false);
+                        }}
                       >
-                        {clock(seg.start)} → {clock(seg.end)}
+                        {tr("Enregistrer les corrections")}
                       </button>
-                      <strong>
-                        {seg.speaker || tr("Intervenant non identifié")}
-                      </strong>
-                      {seg.speaker_uncertain && (
-                        <span className={s.badge}>
-                          {language === "en"
-                            ? "Speaker to verify"
-                            : "Intervenant à vérifier"}
-                        </span>
-                      )}
-                      {seg.language && <SegmentLanguage segment={seg} />}
-                      {seg.uncertain && (
-                        <span className={s.badge}>
-                          {tr("Passage incertain")}
-                        </span>
-                      )}
+                      <button className={btn} onClick={() => setEditing(false)}>
+                        {tr("Annuler")}
+                      </button>
                     </div>
-                    <p>{seg.text}</p>
-                  </div>
-                ))
-              )}
-              {!meeting.segments?.length && !meeting.live_segments?.length && (
-                <p className={s.muted}>
-                  {tr("Les passages apparaîtront après transcription.")}
-                </p>
-              )}
+                  </>
+                ) : (
+                  viewedSegments.map((seg) => (
+                    <div
+                      data-segment-start={seg.start}
+                      className={`${s.segment} ${selectedStart === seg.start || activeSegmentId === seg.id ? s.selectedSegment : ""}`}
+                      key={seg.id}
+                    >
+                      <div className={s.actions}>
+                        <button
+                          className={s.time}
+                          onClick={() =>
+                            seek(seg.start, viewedTranscriptVersion)
+                          }
+                        >
+                          {clock(seg.start)} → {clock(seg.end)}
+                        </button>
+                        <strong>
+                          {seg.speaker || tr("Intervenant non identifié")}
+                        </strong>
+                        {seg.speaker_uncertain && (
+                          <span className={s.badge}>
+                            {language === "en"
+                              ? "Speaker to verify"
+                              : "Intervenant à vérifier"}
+                          </span>
+                        )}
+                        {seg.language && <SegmentLanguage segment={seg} />}
+                        {seg.uncertain && (
+                          <span className={s.badge}>
+                            {tr("Passage incertain")}
+                          </span>
+                        )}
+                      </div>
+                      <p>{seg.text}</p>
+                    </div>
+                  ))
+                )}
+                {!meeting.segments?.length &&
+                  !meeting.live_segments?.length && (
+                    <p className={s.muted}>
+                      {tr("Les passages apparaîtront après transcription.")}
+                    </p>
+                  )}
+              </div>
             </section>
           )}
         </div>
@@ -1536,16 +1565,17 @@ function ReportView({
       <div style={{ whiteSpace: "pre-wrap" }}>
         {Array.isArray(data.summary)
           ? data.summary.map((item, i) => (
-              <p key={i}>
-                {item.text}
+              <div key={i}>
+                <p>{reportNarrative(item.text)}</p>
                 <Citations
+                  collapsed
                   ids={item.sources || []}
                   historical={historical}
                   sourceVersion={report.version}
                   segments={segments}
                   seek={seek}
                 />
-              </p>
+              </div>
             ))
           : data.summary}
       </div>
@@ -1567,7 +1597,9 @@ function ReportView({
                     item
                   ) : (
                     <>
-                      {item.text}
+                      {sectionIndex === 0
+                        ? reportNarrative(item.text)
+                        : item.text}
                       {sectionIndex === 2 && item.owner && (
                         <div className={s.muted}>
                           {tr("Responsable :")}
@@ -1581,6 +1613,7 @@ function ReportView({
                         </div>
                       )}
                       <Citations
+                        collapsed={sectionIndex === 0}
                         ids={item.sources || []}
                         historical={historical}
                         sourceVersion={report.version}
@@ -1635,7 +1668,15 @@ function ReportView({
     </>
   );
 }
+function reportNarrative(text: string) {
+  // Hide only the generated chronological label, never a date in the claim.
+  return text.replace(
+    /^(?:À \d{2,}:\d{2} dans la réunion : |At \d{2,}:\d{2} in the meeting: )/,
+    "",
+  );
+}
 function Citations({
+  collapsed = false,
   sourceVersion,
   historical = false,
   ids,
@@ -1643,12 +1684,16 @@ function Citations({
   seek,
 }: {
   ids: string[];
+  collapsed?: boolean;
   historical?: boolean;
   sourceVersion?: number;
   segments: Segment[];
   seek: (start: number, sourceVersion?: number) => void;
 }) {
-  return (
+  const tr = useMemoraText();
+  if (!ids.some((id) => segments.some((segment) => segment.id === id)))
+    return null;
+  const links = (
     <div className={s.actions}>
       {ids.map((id) => {
         const segment = segments.find((v) => v.id === id);
@@ -1666,6 +1711,14 @@ function Citations({
         ) : null;
       })}
     </div>
+  );
+  return collapsed ? (
+    <details className={s.citationDisclosure}>
+      <summary>{tr("Sources")}</summary>
+      {links}
+    </details>
+  ) : (
+    links
   );
 }
 function Chat({
@@ -1827,6 +1880,7 @@ function Recorder({
 }) {
   const tr = useMemoraText();
   const { language } = useI18n();
+  const [captureStream, setCaptureStream] = useState<MediaStream | null>(null);
   const [selectedDeviceId, setSelectedDeviceId] = useState("");
   const [microphoneTestActive, setMicrophoneTestActive] = useState(false);
   const [state, setState] = useState("idle"),
@@ -2052,6 +2106,7 @@ function Recorder({
       };
       media.onstop = () => {
         active.current = false;
+        setCaptureStream(null);
         stream.current?.getTracks().forEach((t) => t.stop());
       };
       await api(`meetings/${meeting.id}`, {
@@ -2063,11 +2118,13 @@ function Recorder({
         }),
       });
       media.start(10000);
+      setCaptureStream(stream.current);
       active.current = true;
       lastTick.current = Date.now();
       changeState("recording");
     } catch (e) {
       stream.current?.getTracks().forEach((t) => t.stop());
+      setCaptureStream(null);
       setError((e as Error).message);
     }
   }
@@ -2225,6 +2282,13 @@ function Recorder({
           {state === "recording" && <span className={s.pulse} />}{" "}
           {clock(elapsed)}
         </div>
+      )}
+      {captureStream && ["recording", "paused"].includes(state) && (
+        <RecordingSignal
+          stream={captureStream}
+          state={state}
+          language={language === "en" ? "en" : "fr"}
+        />
       )}
       {meeting.mode === "import" && (selectedFile || meeting.filename) && (
         <div className={s.notice} style={{ overflowWrap: "anywhere" }}>

@@ -1,6 +1,16 @@
 # Memora — état de reprise
 
-Mis à jour 2026-10-25 10:32 UTC, Africa/Ouagadougou. Livraison locale V1 et jalon supplémentaire de précision intégrés. Commits locaux autorisés par l’utilisateur après livraison ; aucun push, achat, déploiement public ou email réel. Lire AGENTS.md → agents/README.md → ce fichier, puis uniquement les preuves utiles. Les notes/fichiers actuels priment sur les anciens points de reprise.
+Mis à jour 2026-10-25 11:13 UTC, Africa/Ouagadougou. Livraison locale V1 et jalon supplémentaire de précision intégrés. Commits locaux autorisés par l’utilisateur après livraison ; aucun push, achat, déploiement public ou email réel. Lire AGENTS.md → agents/README.md → ce fichier, puis uniquement les preuves utiles. Les notes/fichiers actuels priment sur les anciens points de reprise.
+
+## Correctifs après V1.1 — livrés localement
+
+Transcription bornée avec défilement interne et titre/correction fixes ; résumé/sujets avec Sources repliées, citations directes pour décisions/actions/questions ; forme d’onde/niveau/crête et états audio pendant capture ; outils intervenants/lecture refondus en surfaces neutres et disposition compacte responsive. Aucun nouveau getUserMedia dans le visualiseur ; il ne stoppe pas les pistes du Recorder.
+
+Français final maintenant **Whisper Turbo conditionné language=fr/task=transcribe**, après diagnostic de Parakeet incapable de contraindre la langue. Le symptôme personnel de traduction n’a pas été reproduit sur4cas synthétiques×3moteurs. Comparaison24profils déjà consommés : Turbo15,52% WER numérique, Full15,71%, Parakeet6,70% non contraint. Compromis explicite, pas90% général ; modèles conservés, aucun retraitement personnel automatique. Handoffs asr-language-drift-diagnostic.md et whisper-forced-fr-reserve-v3.md.
+
+Vérifications :22tests routage/adaptateur backend +17préparation PASS ;22helpers frontend PASS ;8contrôles Chromium WebAudio/MediaRecorder synthétiques PASS ;19recette navigateur avec capture/live/pause/reprise/français réel et9auditUI PASS (environ108s, services isolés). Lint/types/build/Ruff PASS. Première tentative browser arrêtée par assertion trop précoce de niveau, corrigée par attente bornée sans affaiblir >0. Layout transcription/rapport validé4vues ; outils refondus validés4vues avec CSS WorkspaceFrame réel. Microphone physique, Safari/iOS non testés. Logs locaux exclus Git.
+
+Activation main : zérojob actif/aucuneécritureaudio récente, config privée sauvegardée puis seule cléFrenchengine changée. Services Memora redémarrés, Ollama intact ;4HTTP200. Empreintes de toutes tables domaine inchangées, intégritéSQLiteOK,0jobs. Preuve privée .memora/ui-language-activation.json. Services prêts sur http://127.0.0.1:3000 ; actualiser la page. Ne pas retraiter les réunions existantes sans action utilisateur. Prochaine action utilisateur : actualiser la page puis essai volontaire. Livraison versionnée localement sans coauteur, aucun push.
 
 ## V1.1 — confiance et correction livrées localement
 
@@ -16,11 +26,11 @@ Activation main terminée après0jobs/aucuneécritureaudio récente, sauvegardes
 
 UI http://127.0.0.1:3000 ; API8080 ; SMTP1025/capture8025 ; Ollama11434, tous locaux. Après activation, les quatre services HTTP200. Production désigne ici le build Next optimisé, pas un déploiement ni une qualification production.
 
-Configuration existante sauvegardée en privé puis deux clés activées : MEMORA_FRENCH_ASR_ENGINE=parakeet-mlx et chemin Parakeet local. Français final ParakeetTDT0.6Bv3 ; direct/anglais/auto-bilingue Whisper large-v3-turbo ; analyse/chat Gemma4:e4b existant. Aucun modèle Ollama remplacé/supprimé/téléchargé. Modèles épinglés/SHA/licences dans docs/MEMORA.md et téléchargeurs versionnés. Dépendances uv verrouillées, sept ajouts sans upgrade des dépendances existantes.
+Configuration actuelle : MEMORA_FRENCH_ASR_ENGINE=mlx-whisper. Français final Whisper large-v3-turbo conditionné fr/transcribe ; direct/anglais/auto-bilingue Whisper large-v3-turbo. ParakeetTDT0.6Bv3 reste installé comme option non contrainte ; analyse/chat Gemma4:e4b existant. Aucun modèle Ollama remplacé/supprimé/téléchargé. Modèles épinglés/SHA/licences dans docs/MEMORA.md et téléchargeurs versionnés. Dépendances uv verrouillées, sept ajouts sans upgrade des dépendances existantes.
 
 Activation : zéro job actif, aucune capture/import récente ; configuration sauvegardée0600, redémarrage local. Intégrité SQLite OK et mêmes nombres de réunions/transcriptions/rapports/partages/fragments avant-après. Aucune réunion personnelle retranscrite/régénérée automatiquement. Preuve privée .memora/accuracy-activation.json, sans contenu de réunions dans les notes.
 
-## Preuves de précision et limites
+## Preuves de précision historiques et limites
 
 ASR réserve indépendante v3 :148 inférences réelles,12 sources inédites avant inférence, six conditions+deux négatifs. WER numérique propre global6,07→4,05%, français10,34→4,60%, anglais4,55% et mixte2,78% inchangés. Bruit10 reste10,93%, échos10,93% ; noms propres imparfaits, pas90% universel. Référence privée utilisateur reformulée/partielle : copie locale testée qualitativement, aucun WER personnel valide. Audio/copie/résultats privés restent hors notes/logs. Voir handoffs/accuracy-reserve-v3.md et accuracy-long-fr.md (95s,4,21% WERnum, quatre fenêtres, noms encore erronés).
 

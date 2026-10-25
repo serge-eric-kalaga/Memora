@@ -1,0 +1,46 @@
+.signal {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px;
+  background: var(--surface, #f6faf9);
+  margin-block: 12px;
+  min-width: 0;
+}
+.heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 0.86rem;
+}
+.heading span {
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+.wave {
+  display: block;
+  width: 100%;
+  height: 56px;
+}
+.meter {
+  display: block;
+  width: 100%;
+  height: 10px;
+  accent-color: #7c83ff;
+}
+.signal p {
+  font-size: 0.76rem;
+  line-height: 1.5;
+  margin: 8px 0 0;
+  color: var(--muted);
+}
+.signal button {
+  margin-top: 10px;
+  border: 1px solid #387d78;
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: var(--surface);
+  color: inherit;
+  cursor: pointer;
+}

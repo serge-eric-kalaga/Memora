@@ -75,3 +75,31 @@ def test_parakeet_failure_releases_shared_inference_lock(monkeypatch):
     with pytest.raises(RuntimeError, match="Synthetic unavailable"):
         ai.transcribe(Path("synthetic.wav"), language="fr")
     assert not guard.locked()
+
+
+@pytest.mark.parametrize("tail", [None, 120])
+def test_explicit_french_language_conditioned_route_uses_same_language_live_and_final(
+    monkeypatch, tail
+):
+    monkeypatch.setenv("MEMORA_ASR_ENGINE", "mlx-whisper")
+    monkeypatch.setenv("MEMORA_LIVE_ASR_ENGINE", "mlx-whisper")
+    monkeypatch.setenv("MEMORA_FRENCH_ASR_ENGINE", "mlx-whisper")
+    calls = []
+    monkeypatch.setattr(
+        asr_mlx,
+        "transcribe",
+        lambda path, **kwargs: (
+            calls.append(kwargs)
+            or [{"language": "fr", "language_scope": "forced", "text": "Bonjour"}]
+        ),
+    )
+    monkeypatch.setattr(
+        asr_parakeet,
+        "transcribe",
+        lambda *args, **kwargs: pytest.fail(
+            "French unexpectedly routed to an unconstrained decoder"
+        ),
+    )
+    result = ai.transcribe(Path("synthetic.wav"), tail_seconds=tail, language="fr")
+    assert result[0]["language_scope"] == "forced"
+    assert calls == [{"language": "fr", "tail_seconds": tail}]

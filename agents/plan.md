@@ -31,3 +31,14 @@ Le seuil général90% n’est pas acquis : résultats synthétiques bornés, nom
 5. Tests backend/frontend, recette navigateur isolée, activation locale prudente et commits sans coauteur.
 
 FinV1.1 : les cinq jalons ci-dessus sont intégrés/vérifiés ; détails testing/state. Activation007 préserve les sources et0jobs/HTTP200, commitlocal sanscoauteur autorisé. Limitesvoixnaturelles/overlap/production maintenues.
+
+
+## Correctifs après V1.1
+
+1. Transcription bornée et citations essentielles : implémentés, preuve layout4vues obtenue.
+2. Choix FR : diagnostic synthétique et comparaison26inférences Full terminés ; route conditionnée Turbo retenue, testsprépa/routagePASS.
+3. Signal capture : WebAudio existant, aucun nouveau getUserMedia,8contrôlesmontésPASS ; recette Recorder isolée PASS.
+4. Outils intervenants/lecture : refonte neutre et responsive, buildPASS, validation visuelle4vues WorkspaceFrame PASS.
+5. Fin : recette isolée, garde traitements/capture avant redémarrage, activer config locale, vérifier intégrité/services et commit sans coauteur.
+
+Clôture : activation locale effectuée après garde0jobs/aucun audio récent ; empreintes domaine inchangées, intégritéOK et4HTTP200. Aucun audio personnel retraité. Commit local sans coauteur, aucun push.

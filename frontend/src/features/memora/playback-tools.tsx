@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { adjacentSegment, loopRange, segmentAt } from "./playback";
 import type { Segment } from "./api";
-import s from "./memora.module.css";
+import s from "./transcript-tools.module.css";
 
 export function PlaybackTools({
   getAudio,
@@ -139,7 +139,7 @@ export function PlaybackTools({
   return (
     <div
       role="group"
-      className={s.notice}
+      className={s.playback}
       aria-label={
         english
           ? "Transcription playback tools"
@@ -192,7 +192,7 @@ export function PlaybackTools({
               ? "Loop passage"
               : "Écouter le passage en boucle"}
         </button>
-        <label>
+        <label className={s.speed}>
           {english ? "Speed" : "Vitesse"}{" "}
           <select
             className={s.select}
@@ -211,12 +211,16 @@ export function PlaybackTools({
           </select>
         </label>
       </div>
-      <small>
+      <small className={s.shortcuts}>
         {english
           ? "While this toolbar is focused: Alt + ← / → changes passage; Alt + Space plays or pauses."
           : "Dans cette barre : Alt + ← / → change de passage ; Alt + Espace lance ou suspend la lecture."}
       </small>
-      {message && <p role="status">{message}</p>}
+      {message && (
+        <p className={s.status} role="status">
+          {message}
+        </p>
+      )}
     </div>
   );
 }

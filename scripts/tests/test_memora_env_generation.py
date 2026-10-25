@@ -31,13 +31,13 @@ def values(path):
     }
 
 
-def test_new_darwin_arm_uses_distinct_french_final_model(tmp_path):
+def test_new_darwin_arm_uses_language_conditioned_french_route(tmp_path):
     folder = tmp_path / "project with spaces"
     folder.mkdir()
     path = run_copy(folder, "Darwin", "arm64")
     env = values(path)
     assert env["MEMORA_ASR_ENGINE"] == env["MEMORA_LIVE_ASR_ENGINE"] == "mlx-whisper"
-    assert env["MEMORA_FRENCH_ASR_ENGINE"] == "parakeet-mlx"
+    assert env["MEMORA_FRENCH_ASR_ENGINE"] == "mlx-whisper"
     assert env["MEMORA_PARAKEET_MODEL_PATH"] == str(
         folder / ".memora/models/parakeet-v3"
     )

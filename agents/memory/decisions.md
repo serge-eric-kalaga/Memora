@@ -57,3 +57,10 @@ La référence personnelle fournie est reformulée : mesureWER invalide, ne pas 
 - Analyse multi-lots V12 : existence initiale d’une tâche séparée de son évolution temporelle ; confirmations/refus/citations ne valent pas annulation. IDs source contraints au lieu d’extraits recopiés. Veto conservateur et marquage À vérifier si suppression non étayée. Résumés chronologiques préservent historique ; pas promesse de réduction illimitée. Résidu doublon de décision assumé/documenté.
 - Activation après sauvegarde privée/garde0jobs/aucunecapture récente ; redémarrage local, intégrité/comptages inchangés etHTTP200. Aucun retraitement automatique ni référence personnelle ajustée pour obtenir un score.
 - Preuves séparées : recette55contrôles chargéeV11 sur parcours court/ASR ; backendfinal242tests et fusionréelle ciblée/fullV12. Ne pas attribuer rétroactivement55contrôles au codeV12 ni prétendre90% universel.
+
+
+### 25 octobre — choix français et indicateurs de capture
+
+Le mode français final revient à Whisper Turbo conditionné `fr` en tâche `transcribe`. Parakeet est plus précis sur la réserve synthétique testée, mais ne peut contraindre la langue ; le choix explicite utilisateur doit atteindre un paramètre de décodage réel. Full conditionné n’améliore pas le WER global et coûte davantage ; certains noms sont néanmoins mieux reconnus. Aucun correcteur/traducteur LLM silencieux ajouté, aucun audio personnel retraité automatiquement.
+
+Visualisation de capture dérivée du flux MediaRecorder existant, sans deuxième acquisition microphone ni propriété des pistes ; nettoyage limité aux nœuds/contexte du visualiseur. Le niveau n’atteste pas la sauvegarde des fragments. Transcription bornée et sources du résumé/sujets repliables, citations essentielles conservées. Outils intervenants/lecture : surfaces neutres et disposition compacte adaptative, contrôles de sécurité inchangés.

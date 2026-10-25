@@ -120,28 +120,28 @@
   width: 100%;
   margin-bottom: 10px;
 }
-:global(.dark) .panel {
+:global([data-theme="dark"]) .panel {
   background: #211e34;
   color: #efecff;
   border-color: #45405d;
 }
-:global(.dark) .help {
+:global([data-theme="dark"]) .help {
   color: #bdb6d3;
 }
-:global(.dark) .select,
-:global(.dark) .button {
+:global([data-theme="dark"]) .select,
+:global([data-theme="dark"]) .button {
   background: #2d2942;
   color: #efecff;
   border-color: #655a83;
 }
-:global(.dark) .monitor,
-:global(.dark) .sample {
+:global([data-theme="dark"]) .monitor,
+:global([data-theme="dark"]) .sample {
   border-color: #45405d;
 }
-:global(.dark) .warning {
+:global([data-theme="dark"]) .warning {
   color: #f0c571;
 }
-:global(.dark) .error {
+:global([data-theme="dark"]) .error {
   background: #492733;
   color: #ffc8d3;
 }

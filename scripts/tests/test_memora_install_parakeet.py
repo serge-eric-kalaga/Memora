@@ -17,6 +17,8 @@ INSTALLER = Path(__file__).resolve().parents[1] / "memora-install.sh"
         ("mlx-whisper", "", 0),
         ("mlx-whisper", "parakeet-mlx", 1),
         ("parakeet-mlx", "parakeet-mlx", 1),
+        ("mlx-whisper", "mlx-whisper", 0),
+        ("parakeet-mlx", "mlx-whisper", 1),
     ],
 )
 def test_optional_model_install_branch_and_quoted_target(
@@ -78,3 +80,10 @@ if sys.argv[1:2]==['-c']:
             "--target",
             env["TEST_TARGET"],
         ]
+
+    turbo_downloads = [
+        call for call in calls if call and call[0] == "scripts/memora-download-mlx.py"
+    ]
+    assert len(turbo_downloads) == (
+        1 if primary == "mlx-whisper" or french == "mlx-whisper" else 0
+    )

@@ -72,3 +72,14 @@ Les seuils universels90% (toutes voix, noms, bruit, analyse) ne sont pas acquis 
 | Renommage global versionné | speakers/rename, transcript_edits, SpeakerTools |Source et timestamps conservés, anciennesversions ; unknownexigeconfirmation ; testsbackend etAPIréellePASS, browserPASS. |
 | Séparation acoustique locale réelle | diarization.py Resemblyzer/Silero/AHC ; workerjobversionné etendpoint |Corpus synthétique7cas+réserve4 ; nouvellevoix18/18segments, DERbruit12,37% ;15testsmodule+6workerPASS ; jobAPIréelPASS. Paschevauchement/identité/2hnaturelles. |
 | Limites ressources et effets externes | CPU2threads1..8/restauration, ai._lock, SHApoids/offline, idempotencephasecomplete |Pipcheck160PASS, poids17Mo vérifiés, pas serviceexterne ni retraitementprivé. Migration007 additive appliquée après recette/gardejobs, empreintes sources inchangées etHTTP200. |
+
+
+## Ajustements demandés après V1.1
+
+| Besoin utilisateur | Code | Preuves/état |
+|---|---|---|
+| Transcription à hauteur bornée et barre de défilement | app.tsx, memora.module.css | Desktop/mobile clair/sombre : titre/correction fixes, citation au segment100 sans déplacer la fenêtre, zéro débordement. |
+| Minutes seulement dans les éléments essentiels | Citations collapsed, reportNarrative dans app.tsx | Résumé/sujets : Sources repliées ; décisions/actions/questions : liens directs ; citations stockées inchangées. Recette layout synthétique PASS. |
+| Français sélectionné transmis au décodeur final | memora-env.py, install.sh, configuration locale ; adaptateur MLX existant |22 tests routage/adaptateur,17 préparation PASS. Whisper Turbo fr/transcribe retenu ; dérive personnelle non reproduite, aucune garantie absolue. Handoffs diagnostic/comparaison. |
+| Niveau et état de l’audio pendant capture | RecordingSignal + Recorder |22 helpers frontend dont signal PASS ;8 tests montés WebAudio/MediaRecorder synthétiques PASS. Recette intégrée19contrôles navigateur +9auditUI PASS ; micro physique non testé. |
+| Refonte bloc intervenants et lecture | speaker-tools.tsx, playback-tools.tsx, transcript-tools.module.css | Lint/types/build PASS ;4 vues composant synthétique clair/sombre desktop/mobile, contrôles sans débordement. Validation4vues avec CSS WorkspaceFrame réel PASS, aucun débordement. |

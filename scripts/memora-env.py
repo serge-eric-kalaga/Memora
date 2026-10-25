@@ -36,7 +36,7 @@ if not env.exists():
         "MEMORA_ASR_ENGINE": asr_engine,
         "MEMORA_LIVE_ASR_ENGINE": asr_engine,
         "MEMORA_MLX_MODEL_PATH": str(data / "models/mlx-large-v3-turbo"),
-        "MEMORA_FRENCH_ASR_ENGINE": "parakeet-mlx" if native_mlx else "",
+        "MEMORA_FRENCH_ASR_ENGINE": "mlx-whisper" if native_mlx else "",
         "MEMORA_PARAKEET_MODEL_PATH": str(data / "models/parakeet-v3")
         if native_mlx
         else "",

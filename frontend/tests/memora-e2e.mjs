@@ -322,6 +322,33 @@ try {
   );
   await page.getByRole("button", { name: "Enregistrer", exact: true }).click();
   await page.getByRole("button", { name: "Pause", exact: true }).waitFor();
+  const recordingSignal = page.getByRole("region", {
+    name: "Signal audio de l’enregistrement",
+    exact: true,
+  });
+  await recordingSignal.waitFor();
+  await recordingSignal
+    .getByText("Signal capté", { exact: true })
+    .waitFor({ timeout: 30000 });
+  // The first "receiving" frame may still contain silence while the fake
+  // device starts. Require a real non-zero measured level, with a bounded wait.
+  await page.waitForFunction(
+    () => {
+      const meter = document.querySelector(
+        '[aria-label="Signal audio de l’enregistrement"] meter[aria-label="Niveau audio capté"]',
+      );
+      return meter instanceof HTMLMeterElement && meter.value > 0;
+    },
+    null,
+    { timeout: 30000 },
+  );
+  assert.ok(
+    Number(
+      await recordingSignal
+        .getByRole("meter", { name: "Niveau audio capté", exact: true })
+        .getAttribute("value"),
+    ) > 0,
+  );
   await page.getByText(/1 fragments confirmés/).waitFor({ timeout: 30000 });
   await page
     .getByRole("heading", { name: /Transcription en direct/ })
@@ -330,6 +357,17 @@ try {
     "Capture synthétique, fragment confirmé et transcription en direct réelle",
   );
   await page.getByRole("button", { name: "Pause", exact: true }).click();
+  await recordingSignal
+    .getByText("Enregistrement en pause", { exact: true })
+    .waitFor();
+  assert.equal(
+    Number(
+      await recordingSignal
+        .getByRole("meter", { name: "Niveau audio capté", exact: true })
+        .getAttribute("value"),
+    ),
+    0,
+  );
   const timer = page.locator('[class*="timer"]').first();
   const paused = await timer.innerText();
   await sleep(2500);
@@ -357,7 +395,9 @@ try {
   pass("Reprise fragments, finalisation et rapport réel après capture");
   if (
     process.env.MEMORA_TEST_ISOLATED === "1" &&
-    process.env.MEMORA_FRENCH_ASR_ENGINE === "parakeet-mlx"
+    ["parakeet-mlx", "mlx-whisper"].includes(
+      process.env.MEMORA_FRENCH_ASR_ENGINE || "",
+    )
   ) {
     await create("Recette française synthétique", "import", "fr");
     await page
@@ -367,14 +407,25 @@ try {
     await page
       .getByRole("button", { name: "Transcription", exact: true })
       .click();
-    const unknown = page
-      .getByText("Langue non déterminée", { exact: true })
-      .first();
-    await unknown.waitFor();
-    assert.match(
-      await unknown.getAttribute("title"),
-      /ne fournit pas de langue détectée/,
-    );
+    if (process.env.MEMORA_FRENCH_ASR_ENGINE === "parakeet-mlx") {
+      const unknown = page
+        .getByText("Langue non déterminée", { exact: true })
+        .first();
+      await unknown.waitFor();
+      assert.match(
+        await unknown.getAttribute("title"),
+        /ne fournit pas de langue détectée/,
+      );
+    } else {
+      const chosen = page
+        .getByText("Langue choisie : français", { exact: true })
+        .first();
+      await chosen.waitFor();
+      assert.match(
+        await chosen.getAttribute("title"),
+        /sans détection propre à ce passage/,
+      );
+    }
     await page.getByRole("button", { name: "Corriger", exact: true }).click();
     await page
       .getByRole("textbox", { name: "Intervenant 1", exact: true })
@@ -383,7 +434,11 @@ try {
       .getByRole("button", { name: "Enregistrer les corrections", exact: true })
       .click();
     await page.getByText(/Le rapport est à actualiser/).waitFor();
-    await page.locator("strong").filter({ hasText: /^Voix synthétique$/ }).first().waitFor();
+    await page
+      .locator("strong")
+      .filter({ hasText: /^Voix synthétique$/ })
+      .first()
+      .waitFor();
     pass(
       "Import français réel, langue non inventée et correction persistée dans le navigateur",
     );
