@@ -1,6 +1,16 @@
 # Memora — état de reprise
 
-Mis à jour 2026-10-25 11:13 UTC, Africa/Ouagadougou. Livraison locale V1 et jalon supplémentaire de précision intégrés. Commits locaux autorisés par l’utilisateur après livraison ; aucun push, achat, déploiement public ou email réel. Lire AGENTS.md → agents/README.md → ce fichier, puis uniquement les preuves utiles. Les notes/fichiers actuels priment sur les anciens points de reprise.
+Mis à jour 2026-10-25 12:20 UTC, Africa/Ouagadougou. Livraison locale V1 et jalon supplémentaire de précision intégrés. Commits locaux autorisés par l’utilisateur après livraison ; aucun push, achat, déploiement public ou email réel. Lire AGENTS.md → agents/README.md → ce fichier, puis uniquement les preuves utiles. Les notes/fichiers actuels priment sur les anciens points de reprise.
+
+## Onde défilante et continuité de capture — livrées localement
+
+Onde historique300pics réels défilant droite→gauche, sans chiffres techniques visibles ; pause figée et reprise conservée. RecordingSignal ne possède pas les pistes. Continuity hook : changement de visibilité sans pause/stop, flush fragment, wake lock écran facultatif et heartbeat30s. Arrêt inattendu marqué interrupted, fragments conservés.
+
+Protection native macOS locale : propriétaire connecté/UID +capture en cours/pause/loopback, caffeinate-i-t120,1bail/compte, release/TTL/shutdown. Empêche la veille automatique inactive du système sans modifier réglagesOS ni empêcher verrouillage/veille manuelle/capot. Pas de garantie de capture pendant vraie suspension matérielle. Backend nonmacOS/Docker/distant : protection native indisponible, fallback écran visible seulement.
+
+Preuves :294backendPASS/3RedisSKIP/1warning préexistant22,37s ;40tests domaine/awake ciblés, RuffPASS ; assertion OS réelle présente puis libérée ;9contrôles onde et4helpersPASS ;7tests hook monté sur vrai WebAudio/MediaRecorder/onglets hidden-visible (41196octets,2flushes), WakeLock et HTTP de bail simulés dans ce test. Recette réelle isolée finale19browser+11auditUI PASS environ108s, services jetables nettoyés. Lint/types/build/OpenAPI/SDKcheckPASS. Handoffs capture-awake-local.md et recording-continuity-browser.md ; logs privés horsGit.
+
+Activation main : garde0jobs/absence audio récent, services redémarrés sur loopback,4HTTP200 ; toutes empreintes domaine inchangées, intégritéOK,0jobs. Preuve privée .memora/capture-continuity-activation.json. Aucun audio personnel retraité ni microphone utilisateur ouvert. Prochaine action utilisateur : actualiser AVANT un nouvel enregistrement puis essai volontaire. Veille physique/capot fermé/microphone physique/Safari-iOS/longue capture naturelle restent non vérifiés ; la protection empêche la veille automatique mais ne promet pas d’enregistrer une machine réellement endormie. Commit local sans coauteur et aucun push.
 
 ## Présentation du rapport — livrée localement
 

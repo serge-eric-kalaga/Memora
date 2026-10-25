@@ -5,6 +5,7 @@ import { PlaybackTools } from "./playback-tools";
 import { ReportReview } from "./report-review";
 import { SpeakerTools } from "./speaker-tools";
 import { MicrophoneCheck } from "./microphone-check";
+import { useRecordingContinuity } from "./use-recording-continuity";
 import { RecordingSignal } from "./recording-signal";
 import { segmentAt } from "./playback";
 import { useI18n } from "@/lib/i18n/use-i18n";
@@ -1932,10 +1933,18 @@ function Recorder({
     stream = useRef<MediaStream | null>(null),
     seq = useRef(meeting.chunk_count || meeting.chunks?.length || 0),
     chain = useRef(Promise.resolve()),
+    stopRequested = useRef(false),
     active = useRef(false),
     lastTick = useRef(0),
     fileInput = useRef<HTMLInputElement>(null),
     importController = useRef<AbortController | null>(null);
+  const sleepProtection = useRecordingContinuity(
+    meeting.id,
+    state,
+    recorder,
+    setWarning,
+    language === "en",
+  );
   const onDurationLimit = useEffectEvent(() =>
     setError(
       tr(
@@ -1960,6 +1969,7 @@ function Recorder({
             );
           if (next >= (meeting.settings?.max_duration_minutes || 120) * 60) {
             active.current = false;
+            stopRequested.current = true;
             if (recorder.current && recorder.current.state !== "inactive")
               recorder.current.stop();
             queueMicrotask(() => {
@@ -1972,22 +1982,13 @@ function Recorder({
     }, 1000);
     return () => {
       clearInterval(timer);
+      stopRequested.current = true;
       active.current = false;
       if (recorder.current && recorder.current.state !== "inactive")
         recorder.current.stop();
       stream.current?.getTracks().forEach((t) => t.stop());
     };
   }, [meeting.settings?.max_duration_minutes, changeState]);
-  useEffect(() => {
-    const visibility = () => {
-      if (document.hidden && active.current)
-        setWarning(
-          "L’application est en arrière-plan. La veille, le verrouillage ou le navigateur peuvent interrompre le microphone ; vérifiez l’enregistrement au retour.",
-        );
-    };
-    document.addEventListener("visibilitychange", visibility);
-    return () => document.removeEventListener("visibilitychange", visibility);
-  }, []);
   useEffect(() => {
     void pendingChunks(meeting.id).then((chunks) => {
       setPending(chunks.length);
@@ -2100,6 +2101,7 @@ function Recorder({
       recorder.current = media;
       for (const track of stream.current.getAudioTracks())
         track.onended = () => {
+          stopRequested.current = true;
           active.current = false;
           if (media.state !== "inactive") media.stop();
           changeState("interrupted");
@@ -2119,6 +2121,7 @@ function Recorder({
             queue(e.data.slice(offset, offset + 2 * 1024 * 1024, e.data.type));
       };
       media.onerror = () => {
+        stopRequested.current = true;
         setError(
           tr(
             "L’enregistrement a été interrompu. Les fragments sauvegardés peuvent être repris.",
@@ -2128,6 +2131,18 @@ function Recorder({
         active.current = false;
       };
       media.onstop = () => {
+        if (!stopRequested.current) {
+          void api(`meetings/${meeting.id}`, {
+            method: "PATCH",
+            body: JSON.stringify({ state: "interrupted" }),
+          }).catch(() => undefined);
+          changeState("interrupted");
+          setError(
+            language === "en"
+              ? "Recording stopped unexpectedly. Saved audio is preserved; check it before finalizing."
+              : "L’enregistrement s’est arrêté de façon inattendue. Les fragments sauvegardés sont conservés ; vérifiez-les avant de finaliser.",
+          );
+        }
         active.current = false;
         setCaptureStream(null);
         stream.current?.getTracks().forEach((t) => t.stop());
@@ -2140,6 +2155,7 @@ function Recorder({
           transcription_language: captureLanguage || language,
         }),
       });
+      stopRequested.current = false;
       media.start(10000);
       setCaptureStream(stream.current);
       active.current = true;
@@ -2154,6 +2170,7 @@ function Recorder({
   async function finalize() {
     setError("");
     changeState("saving");
+    stopRequested.current = true;
     try {
       if (recorder.current && recorder.current.state !== "inactive") {
         await new Promise<void>((resolve) => {
@@ -2295,9 +2312,17 @@ function Recorder({
       )}
       {meeting.mode !== "import" && (
         <p className={s.muted}>
-          {tr(
-            "La veille, le verrouillage ou le changement d’onglet peuvent suspendre l’enregistrement selon le navigateur. Gardez cette page active et vérifiez les fragments sauvegardés.",
-          )}
+          {language === "en"
+            ? "You can switch tabs without stopping the recording. Keep the browser open; forced sleep or closing the lid may interrupt the microphone."
+            : "Vous pouvez changer d’onglet sans arrêter l’enregistrement. Gardez le navigateur ouvert ; une veille forcée ou la fermeture du capot peut couper le microphone."}
+          {sleepProtection === "native" &&
+            (language === "en"
+              ? " Automatic sleep is prevented during this recording."
+              : " La veille automatique est empêchée pendant cet enregistrement.")}
+          {sleepProtection === "screen" &&
+            (language === "en"
+              ? " The screen stays awake while this page is visible."
+              : " L’écran reste éveillé tant que cette page est visible.")}
         </p>
       )}
       {meeting.mode !== "import" && (

@@ -328,7 +328,7 @@ try {
   });
   await recordingSignal.waitFor();
   await recordingSignal
-    .getByText("Signal capté", { exact: true })
+    .getByText("Enregistrement en cours", { exact: true })
     .waitFor({ timeout: 30000 });
   // The first "receiving" frame may still contain silence while the fake
   // device starts. Require a real non-zero measured level, with a bounded wait.

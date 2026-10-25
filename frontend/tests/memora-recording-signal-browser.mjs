@@ -64,15 +64,23 @@ try {
     const dest=window.__audio.createMediaStreamDestination();osc.connect(window.__gain).connect(dest);osc.start();await window.__audio.resume();
     window.__stream=dest.stream;window.__recorder=new MediaRecorder(dest.stream);window.__recorder.start();
   });
+  await page.addStyleTag({content:await readFile(join(root,'src/features/memora/recording-signal.module.css'),'utf8')});
   await page.addScriptTag({path:join(folder,'bundle.js')});
   await page.evaluate(()=>window.__mount());
   const meter=page.locator('meter');
   await page.waitForFunction(()=>document.querySelector('meter')?.value>0);
-  assert.match(await page.locator('[role=status]').innerText(),/Receiving audio/);
+  assert.match(await page.locator('[role=status]').innerText(),/Recording in progress/);
   const pixels=await page.locator('canvas').evaluate(c=>{const p=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let n=0;for(let i=3;i<p.length;i+=4)if(p[i])n++;return n;});assert.ok(pixels>100);
   console.log('PASS real synthetic oscillator level>0 and canvas pixels',pixels);
+  const centroid=()=>page.locator('canvas').evaluate(c=>{const p=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let weight=0,total=0;for(let y=0;y<c.height;y++)for(let x=0;x<c.width;x++){const a=p[(y*c.width+x)*4+3];weight+=a;total+=a*x;}return total/weight;});
+  await page.evaluate(()=>window.__gain.gain.value=0);
+  await page.waitForTimeout(150);const before=await centroid();await page.waitForTimeout(1100);const after=await centroid();assert.ok(after<before-5,`history must scroll left: ${before}->${after}`);console.log('PASS temporal history moves right to left',before,after);
+  assert.doesNotMatch(await page.locator('body').innerText(),/dBFS|peak|technical indicator/);
+  await page.evaluate(()=>window.__gain.gain.value=.25);await page.waitForFunction(()=>document.querySelector('meter').value>0);
+
   await page.evaluate(()=>window.__mount('paused'));await page.getByRole('status').filter({hasText:'Recording paused'}).waitFor();await page.waitForFunction(()=>document.querySelector('meter').value===0);
-  assert.equal(await page.evaluate(()=>window.__recorder.state),'recording');console.log('PASS visual pause preserves parent recorder');
+  assert.equal(await page.evaluate(()=>window.__recorder.state),'recording');
+  const frozen=await page.locator('canvas').evaluate(c=>c.toDataURL());await page.waitForTimeout(400);assert.equal(await page.locator('canvas').evaluate(c=>c.toDataURL()),frozen);console.log('PASS visual pause freezes history and preserves parent recorder');
   await page.evaluate(()=>window.__mount());await page.waitForFunction(()=>document.querySelector('meter').value>0);console.log('PASS resume signal');
   await page.evaluate(()=>window.__gain.gain.value=1.2);await page.getByRole('status').filter({hasText:'near clipping'}).waitFor();console.log('PASS saturation warning');
   await page.evaluate(()=>window.__gain.gain.value=0);await page.getByRole('status').filter({hasText:'Very quiet for 4 seconds'}).waitFor();console.log('PASS persistent silence');

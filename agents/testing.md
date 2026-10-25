@@ -165,3 +165,15 @@ Activation locale : seule clé moteur français changée après sauvegarde priv�
 Lint/types/build PASS (`report-design-{lint,types,build}.log`). Frontend seul actualisé après garde0jobs/absence audio récent ; backend/Ollama inchangés et4HTTP200. Contrôle IAB sur réunion synthétique : rendu cartes réel, ouverture/fermeture formulaire sans enregistrement, capture `report-design-main-browser.png`.
 
 Première recette UI : confirmation et historique réels PASS, puis sélecteur `getByLabel` exact d’un textarea non vide introuvable malgré formulaire ouvert ; reproduit en HTML minimal, remplacé par rôle textbox/nom accessible exact. Source applicative inchangée. Échec conservé (`report-design-first-failure.log`). Recette corrigée PASS :11contrôles UI,4stages/21,81s ;8captures cartes/formulaires desktop/mobile clair/sombre, aucun débordement/exceptionJS. Log distinct `report-design-ui-audit.log`.
+
+
+## Onde historique et continuité de capture
+
+- Backend complet :294PASS,3RedisSKIP,1warning préexistant,22,37s ; `python3 scripts/memora-test.py`, journal capture-continuity-backend.log.40tests domaine/awake ciblés PASS ; Ruff4fichiers PASS.
+- Assertion macOS native réelle : PreventUserIdleSystemSleep vérifiée, aucune assertion de maintien écran ; release immédiat, aucun bail restant. Module fixe caffeinate-i-t120 ; détails handoffs/capture-awake-local.md.
+- Waveform :9contrôles Chromium +4helpers PASS, pics réels décalés vers gauche mesurés par pixels, gel strict en pause et reprise conservant historique. Sans micro physique ; recording-signal-history-browser.log.
+- Hook continuité monté :7contrôles PASS sur vrai WebAudio/MediaRecorder synthétique, vraies transitions hidden/visible de deux onglets d’un Chrome temporaire. Bytes progressent en arrière-plan, aucun pause/stop, flush en visibilité, pause maintenue, nettoyage, protection absente/refusée et acquisition tardive. WakeLock et service HTTP de bail simulés dans ce test isolé ; séparément le backend et l’assertion OS sont testés réellement ci-dessus. Script frontend/tests/memora-recording-continuity-browser.mjs ; recording-continuity-browser.log.
+- Le premier harness Playwright gardait artificiellement chaque onglet visible (émulation de focus par défaut). Le test final utilise Chrome neuf +connectOverCDP(noDefaults:true), sans injection de document.hidden ni faux événement. Aucun défaut produit déduit de cette instrumentation initiale.
+- Lint zéro erreur (avertissements tests), types/build, contrat OpenAPI et SDK généré/check PASS. Recette navigateur intégrée réelle finale :19jalons navigateur +11contrôles UI PASS, environ108s, log continuity-isolated-browser.log ; ports et services temporaires fermés. Aucun test de sommeil forcé, capot fermé, microphone physique ou Safari/iOS ; ces situations ne sont pas garanties.
+
+Activation capture-continuité :4HTTP200 après garde0jobs/aucun audio récent ; intégritéOK et empreintes de toutes tables domaine inchangées. Preuve privée .memora/capture-continuity-activation.json. Aucun retraitement personnel.

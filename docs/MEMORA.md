@@ -270,3 +270,14 @@ Migration domaine007 additive : tables `report_reviews` et `transcript_edits`. E
 
 
 Validation V1.1 finale :284testsbackend/48préparation/16frontendunit réussis ; intégration en phases isolées41API+19navigateur+9auditUI, plus10contrôlesmicroAPIssynthétiques et2contrôles de codecChromium réel surentrée factice (échantillon lu, aucuneémission). Lint/types/build/OpenAPI/SDK etRuff conformes. Les trois interruptions de recettes et leurs correctifs sont conservés, voir agents/testing.md. Services locaux activés après migration007, empreintes sources préservées. Ces résultats ne prouvent pas microphysique/Safari/iOS/conversationnaturelle ni production.
+
+
+## Enregistrement en arrière-plan et protection contre la veille
+
+L’onde représente un historique de pics audio réels défilant de droite à gauche. La pause fige cet historique, la reprise le prolonge ; aucun chiffre technique n’est affiché. Le niveau reste disponible uniquement aux technologies d’assistance.
+
+Changer d’onglet ne déclenche aucune pause ni arrêt du MediaRecorder. L’application demande un fragment supplémentaire lors des transitions de visibilité, poursuit la sauvegarde progressive et signale un arrêt inattendu. Garder le navigateur ouvert : fermer la page ou changer de réunion peut arrêter la capture, avec avertissement avant de quitter. L’affichage animé peut être suspendu en arrière-plan sans suspendre le MediaRecorder.
+
+Sur ce Mac avec backend natif local, une protection temporaire `/usr/bin/caffeinate -i -t 120` empêche la **veille automatique inactive du système**, pendant capture ou pause. Le frontend renouvelle le bail toutes30s ; un seul bail par compte, authentification propriétaire et état de capture vérifiés. Fin/démontage/arrêt serveur libèrent la protection ; en cas de disparition du client elle expire sans renouvellement. Aucun réglage d’alimentation permanent, blocage du verrouillage ou maintien forcé de l’écran. Sur une autre plateforme, dans Docker ou pour un navigateur distant, cette protection native n’est pas annoncée ; le Screen Wake Lock facultatif ne maintient l’écran éveillé que tant que la page est visible.
+
+**Une vraie veille forcée, un capot fermé ou un système suspendu peuvent couper le microphone. La capture pendant ces états n’est pas garantie.** Les navigateurs peuvent aussi retarder les fragments au verrouillage. La protection empêche la veille automatique ; elle ne transforme pas une application web en enregistreur indépendant du système. Sources techniques : [Screen Wake Lock](https://developer.mozilla.org/en-US/docs/Web/API/Screen_Wake_Lock_API), [MediaRecorder et fragments différés](https://developer.mozilla.org/en-US/docs/Web/API/MediaRecorder/dataavailable_event). Aucun service worker ni son silencieux artificiel n’est utilisé pour contourner les restrictions du navigateur.

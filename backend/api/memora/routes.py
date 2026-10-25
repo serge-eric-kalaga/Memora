@@ -2,6 +2,7 @@
 
 import hashlib
 import html
+import ipaddress
 import json
 import secrets
 import shutil
@@ -14,7 +15,7 @@ from pydantic import BaseModel, Field, EmailStr
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from api.services.authorization import current_user
-from . import store as s, ai
+from . import store as s, ai, capture_awake
 from .worker import queue_mail
 
 AUTH_USER = Depends(current_user)
@@ -299,6 +300,38 @@ def create_meeting(body: CreateMeeting, user=AUTH_USER):
         c.execute("INSERT INTO meetings VALUES(?,?,?)", (mid, user.id, json.dumps(m)))
         s.audit(c, f"user:{user.id}", mid, "create")
     return m
+
+
+class CaptureAwake(BaseModel):
+    active: bool
+
+
+@router.post("/meetings/{mid}/capture-awake")
+def capture_awake_lease(mid: str, body: CaptureAwake, request: Request, user=AUTH_USER):
+    if request.headers.get("x-share-token"):
+        error(403, "Cette protection est réservée au propriétaire connecté.")
+    with s.db() as c:
+        m = s.meeting(c, mid)
+        if (
+            not m
+            or m.get("owner") != user.id
+            or m.get("owner_uid") != user.account_uid
+            or s.owner_deleted(c, user.account_uid)
+        ):
+            error(404, "Réunion indisponible.")
+        if body.active and (
+            m.get("mode") != "recording" or m["state"] not in ("recording", "paused")
+        ):
+            error(409, "La protection nécessite une capture en cours ou en pause.")
+    try:
+        local = bool(
+            request.client and ipaddress.ip_address(request.client.host).is_loopback
+        )
+    except ValueError:
+        local = False
+    if body.active and not local:
+        return {"supported": False, "active": False}
+    return capture_awake.set_active(user.account_uid, mid, body.active)
 
 
 @router.get("/meetings/{mid}")

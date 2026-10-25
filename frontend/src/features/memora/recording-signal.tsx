@@ -15,7 +15,7 @@ export type RecordingSignalProps = {
   language: "fr" | "en";
 };
 const labels: Record<SignalState, [string, string]> = {
-  recording: ["Signal capté", "Receiving audio"],
+  recording: ["Enregistrement en cours", "Recording in progress"],
   paused: ["Enregistrement en pause", "Recording paused"],
   missing: ["Aucune entrée audio connectée", "No audio input connected"],
   ended: ["Entrée audio déconnectée", "Audio input disconnected"],
@@ -46,6 +46,8 @@ export function RecordingSignal({
 }: RecordingSignalProps) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const contextRef = useRef<AudioContext | null>(null);
+  const historyRef = useRef<number[]>([]);
+  const streamRef = useRef<MediaStream | null>(null);
   const [view, setView] = useState<{
     status: SignalState;
     level: number;
@@ -53,6 +55,10 @@ export function RecordingSignal({
     peak: number;
   }>({ status: "inactive", level: 0, dbfs: -60, peak: 0 });
   useEffect(() => {
+    if (streamRef.current !== stream) {
+      streamRef.current = stream;
+      historyRef.current = [];
+    }
     let frame: number | null = null;
     let context: AudioContext | null = null;
     const nodes: AudioNode[] = [];
@@ -139,21 +145,18 @@ export function RecordingSignal({
           ctx.lineWidth = 2 * devicePixelRatio;
           ctx.lineCap = "round";
           ctx.beginPath();
-          const bars = Math.min(
-            80,
-            Math.max(12, Math.floor(element.clientWidth / 5)),
-          );
-          for (let bar = 0; bar < bars; bar++) {
-            let peak = 0;
-            for (
-              let i = Math.floor((bar * samples.length) / bars);
-              i < Math.floor(((bar + 1) * samples.length) / bars);
-              i++
-            )
-              peak = Math.max(peak, Math.abs(samples[i]));
-            const amplitude = visible ? Math.min(1, Math.sqrt(peak)) : 0;
-            const x = ((bar + 0.5) * width) / bars,
-              half = Math.max(devicePixelRatio / 2, amplitude * height * 0.46);
+          // One real peak per 50ms: a 15-second window moves right to left.
+          // Pausing freezes this history; resuming appends without clearing it.
+          if (state === "recording" && context?.state === "running") {
+            historyRef.current.push(active ? Math.min(1, metrics.peak) : 0);
+            if (historyRef.current.length > 300) historyRef.current.shift();
+          }
+          const history = historyRef.current;
+          for (let bar = 0; bar < history.length; bar++) {
+            const amplitude = Math.sqrt(history[bar]);
+            if (amplitude === 0) continue;
+            const x = width - ((history.length - bar - 0.5) * width) / 300;
+            const half = amplitude * height * 0.46;
             ctx.moveTo(x, height / 2 - half);
             ctx.lineTo(x, height / 2 + half);
           }
@@ -197,10 +200,6 @@ export function RecordingSignal({
         <strong role="status" aria-live="polite">
           {labels[view.status][en ? 1 : 0]}
         </strong>
-        <span aria-hidden="true">
-          {Math.round(view.dbfs)} dBFS · {en ? "peak" : "crête"}{" "}
-          {Math.round(view.peak * 100)} %
-        </span>
       </div>
       <canvas ref={canvas} className={s.wave} aria-hidden="true" />
       <meter
@@ -222,11 +221,6 @@ export function RecordingSignal({
             : "Reprendre la visualisation audio"}
         </button>
       )}
-      <p>
-        {en
-          ? "Captured level is a technical indicator. Confirmed saved fragments are shown separately; this meter does not confirm saving or transcription accuracy."
-          : "Le niveau capté est un indicateur technique. Les fragments sauvegardés confirmés sont indiqués séparément ; ce niveau ne confirme ni la sauvegarde ni l’exactitude de la transcription."}
-      </p>
     </section>
   );
 }

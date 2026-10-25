@@ -157,6 +157,16 @@ export type BodyUploadProfilePhoto = {
 };
 
 /**
+ * CaptureAwake
+ */
+export type CaptureAwake = {
+    /**
+     * Active
+     */
+    active: boolean;
+};
+
+/**
  * ChangeEmail
  *
  * Associer une adresse de récupération après réauthentification.
@@ -2643,6 +2653,34 @@ export type AudioApiMemoraMeetingsMidAudioGetErrors = {
 export type AudioApiMemoraMeetingsMidAudioGetError = AudioApiMemoraMeetingsMidAudioGetErrors[keyof AudioApiMemoraMeetingsMidAudioGetErrors];
 
 export type AudioApiMemoraMeetingsMidAudioGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
+
+export type CaptureAwakeLeaseApiMemoraMeetingsMidCaptureAwakePostData = {
+    body: CaptureAwake;
+    path: {
+        /**
+         * Mid
+         */
+        mid: string;
+    };
+    query?: never;
+    url: '/api/memora/meetings/{mid}/capture-awake';
+};
+
+export type CaptureAwakeLeaseApiMemoraMeetingsMidCaptureAwakePostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type CaptureAwakeLeaseApiMemoraMeetingsMidCaptureAwakePostError = CaptureAwakeLeaseApiMemoraMeetingsMidCaptureAwakePostErrors[keyof CaptureAwakeLeaseApiMemoraMeetingsMidCaptureAwakePostErrors];
+
+export type CaptureAwakeLeaseApiMemoraMeetingsMidCaptureAwakePostResponses = {
     /**
      * Successful Response
      */

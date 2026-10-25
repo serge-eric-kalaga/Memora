@@ -64,3 +64,8 @@ La référence personnelle fournie est reformulée : mesureWER invalide, ne pas 
 Le mode français final revient à Whisper Turbo conditionné `fr` en tâche `transcribe`. Parakeet est plus précis sur la réserve synthétique testée, mais ne peut contraindre la langue ; le choix explicite utilisateur doit atteindre un paramètre de décodage réel. Full conditionné n’améliore pas le WER global et coûte davantage ; certains noms sont néanmoins mieux reconnus. Aucun correcteur/traducteur LLM silencieux ajouté, aucun audio personnel retraité automatiquement.
 
 Visualisation de capture dérivée du flux MediaRecorder existant, sans deuxième acquisition microphone ni propriété des pistes ; nettoyage limité aux nœuds/contexte du visualiseur. Le niveau n’atteste pas la sauvegarde des fragments. Transcription bornée et sources du résumé/sujets repliables, citations essentielles conservées. Outils intervenants/lecture : surfaces neutres et disposition compacte adaptative, contrôles de sécurité inchangés.
+
+
+### 25 octobre — capture en arrière-plan et veille
+
+Le défilement de l’onde est un historique de pics réels ; l’affichage ne commande jamais la capture. Changer d’onglet déclenche un flush sans pause ni arrêt. Éviter toute promesse impossible d’enregistrement pendant suspension physique de la machine : Screen Wake Lock est limité aux pages visibles. Sur ce backend macOS local, une assertion caffeinate-i bornée120s, renouvelée30s, empêche uniquement la veille automatique ; cleanup et autorisation propriétaire/UID/loopback/capture assurés. Aucun réglageOS permanent, son silencieux ou restriction navigateur contournée. Tests des baux et assertions natifs séparés des mocks WakeLock/HTTP du harness ; micro et veille physiques non testés.

@@ -1,6 +1,6 @@
 # Recette navigateur réelle
 
-2026-10-25T11:11:43.540Z
+2026-10-25T12:19:11.959Z
 
 - VALIDÉ : Authentification réelle et dashboard
 - VALIDÉ : Import navigateur → Whisper → Ollama → rapport persisté

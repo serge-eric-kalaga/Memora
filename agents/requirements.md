@@ -88,3 +88,13 @@ Les seuils universels90% (toutes voix, noms, bruit, analyse) ne sont pas acquis 
 ## Présentation du rapport — ajustement utilisateur
 
 Actions/décisions : cartes regroupant texte, sources et pied de validation ; responsable/échéance réunis en métadonnées, valeurs absentes explicites. Sections avec compteur, état vide sobre et limitations dans « Points à vérifier ». `app.tsx`, `memora.module.css`, `report-review.tsx` et module CSS dédié. Aucun changement IA/API/permissions ; validation et corrections restent séparées de l’original IA. Lint/types/build PASS, preuve IAB obtenue sur une réunion synthétique ; recette UI isolée élargie11contrôles PASS, confirmation/historique réels,8captures desktop/mobile clair/sombre sans débordement.
+
+
+## Onde défilante et continuité de capture
+
+| Besoin | Implémentation | État de validation |
+|---|---|---|
+| Historique audio qui défile, sans chiffres visibles | RecordingSignal :300pics réels, état simple, pause figée/reprise |9contrôles Chromium montés PASS dont déplacement de pics et gel pixels en pause ;4helpers PASS. |
+| Changement d’onglet/arrière-plan | use-recording-continuity.ts : aucune pause/stop liée à visibilité, flush fragments, retour surveillé | 7contrôles hook Chromium à vrais onglets PASS ; vraie recette finale19browser+11UI PASS ; aucun micro physique. |
+| Protection veille automatique locale | capture_awake.py, route propriétaire/loopback et heartbeat30s, caffeinate-i-t120, cleanup |40tests ciblés, suite complète294PASS/3skip/1warning ; assertion native réelle vérifiée puis libérée. |
+| Vraie veille forcée/capot fermé | Limite OS/navigateur documentée, arrêt imprévu signalé et sauvegardes conservées | Impossible à garantir pendant suspension matérielle ; aucune promesse de continuité ni essai de sommeil réel de la machine. |

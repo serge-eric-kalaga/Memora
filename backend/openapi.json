@@ -224,6 +224,19 @@
         "title": "Body_uploadProfilePhoto",
         "type": "object"
       },
+      "CaptureAwake": {
+        "properties": {
+          "active": {
+            "title": "Active",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "active"
+        ],
+        "title": "CaptureAwake",
+        "type": "object"
+      },
       "ChangeEmail": {
         "additionalProperties": false,
         "description": "Associer une adresse de récupération après réauthentification.",
@@ -4057,6 +4070,61 @@
           }
         },
         "summary": "Audio",
+        "tags": [
+          "Memora"
+        ]
+      }
+    },
+    "/api/memora/meetings/{mid}/capture-awake": {
+      "post": {
+        "operationId": "capture_awake_lease_api_memora_meetings__mid__capture_awake_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mid",
+            "required": true,
+            "schema": {
+              "title": "Mid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaptureAwake"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Capture Awake Lease",
         "tags": [
           "Memora"
         ]
