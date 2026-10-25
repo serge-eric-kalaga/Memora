@@ -1,0 +1,16 @@
+/venv
+/.venv
+.venv
+.env
+/.env
+env
+__pycache__
+.pytest_cache
+images/*
+static/uploads/
+logs/*.log*
+
+.env*
+.git
+.ruff_cache
+.test.db

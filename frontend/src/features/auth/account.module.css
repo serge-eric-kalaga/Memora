@@ -1,0 +1,579 @@
+/* Même vocabulaire visuel que l’administration : surfaces sobres, contours fins et accent vert. */
+.root {
+  --surface: #fff;
+  --soft: #eef3ed;
+  --line: #e5e9e7;
+  --ink: #172c25;
+  --muted: #6b7872;
+  --green: #1c6650;
+  --green-dark: #124e3d;
+  --on-accent: #fff;
+  color: var(--ink);
+  font-size: 13px;
+}
+:global([data-theme="dark"]) .root {
+  --surface: #191f1c;
+  --soft: #25392e;
+  --line: #303e35;
+  --ink: #e4eee8;
+  --muted: #a5b5ac;
+  --green: #89d6b3;
+  --green-dark: #a7e5c8;
+  --on-accent: #12251b;
+}
+.root :global(.field) {
+  display: grid;
+  gap: 7px;
+}
+.root :global(.field) label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.root :global(.field) input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--surface);
+  color: var(--ink);
+  height: 42px;
+  padding: 10px 12px;
+  font-size: 13px;
+}
+.root :global(.field) input[readonly] {
+  background: var(--soft);
+  color: var(--muted);
+}
+.root :global(.field) input::placeholder {
+  color: var(--muted);
+  opacity: 0.8;
+}
+.root :global(.field-hint) {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.65;
+}
+.root :global(.form-stack) {
+  display: grid;
+  gap: 18px;
+  margin: 0;
+}
+.root :global(.button) {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 8px 13px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 7px;
+  white-space: normal;
+}
+.root :global(.button-primary) {
+  color: var(--on-accent);
+  background: var(--green);
+  border: 1px solid var(--green);
+}
+.root :global(.button-primary):hover {
+  background: var(--green-dark);
+  border-color: var(--green-dark);
+}
+.root :global(.button-outline),
+.root :global(.button-quiet) {
+  border: 1px solid var(--line);
+  color: var(--ink);
+  background: var(--surface);
+}
+.root :global(.button-outline):hover {
+  background: var(--soft);
+}
+.root :global(.notice) {
+  font-size: 12px;
+  border-radius: 7px;
+  padding: 12px;
+  line-height: 1.7;
+}
+.root :global(.muted) {
+  color: var(--muted);
+}
+.root :global(.password-field) {
+  position: relative;
+}
+.root :global(.password-field) input {
+  padding-right: 46px;
+}
+.root :global(.password-toggle) {
+  top: 28px;
+  right: 5px;
+  color: var(--muted);
+}
+.root button:focus-visible,
+.root input:focus-visible,
+.root a:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 3px;
+}
+.root:global(.auth-layout) {
+  max-width: 1000px;
+  width: calc(100% - 64px);
+  display: grid;
+  grid-template-columns: 0.92fr 1fr;
+  gap: 0;
+  padding: 0;
+  margin: 48px auto;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  overflow: hidden;
+  min-height: 590px;
+  box-shadow: 0 2px 8px #00000003;
+}
+.root :global(.auth-story) {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  padding: 42px 38px;
+  border: 0;
+  border-right: 1px solid var(--line);
+  border-radius: 0;
+  background: linear-gradient(145deg, var(--soft), var(--surface));
+  overflow: hidden;
+  min-height: 0;
+}
+.root :global(.account-brand) {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  font-weight: 600;
+  color: var(--green);
+}
+.root :global(.account-story-copy) {
+  margin: 64px 0 30px;
+}
+.root :global(.auth-story) h2 {
+  font-size: 32px;
+  line-height: 1.25;
+  letter-spacing: -1px;
+  font-weight: 600;
+  max-width: 330px;
+}
+.root :global(.auth-story) p {
+  font-size: 13px;
+  line-height: 1.85;
+  margin-top: 18px;
+  color: var(--muted);
+  max-width: 330px;
+}
+.root :global(.account-feature-list) {
+  display: grid;
+  gap: 16px;
+  margin: 0 0 42px;
+  font-size: 12px;
+}
+.root :global(.account-feature-list) > div {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+.root :global(.account-feature-list) svg {
+  color: var(--green);
+}
+.root :global(.auth-story) :global(.account-stack) {
+  margin-top: auto;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  color: var(--green);
+}
+.root :global(.account-stack) span {
+  color: var(--muted);
+  padding: 0 8px;
+}
+.root :global(.auth-card) {
+  padding: 42px;
+  border: 0;
+  border-radius: 0;
+  background: var(--surface);
+  box-shadow: none;
+}
+.root :global(.account-form-icon) {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 11px;
+  border: 1px solid var(--line);
+  color: var(--green);
+  background: var(--soft);
+  margin-bottom: 20px;
+}
+.root :global(.auth-card) h1 {
+  font-size: 25px;
+  font-weight: 600;
+  letter-spacing: -0.6px;
+  margin-bottom: 9px;
+}
+.root :global(.auth-card) > p:global(.muted) {
+  font-size: 12px;
+  line-height: 1.75;
+  margin-bottom: 26px;
+}
+.root :global(.auth-card) :global(.auth-switch) {
+  margin-top: 22px;
+  font-size: 12px;
+  padding-top: 0;
+  color: var(--muted);
+}
+.root :global(.auth-switch) a {
+  color: var(--green);
+  font-weight: 500;
+}
+.root :global(.forgot-link) {
+  font-size: 11px;
+}
+.root :global(.auth-card) :global(.button-full) {
+  width: 100%;
+  min-height: 42px;
+  margin-top: 3px;
+}
+.root:global(.profile-page) {
+  max-width: 1280px;
+  padding: 36px 0 48px;
+}
+.root :global(.page-heading) {
+  padding-bottom: 0;
+  border-bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 28px;
+  gap: 20px;
+}
+.root :global(.account-breadcrumb) {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  margin-bottom: 12px;
+}
+.root :global(.page-heading) h1 {
+  font-size: 28px;
+  letter-spacing: -0.8px;
+  margin: 0 0 9px;
+  font-weight: 600;
+}
+.root :global(.page-heading) p {
+  font-size: 13px;
+  line-height: 1.7;
+  max-width: 42rem;
+}
+.root :global(.status-pill) {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 5px 9px;
+  font-size: 10px;
+  white-space: nowrap;
+  color: var(--muted);
+  background: var(--surface);
+}
+.root :global(.profile-layout) {
+  display: grid;
+  grid-template-columns: 194px minmax(0, 1fr);
+  gap: 32px;
+  padding-top: 26px;
+  border-top: 1px solid var(--line);
+  align-items: start;
+}
+.root :global(.profile-sidebar) {
+  border-right: 1px solid var(--line);
+  padding-right: 20px;
+  min-height: 360px;
+}
+.root :global(.profile-tab) {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px;
+  border: 1px solid color-mix(in srgb, var(--green) 18%, transparent);
+  border-radius: 7px;
+  font-size: 13px;
+  color: var(--green);
+  background: var(--soft);
+}
+.root :global(.sidebar-note) {
+  display: grid;
+  gap: 12px;
+  padding: 0 10px;
+  margin-top: 42px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.8;
+}
+.root :global(.profile-panels) {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+.root :global(.panel) {
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  box-shadow: 0 1px 2px #00000004;
+}
+.root :global(.panel-heading) {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0 0 22px;
+  padding: 0;
+}
+.root :global(.panel-heading) h2 {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  margin: 0 0 7px;
+}
+.root :global(.panel-heading) p {
+  font-size: 12px;
+  line-height: 1.7;
+}
+.root :global(.photo-editor) {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 0;
+  margin: 0;
+}
+.root :global(.avatar-large) {
+  width: 72px;
+  height: 72px;
+  border-radius: 14px;
+  font-size: 22px;
+  background: var(--soft);
+  color: var(--green);
+  border: 1px solid var(--line);
+}
+.root :global(.avatar-large) img {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+}
+.root :global(.photo-editor) :global(.field-hint) {
+  margin-top: 9px;
+}
+.root :global(.account-facts) {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  margin: 0;
+}
+.root :global(.account-facts) dt {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.root :global(.account-facts) dd {
+  font-size: 13px;
+  font-weight: 500;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.root :global(.account-panel-footer) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-top: 1px solid var(--line);
+  padding-top: 18px;
+  margin-top: 24px;
+}
+.root :global(.success-message) {
+  font-size: 11px;
+  color: var(--green);
+}
+.root :global(.account-action-row) {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 0;
+  border-top: 1px solid var(--line);
+}
+.root :global(.account-action-row):last-of-type {
+  padding-bottom: 0;
+}
+.root :global(.account-action-row) > div {
+  min-width: 0;
+  flex: 1;
+}
+.root :global(.account-action-row) h3 {
+  margin: 0 0 5px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.root :global(.account-action-row) p {
+  font-size: 12px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.root :global(.account-action-icon) {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--soft);
+  color: var(--green);
+  flex-shrink: 0;
+}
+.root :global(.connection-panel) {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 22px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.root :global(.connection-icon) {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--soft);
+  color: var(--green);
+}
+.root :global(.connection-panel) h2 {
+  font-size: 13px;
+  font-weight: 500;
+}
+.root :global(.connection-panel) p {
+  font-size: 11px;
+  margin-top: 5px;
+  color: var(--muted);
+}
+.root :global(.connection-panel) time {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--muted);
+}
+@media (max-width: 900px) {
+  .root:global(.auth-layout) {
+    grid-template-columns: 0.8fr 1fr;
+    width: calc(100% - 40px);
+  }
+  .root :global(.auth-story),
+  .root :global(.auth-card) {
+    padding: 30px;
+  }
+  .root :global(.auth-story) h2 {
+    font-size: 27px;
+  }
+  .root :global(.profile-layout) {
+    grid-template-columns: 150px minmax(0, 1fr);
+    gap: 22px;
+  }
+}
+@media (max-width: 700px) {
+  .root:global(.auth-layout) {
+    display: block;
+    width: calc(100% - 32px);
+    max-width: 480px;
+    min-height: 0;
+    margin: 24px auto;
+  }
+  .root :global(.auth-story) {
+    padding: 22px 24px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .root :global(.account-story-copy) {
+    margin: 18px 0 0;
+  }
+  .root :global(.auth-story) h2 {
+    font-size: 22px;
+    max-width: none;
+  }
+  .root :global(.auth-story) p,
+  .root :global(.account-feature-list),
+  .root :global(.account-stack) {
+    display: none;
+  }
+  .root :global(.auth-card) {
+    padding: 26px 24px;
+  }
+  .root :global(.account-form-icon) {
+    display: none;
+  }
+  .root:global(.profile-page) {
+    width: calc(100% - 32px);
+    padding-top: 24px;
+  }
+  .root :global(.page-heading) {
+    align-items: flex-start;
+  }
+  .root :global(.page-heading) h1 {
+    font-size: 25px;
+  }
+  .root :global(.page-heading) p {
+    font-size: 12px;
+  }
+  .root :global(.status-pill) {
+    font-size: 9px;
+  }
+  .root :global(.profile-layout) {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding-top: 18px;
+  }
+  .root :global(.profile-sidebar) {
+    border: 0;
+    padding: 0;
+    min-height: 0;
+  }
+  .root :global(.sidebar-note) {
+    display: none;
+  }
+  .root :global(.panel) {
+    padding: 20px;
+  }
+  .root :global(.account-action-row) {
+    gap: 10px;
+  }
+  .root :global(.connection-panel) {
+    flex-wrap: wrap;
+    padding: 18px;
+  }
+  .root :global(.connection-panel) time {
+    margin-left: 50px;
+  }
+}
+@media (max-width: 380px) {
+  .root :global(.account-action-icon) {
+    display: none;
+  }
+  .root :global(.account-facts) {
+    grid-template-columns: 1fr;
+  }
+  .root :global(.account-panel-footer) {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .root :global(.photo-editor) {
+    gap: 14px;
+  }
+}
+.root:global(.auth-layout) {
+  align-items: stretch;
+}
+.root :global(.auth-card) {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  align-self: stretch;
+}

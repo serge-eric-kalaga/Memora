@@ -1,0 +1,11 @@
+apiVersion: 1
+providers:
+  - name: fullstack-template
+    orgId: 1
+    folder: Fullstack Template
+    type: file
+    disableDeletion: false
+    allowUiUpdates: false
+    updateIntervalSeconds: 30
+    options:
+      path: /var/lib/grafana/dashboards

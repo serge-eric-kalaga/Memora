@@ -1,0 +1,642 @@
+/* Styles chargés avec l’écran, indépendants du CSS global et de son cache HMR. */
+.root {
+  --a-bg: #ffffff;
+  --a-subtle: #f8faf8;
+  --a-text: #172c25;
+  --a-muted: #6b7872;
+  --a-border: #e5e9e7;
+  --a-accent: #1c6650;
+  --a-selected: #eef3ed;
+  --a-good: #17805b;
+  --a-good-bg: #eaf7f1;
+  --ink: var(--a-text);
+  --muted: var(--a-muted);
+  --line: var(--a-border);
+  --surface: var(--a-bg);
+  --soft: var(--a-selected);
+  --green: var(--a-accent);
+  --green-dark: #124e3d;
+  color: var(--a-text);
+  max-width: 1440px;
+  padding: 32px 0 48px;
+  font-size: 13px;
+}
+:global([data-theme="dark"]) .root {
+  --a-bg: #191f1c;
+  --a-subtle: #141c17;
+  --a-text: #e4eee8;
+  --a-muted: #a5b5ac;
+  --a-border: #303e35;
+  --a-accent: #89d6b3;
+  --a-selected: #25392e;
+  --a-good: #8fd9b9;
+  --a-good-bg: #203b33;
+}
+.root :global(.admin-topbar) {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 48px;
+  border-bottom: 1px solid var(--a-border);
+  color: var(--a-muted);
+  font-size: 12px;
+}
+.root :global(.admin-topbar) > span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--a-text);
+  font-weight: 600;
+}
+.root :global(.admin-badge) {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid var(--a-border);
+  border-radius: 6px;
+  padding: 4px 9px;
+  color: var(--a-muted);
+}
+.root :global(.admin-dot) {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--a-good);
+}
+.root :global(.admin-layout) {
+  display: grid;
+  grid-template-columns: 194px minmax(0, 1fr);
+  gap: 32px;
+  padding-top: 32px;
+  min-height: 560px;
+}
+.root :global(.admin-sidebar) {
+  padding: 4px 20px 0 0;
+  border-right: 1px solid var(--a-border);
+}
+.root :global(.admin-nav-label) {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--a-muted);
+  font-weight: 600;
+  margin: 0 0 14px 10px;
+}
+.root :global(.admin-tabs) {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.root :global(.admin-tabs) button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  border: 1px solid transparent;
+  padding: 10px;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--a-muted);
+  text-align: left;
+  font-size: 13px;
+  font-weight: 500;
+}
+.root :global(.admin-tabs) button:hover {
+  background: var(--a-subtle);
+  color: var(--a-text);
+}
+.root :global(.admin-tabs) button:global(.is-selected) {
+  background: var(--a-selected);
+  color: var(--a-accent);
+  border-color: color-mix(in srgb, var(--a-accent) 16%, transparent);
+}
+.root :global(.admin-nav-arrow) {
+  margin-left: auto;
+  opacity: 0;
+}
+.root :global(.is-selected) :global(.admin-nav-arrow) {
+  opacity: 1;
+}
+.root :global(.admin-sidebar-note) {
+  display: grid;
+  gap: 8px;
+  margin: 48px 10px 0;
+  color: var(--a-muted);
+  font-size: 11px;
+  line-height: 1.65;
+}
+.root :global(.admin-sidebar-note) strong {
+  font-weight: 500;
+  color: var(--a-text);
+  font-size: 12px;
+}
+.root :global(.admin-content) {
+  min-width: 0;
+  position: relative;
+}
+.root :global(.admin-heading) {
+  padding: 0 0 26px;
+}
+.root :global(.admin-heading) h1 {
+  font-size: 27px;
+  font-weight: 650;
+  letter-spacing: -0.8px;
+  margin-bottom: 8px;
+}
+.root :global(.admin-heading) p {
+  color: var(--a-muted);
+  font-size: 13px;
+  max-width: 40rem;
+}
+.root :global(.admin-workspace) {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+.root :global(.admin-workspace) aside,
+.root :global(.admin-detail) {
+  min-width: 0;
+}
+.root :global(.admin-detail) {
+  display: grid;
+  gap: 16px;
+}
+.root :global(.admin-card) {
+  background: var(--a-bg);
+  border: 1px solid var(--a-border);
+  border-radius: 10px;
+  padding: 20px;
+  display: grid;
+  gap: 16px;
+  box-shadow: 0 1px 2px #00000004;
+}
+.root :global(.admin-card) h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.15px;
+}
+.root :global(.admin-catalogue) {
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+}
+.root :global(.admin-catalogue-title) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 18px 12px;
+}
+.root :global(.admin-count) {
+  min-width: 23px;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  background: var(--a-subtle);
+  border: 1px solid var(--a-border);
+  color: var(--a-muted);
+  border-radius: 5px;
+  text-align: center;
+}
+.root :global(.admin-search) {
+  position: relative;
+  margin: 0 18px 16px;
+}
+.root :global(.admin-search) > svg {
+  position: absolute;
+  top: 11px;
+  left: 11px;
+  color: var(--a-muted);
+  pointer-events: none;
+}
+.root :global(.admin-search) :global(.field) {
+  margin: 0;
+  gap: 0;
+}
+.root :global(.admin-search) label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+.root :global(.admin-search) input {
+  padding-left: 35px;
+  height: 37px;
+  font-size: 12px;
+  background: var(--a-subtle);
+}
+.root :global(.field) {
+  display: grid;
+  gap: 7px;
+}
+.root :global(.field) label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--a-text);
+}
+.root :global(.field) input {
+  width: 100%;
+  border: 1px solid var(--a-border);
+  border-radius: 6px;
+  background: var(--a-bg);
+  color: var(--a-text);
+  height: 39px;
+  padding: 9px 11px;
+  font-size: 13px;
+}
+.root :global(.field) input::placeholder {
+  color: var(--a-muted);
+  opacity: 0.8;
+}
+.root :global(.field-hint) {
+  color: var(--a-muted);
+  font-size: 11px;
+  line-height: 1.7;
+}
+.root :global(.admin-list) {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  display: grid;
+}
+.root :global(.admin-list) li {
+  border-top: 1px solid var(--a-border);
+  min-width: 0;
+}
+.root :global(.admin-select) {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) auto 12px;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 15px 18px;
+  color: var(--a-text);
+  border: 0;
+  border-left: 3px solid transparent;
+  background: transparent;
+  text-align: left;
+  transition: background 0.15s;
+}
+.root :global(.admin-select):hover {
+  background: var(--a-subtle);
+}
+.root :global(.admin-select):global(.is-selected) {
+  border-left-color: var(--a-accent);
+  background: var(--a-selected);
+}
+.root :global(.admin-identity) {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+.root :global(.admin-identity) strong {
+  font-size: 12px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.root :global(.admin-identity) > span {
+  font-size: 11px;
+  color: var(--a-muted);
+  overflow-wrap: anywhere;
+}
+.root :global(.admin-avatar),
+.root :global(.admin-resource-icon) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 9px;
+  background: var(--a-selected);
+  color: var(--a-accent);
+  font-size: 10px;
+  font-weight: 650;
+}
+.root :global(.admin-resource-icon) {
+  border-radius: 7px;
+  color: var(--a-muted);
+  background: var(--a-subtle);
+  border: 1px solid var(--a-border);
+}
+.root :global(.admin-row-arrow) {
+  color: var(--a-muted);
+}
+.root :global(.admin-status) {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  width: fit-content;
+  font-size: 10px;
+  line-height: 1.5;
+  font-weight: 500;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  padding: 3px 6px;
+  background: var(--a-good-bg);
+  color: var(--a-good);
+  white-space: nowrap;
+}
+.root :global(.admin-status):global(.is-admin) {
+  background: var(--a-selected);
+  color: var(--a-accent);
+  font-size: 9px;
+}
+.root :global(.admin-status):global(.is-inactive),
+.root :global(.admin-status):global(.is-neutral) {
+  color: var(--a-muted);
+  border-color: var(--a-border);
+  background: var(--a-subtle);
+}
+.root :global(.admin-pagination) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--a-border);
+  color: var(--a-muted);
+  font-size: 10px;
+}
+.root :global(.button) {
+  border-radius: 6px;
+  padding: 8px 12px;
+  min-height: 34px;
+  font-size: 12px;
+  font-weight: 500;
+  justify-self: start;
+}
+.root :global(.button-primary) {
+  color: var(--on-accent, white);
+  background: var(--a-accent);
+  border: 1px solid var(--a-accent);
+  box-shadow: 0 1px 2px #00000010;
+}
+.root :global(.button-primary):hover {
+  background: var(--green-dark);
+}
+.root :global(.button-quiet) {
+  color: var(--a-text);
+  border: 1px solid var(--a-border);
+  background: var(--a-bg);
+  padding: 5px 8px;
+  min-height: 28px;
+  font-size: 10px;
+}
+.root :global(.admin-empty) {
+  min-height: 285px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: 1px dashed var(--a-border);
+  border-radius: 10px;
+  padding: 30px 24px;
+  background: color-mix(in srgb, var(--a-bg) 45%, transparent);
+}
+.root :global(.admin-empty-icon) {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 15px;
+  background: var(--a-bg);
+  border: 1px solid var(--a-border);
+  color: var(--a-muted);
+  margin-bottom: 18px;
+  box-shadow: 0 3px 8px #00000005;
+}
+.root :global(.admin-empty) h2 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.root :global(.admin-empty) p {
+  font-size: 12px;
+  color: var(--a-muted);
+  max-width: 240px;
+}
+.root :global(.admin-user-heading) {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.root :global(.admin-user-heading) p {
+  font-size: 11px;
+  color: var(--a-muted);
+  margin-top: 5px;
+}
+.root :global(.admin-create) {
+  margin: 0 0 20px;
+}
+.root :global(.admin-create) summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: fit-content;
+  padding: 8px 13px;
+  min-height: 36px;
+  border: 1px solid var(--a-accent);
+  border-radius: 6px;
+  color: var(--on-accent, white);
+  background: var(--a-accent);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  list-style: none;
+}
+.root :global(.admin-create) summary::-webkit-details-marker {
+  display: none;
+}
+.root :global(.admin-create)[open] summary {
+  margin-bottom: 16px;
+}
+.root :global(.admin-create) form {
+  grid-template-columns: 1fr 1fr;
+  max-width: 760px;
+}
+.root :global(.admin-create) form h2,
+.root :global(.admin-create) form > p {
+  grid-column: 1/-1;
+}
+.root :global(.admin-info) {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding: 12px 15px;
+  border: 1px solid var(--a-border);
+  border-radius: 7px;
+  background: var(--a-subtle);
+  color: var(--a-muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.root :global(.admin-check) {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.root :global(.admin-check) input {
+  appearance: auto;
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: var(--a-accent);
+  flex-shrink: 0;
+}
+.root :global(.admin-permission) {
+  display: grid;
+  grid-template-columns: 15px minmax(0, 1fr) auto;
+  padding: 14px 18px;
+  min-height: 54px;
+}
+.root :global(.admin-permission) strong {
+  font-size: 12px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.root :global(.admin-permission) small {
+  display: block;
+  margin-top: 3px;
+  color: var(--a-muted);
+  font-size: 10px;
+}
+.root :global(.notice) {
+  margin: 0 0 18px;
+  padding: 10px 14px;
+  font-size: 12px;
+  border-radius: 7px;
+}
+.root :global(.admin-catalogue) > p,
+.root :global(.admin-catalogue) > div[role="alert"] {
+  padding: 18px;
+}
+.root button:focus-visible,
+.root input:focus-visible,
+.root summary:focus-visible {
+  outline: 2px solid var(--a-accent);
+  outline-offset: 3px;
+}
+@media (max-width: 1100px) {
+  .root :global(.admin-layout) {
+    grid-template-columns: 165px minmax(0, 1fr);
+    gap: 20px;
+  }
+  .root :global(.admin-sidebar) {
+    padding-right: 12px;
+  }
+  .root :global(.admin-workspace) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .root :global(.admin-empty) {
+    min-height: 200px;
+  }
+}
+@media (max-width: 700px) {
+  .root {
+    width: calc(100% - 32px);
+    padding-top: 16px;
+  }
+  .root :global(.admin-layout) {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding-top: 18px;
+  }
+  .root :global(.admin-sidebar) {
+    padding: 0;
+    border: 0;
+  }
+  .root :global(.admin-nav-label),
+  .root :global(.admin-sidebar-note) {
+    display: none;
+  }
+  .root :global(.admin-tabs) {
+    flex-direction: row;
+    gap: 6px;
+    padding: 4px;
+    background: var(--a-bg);
+    border: 1px solid var(--a-border);
+    border-radius: 9px;
+  }
+  .root :global(.admin-tabs) button {
+    justify-content: center;
+    padding: 9px 8px;
+    gap: 6px;
+    font-size: 11px;
+  }
+  .root :global(.admin-nav-arrow) {
+    display: none;
+  }
+  .root :global(.admin-heading) {
+    padding-bottom: 18px;
+  }
+  .root :global(.admin-heading) h1 {
+    font-size: 24px;
+  }
+  .root :global(.admin-topbar) {
+    gap: 8px;
+  }
+  .root :global(.admin-badge) {
+    font-size: 9px;
+    padding: 3px 6px;
+  }
+  .root :global(.admin-topbar) > span:nth-of-type(2) {
+    display: none;
+  }
+  .root :global(.admin-topbar) > svg {
+    display: none;
+  }
+  .root :global(.admin-create) form {
+    grid-template-columns: 1fr;
+  }
+  .root :global(.admin-select) {
+    padding: 14px 12px;
+    gap: 8px;
+    grid-template-columns: 30px minmax(0, 1fr) auto 12px;
+  }
+  .root :global(.admin-status):global(.is-admin) {
+    max-width: 85px;
+    white-space: normal;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .root * {
+    transition: none;
+  }
+}
+
+.root :global(.admin-heading) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: start;
+}
+.root :global(.admin-heading) :global(.admin-create) {
+  margin: 0;
+}
+.root :global(.admin-heading):has(:global(.admin-create)[open]) {
+  grid-template-columns: 1fr;
+}
+@media (max-width: 700px) {
+  .root :global(.admin-heading) {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+/* La recherche garde sa réserve pour l’icône malgré les styles des champs génériques. */
+.root :global(.admin-search) :global(.field) input {
+  padding-left: 35px;
+  height: 37px;
+  font-size: 12px;
+  background: var(--a-subtle);
+}

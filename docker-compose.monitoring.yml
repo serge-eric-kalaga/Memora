@@ -1,0 +1,149 @@
+# À fusionner avec le Compose de développement OU de production.
+# Les interfaces restent sur le loopback de l’hôte ; les collecteurs ne publient aucun port.
+x-monitor: &monitor
+  restart: unless-stopped
+  networks: [monitor]
+  security_opt: ["no-new-privileges:true"]
+  logging:
+    driver: json-file
+    options: {max-size: "10m", max-file: "3"}
+
+x-http-health: &http-health
+  interval: 15s
+  timeout: 5s
+  retries: 10
+  start_period: 30s
+
+services:
+  backend:
+    networks: [monitor]
+  frontend:
+    networks: [monitor]
+  redis:
+    networks: [monitor]
+  mysql:
+    networks: [monitor]
+    environment:
+      MYSQL_MONITORING_PASSWORD: ${MYSQL_MONITORING_PASSWORD:?Lancer scripts/init_monitoring.py puis charger le fichier Grafana racine}
+    volumes:
+      - ./monitoring/mysql/init-monitoring.sh:/docker-entrypoint-initdb.d/20-monitoring.sh:ro
+
+  prometheus:
+    <<: *monitor
+    image: prom/prometheus:v3.13.4
+    healthcheck:
+      <<: *http-health
+      test: [CMD, wget, -q, -T, "3", -O, /dev/null, "http://127.0.0.1:9090/-/ready"]
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus/data
+      - --storage.tsdb.retention.time=15d
+      - --storage.tsdb.retention.size=2GB
+    ports: ["127.0.0.1:${PROMETHEUS_PORT:-9090}:9090"]
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus/targets.${MONITORING_ENV:-dev}.yml:/etc/prometheus/targets.yml:ro
+      - ./monitoring/prometheus/rules.yml:/etc/prometheus/rules.yml:ro
+      - prometheus_data:/prometheus
+
+  grafana:
+    <<: *monitor
+    image: grafana/grafana:13.2.4
+    healthcheck:
+      <<: *http-health
+      test: [CMD, wget, -q, -T, "3", -O, /dev/null, "http://127.0.0.1:3000/api/health"]
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD:?Initialiser la configuration Grafana racine}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+      GF_METRICS_ENABLED: "true"
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/fullstack-overview.json
+    ports: ["127.0.0.1:${GRAFANA_PORT:-3001}:3000"]
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/datasources.yaml:/etc/grafana/provisioning/datasources/template.yaml:ro
+      - ./monitoring/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on: [prometheus, loki, alertmanager]
+
+  monitoring-config:
+    image: python:3.14-slim-bookworm
+    restart: "no"
+    network_mode: none
+    environment:
+      ALERTMANAGER_WEBHOOK_URL: ${ALERTMANAGER_WEBHOOK_URL:-}
+    command: [python, /render.py, /config/alertmanager.json]
+    volumes:
+      - ./monitoring/alertmanager/render.py:/render.py:ro
+      - alertmanager_config:/config
+    logging: {driver: json-file, options: {max-size: "1m", max-file: "2"}}
+
+  alertmanager:
+    <<: *monitor
+    image: prom/alertmanager:v0.34.1
+    healthcheck:
+      <<: *http-health
+      test: [CMD, wget, -q, -T, "3", -O, /dev/null, "http://127.0.0.1:9093/-/ready"]
+    command: [--config.file=/etc/alertmanager/alertmanager.json, --storage.path=/alertmanager, --cluster.listen-address=]
+    ports: ["127.0.0.1:${ALERTMANAGER_PORT:-9093}:9093"]
+    volumes:
+      - alertmanager_config:/etc/alertmanager:ro
+      - alertmanager_data:/alertmanager
+    depends_on:
+      monitoring-config:
+        condition: service_completed_successfully
+
+  blackbox:
+    <<: *monitor
+    image: prom/blackbox-exporter:v0.29.0
+    command: [--config.file=/etc/blackbox/config.yml]
+    volumes: [./monitoring/blackbox/config.yml:/etc/blackbox/config.yml:ro]
+
+  redis-exporter:
+    <<: *monitor
+    image: oliver006/redis_exporter:v1.93.0
+    environment: {REDIS_ADDR: "redis://redis:6379"}
+    depends_on: [redis]
+
+  mysql-exporter:
+    <<: *monitor
+    image: prom/mysqld-exporter:v0.20.0
+    environment:
+      MYSQLD_EXPORTER_PASSWORD: ${MYSQL_MONITORING_PASSWORD:?Initialiser le monitoring}
+    command: [--mysqld.address=mysql:3306, --mysqld.username=monitoring, --config.my-cnf=, --no-collect.slave_status, --exporter.query_timeout=5]
+    depends_on: [mysql]
+
+  loki:
+    <<: *monitor
+    image: grafana/loki:3.7.8
+    command: [-config.file=/etc/loki/config.yml]
+    volumes:
+      - ./monitoring/loki/config.yml:/etc/loki/config.yml:ro
+      - loki_data:/loki
+
+  alloy:
+    <<: *monitor
+    image: grafana/alloy:v1.21.0
+    user: "473:473"
+    command: [run, --server.http.listen-addr=0.0.0.0:12345, --storage.path=/var/lib/alloy, /etc/alloy/config.alloy]
+    cap_drop: [ALL]
+    volumes:
+      - ./monitoring/alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - ${BACKEND_LOG_SOURCE:-./backend/logs}:/var/log/backend:ro
+      - alloy_data:/var/lib/alloy
+    depends_on: [loki]
+
+networks:
+  monitor:
+
+volumes:
+  prometheus_data:
+  grafana_data:
+  alertmanager_config:
+  alertmanager_data:
+  loki_data:
+  alloy_data:
+  backend_logs:

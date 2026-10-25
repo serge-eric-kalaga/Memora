@@ -1,0 +1,5 @@
+<!doctype html><html lang="{{ 'en' if english else 'fr' }}"><head><meta charset="utf-8"><title>{{ 'Recovery email changed' if english else 'Adresse de récupération modifiée' }}</title></head>
+<body style="font-family:Arial,sans-serif;color:#163b2c;padding:32px"><h1>{{ app_name|e }}</h1>
+<p>{{ 'Your account recovery email address was changed. Previous sessions and recovery links are now invalid.' if english else 'L’adresse de récupération de votre compte a été modifiée. Les anciennes sessions et les liens de récupération sont désormais invalides.' }}</p>
+<p>{{ 'If you did not make this change, contact the application administrator.' if english else 'Si vous n’êtes pas à l’origine de cette modification, contactez l’administrateur de l’application.' }}</p>
+</body></html>

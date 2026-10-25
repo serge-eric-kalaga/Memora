@@ -1,0 +1,1037 @@
+{
+  "version": 1,
+  "synthetic_only": true,
+  "role": "frozen before first inference",
+  "cases": [
+    {
+      "id": "late_cancellation_and_amount_correction",
+      "segments": [
+        {
+          "id": "s1",
+          "speaker": "Alice",
+          "start": 25,
+          "end": 45,
+          "text": "Je préparerai la maquette pour le douze janvier.",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s2",
+          "speaker": "Bob",
+          "start": 50,
+          "end": 70,
+          "text": "Nous validons un budget de deux mille quatre cents euros.",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s3",
+          "speaker": "Intervenant non identifié",
+          "start": 75,
+          "end": 95,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s4",
+          "speaker": "Intervenant non identifié",
+          "start": 100,
+          "end": 120,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s5",
+          "speaker": "Intervenant non identifié",
+          "start": 125,
+          "end": 145,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s6",
+          "speaker": "Intervenant non identifié",
+          "start": 150,
+          "end": 170,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s7",
+          "speaker": "Intervenant non identifié",
+          "start": 175,
+          "end": 195,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s8",
+          "speaker": "Intervenant non identifié",
+          "start": 200,
+          "end": 220,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s9",
+          "speaker": "Intervenant non identifié",
+          "start": 225,
+          "end": 245,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s10",
+          "speaker": "Intervenant non identifié",
+          "start": 250,
+          "end": 270,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s11",
+          "speaker": "Intervenant non identifié",
+          "start": 275,
+          "end": 295,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s12",
+          "speaker": "Intervenant non identifié",
+          "start": 300,
+          "end": 320,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s13",
+          "speaker": "Intervenant non identifié",
+          "start": 325,
+          "end": 345,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s14",
+          "speaker": "Intervenant non identifié",
+          "start": 350,
+          "end": 370,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s15",
+          "speaker": "Intervenant non identifié",
+          "start": 375,
+          "end": 395,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s16",
+          "speaker": "Intervenant non identifié",
+          "start": 400,
+          "end": 420,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s17",
+          "speaker": "Intervenant non identifié",
+          "start": 425,
+          "end": 445,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s18",
+          "speaker": "Intervenant non identifié",
+          "start": 450,
+          "end": 470,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s19",
+          "speaker": "Intervenant non identifié",
+          "start": 475,
+          "end": 495,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s20",
+          "speaker": "Intervenant non identifié",
+          "start": 500,
+          "end": 520,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s21",
+          "speaker": "Intervenant non identifié",
+          "start": 525,
+          "end": 545,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s22",
+          "speaker": "Intervenant non identifié",
+          "start": 550,
+          "end": 570,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s23",
+          "speaker": "Intervenant non identifié",
+          "start": 575,
+          "end": 595,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s24",
+          "speaker": "Intervenant non identifié",
+          "start": 600,
+          "end": 620,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s25",
+          "speaker": "Intervenant non identifié",
+          "start": 625,
+          "end": 645,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s26",
+          "speaker": "Intervenant non identifié",
+          "start": 650,
+          "end": 670,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s27",
+          "speaker": "Intervenant non identifié",
+          "start": 675,
+          "end": 695,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s28",
+          "speaker": "Intervenant non identifié",
+          "start": 700,
+          "end": 720,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s29",
+          "speaker": "Intervenant non identifié",
+          "start": 725,
+          "end": 745,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s30",
+          "speaker": "Intervenant non identifié",
+          "start": 750,
+          "end": 770,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s31",
+          "speaker": "Intervenant non identifié",
+          "start": 775,
+          "end": 795,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s32",
+          "speaker": "Intervenant non identifié",
+          "start": 800,
+          "end": 820,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s33",
+          "speaker": "Intervenant non identifié",
+          "start": 825,
+          "end": 845,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s34",
+          "speaker": "Intervenant non identifié",
+          "start": 850,
+          "end": 870,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s35",
+          "speaker": "Intervenant non identifié",
+          "start": 875,
+          "end": 895,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s36",
+          "speaker": "Intervenant non identifié",
+          "start": 900,
+          "end": 920,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s37",
+          "speaker": "Intervenant non identifié",
+          "start": 925,
+          "end": 945,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s38",
+          "speaker": "Intervenant non identifié",
+          "start": 950,
+          "end": 970,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s39",
+          "speaker": "Intervenant non identifié",
+          "start": 975,
+          "end": 995,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s40",
+          "speaker": "Intervenant non identifié",
+          "start": 1000,
+          "end": 1020,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s41",
+          "speaker": "Intervenant non identifié",
+          "start": 1025,
+          "end": 1045,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s42",
+          "speaker": "Intervenant non identifié",
+          "start": 1050,
+          "end": 1070,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s43",
+          "speaker": "Intervenant non identifié",
+          "start": 1075,
+          "end": 1095,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s44",
+          "speaker": "Intervenant non identifié",
+          "start": 1100,
+          "end": 1120,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s45",
+          "speaker": "Intervenant non identifié",
+          "start": 1125,
+          "end": 1145,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s46",
+          "speaker": "Intervenant non identifié",
+          "start": 1150,
+          "end": 1170,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s47",
+          "speaker": "Intervenant non identifié",
+          "start": 1175,
+          "end": 1195,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s48",
+          "speaker": "Intervenant non identifié",
+          "start": 1200,
+          "end": 1220,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s49",
+          "speaker": "Intervenant non identifié",
+          "start": 1225,
+          "end": 1245,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s50",
+          "speaker": "Intervenant non identifié",
+          "start": 1250,
+          "end": 1270,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s51",
+          "speaker": "Intervenant non identifié",
+          "start": 1275,
+          "end": 1295,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s52",
+          "speaker": "Intervenant non identifié",
+          "start": 1300,
+          "end": 1320,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s53",
+          "speaker": "Intervenant non identifié",
+          "start": 1325,
+          "end": 1345,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s54",
+          "speaker": "Intervenant non identifié",
+          "start": 1350,
+          "end": 1370,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s55",
+          "speaker": "Bob",
+          "start": 1375,
+          "end": 1395,
+          "text": "Rectification finale : la préparation de la maquette par Alice est annulée, elle ne doit plus la préparer. Nous annulons le budget de deux mille quatre cents euros et décidons de le remplacer par un budget final de quatre mille sept cents euros. Aucune autre préparation de maquette n’est demandée.",
+          "language": "fr",
+          "uncertain": false
+        }
+      ],
+      "expected_current": {
+        "cancelled_task": "Préparation maquette Alice12janvier annulée, pas action positive active.",
+        "budget_eur": 4700,
+        "obsolete_budget_eur": 2400,
+        "sources": [
+          "s55"
+        ]
+      },
+      "forbidden": [
+        "Action encore active Alice préparermaquette12janvier.",
+        "Budget2400 encorevalidé/actuel.",
+        "Budget4700 ignoré."
+      ],
+      "question": "Quel est le budget final actuel et Alice doit-elle encore préparer la maquette ?"
+    },
+    {
+      "id": "late_independent_fact_preserved",
+      "segments": [
+        {
+          "id": "s1",
+          "speaker": "Mariam",
+          "start": 25,
+          "end": 45,
+          "text": "Je rédigerai le compte rendu pour le vingt janvier.",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s2",
+          "speaker": "Bob",
+          "start": 50,
+          "end": 70,
+          "text": "Le budget approuvé est de mille huit cents euros.",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s3",
+          "speaker": "Intervenant non identifié",
+          "start": 75,
+          "end": 95,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s4",
+          "speaker": "Intervenant non identifié",
+          "start": 100,
+          "end": 120,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s5",
+          "speaker": "Intervenant non identifié",
+          "start": 125,
+          "end": 145,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s6",
+          "speaker": "Intervenant non identifié",
+          "start": 150,
+          "end": 170,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s7",
+          "speaker": "Intervenant non identifié",
+          "start": 175,
+          "end": 195,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s8",
+          "speaker": "Intervenant non identifié",
+          "start": 200,
+          "end": 220,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s9",
+          "speaker": "Intervenant non identifié",
+          "start": 225,
+          "end": 245,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s10",
+          "speaker": "Intervenant non identifié",
+          "start": 250,
+          "end": 270,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s11",
+          "speaker": "Intervenant non identifié",
+          "start": 275,
+          "end": 295,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s12",
+          "speaker": "Intervenant non identifié",
+          "start": 300,
+          "end": 320,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s13",
+          "speaker": "Intervenant non identifié",
+          "start": 325,
+          "end": 345,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s14",
+          "speaker": "Intervenant non identifié",
+          "start": 350,
+          "end": 370,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s15",
+          "speaker": "Intervenant non identifié",
+          "start": 375,
+          "end": 395,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s16",
+          "speaker": "Intervenant non identifié",
+          "start": 400,
+          "end": 420,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s17",
+          "speaker": "Intervenant non identifié",
+          "start": 425,
+          "end": 445,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s18",
+          "speaker": "Intervenant non identifié",
+          "start": 450,
+          "end": 470,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s19",
+          "speaker": "Intervenant non identifié",
+          "start": 475,
+          "end": 495,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s20",
+          "speaker": "Intervenant non identifié",
+          "start": 500,
+          "end": 520,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s21",
+          "speaker": "Intervenant non identifié",
+          "start": 525,
+          "end": 545,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s22",
+          "speaker": "Intervenant non identifié",
+          "start": 550,
+          "end": 570,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s23",
+          "speaker": "Intervenant non identifié",
+          "start": 575,
+          "end": 595,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s24",
+          "speaker": "Intervenant non identifié",
+          "start": 600,
+          "end": 620,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s25",
+          "speaker": "Intervenant non identifié",
+          "start": 625,
+          "end": 645,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s26",
+          "speaker": "Intervenant non identifié",
+          "start": 650,
+          "end": 670,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s27",
+          "speaker": "Intervenant non identifié",
+          "start": 675,
+          "end": 695,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s28",
+          "speaker": "Intervenant non identifié",
+          "start": 700,
+          "end": 720,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s29",
+          "speaker": "Intervenant non identifié",
+          "start": 725,
+          "end": 745,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s30",
+          "speaker": "Intervenant non identifié",
+          "start": 750,
+          "end": 770,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s31",
+          "speaker": "Intervenant non identifié",
+          "start": 775,
+          "end": 795,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s32",
+          "speaker": "Intervenant non identifié",
+          "start": 800,
+          "end": 820,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s33",
+          "speaker": "Intervenant non identifié",
+          "start": 825,
+          "end": 845,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s34",
+          "speaker": "Intervenant non identifié",
+          "start": 850,
+          "end": 870,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s35",
+          "speaker": "Intervenant non identifié",
+          "start": 875,
+          "end": 895,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s36",
+          "speaker": "Intervenant non identifié",
+          "start": 900,
+          "end": 920,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s37",
+          "speaker": "Intervenant non identifié",
+          "start": 925,
+          "end": 945,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s38",
+          "speaker": "Intervenant non identifié",
+          "start": 950,
+          "end": 970,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s39",
+          "speaker": "Intervenant non identifié",
+          "start": 975,
+          "end": 995,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s40",
+          "speaker": "Intervenant non identifié",
+          "start": 1000,
+          "end": 1020,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s41",
+          "speaker": "Intervenant non identifié",
+          "start": 1025,
+          "end": 1045,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s42",
+          "speaker": "Intervenant non identifié",
+          "start": 1050,
+          "end": 1070,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s43",
+          "speaker": "Intervenant non identifié",
+          "start": 1075,
+          "end": 1095,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s44",
+          "speaker": "Intervenant non identifié",
+          "start": 1100,
+          "end": 1120,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s45",
+          "speaker": "Intervenant non identifié",
+          "start": 1125,
+          "end": 1145,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s46",
+          "speaker": "Intervenant non identifié",
+          "start": 1150,
+          "end": 1170,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s47",
+          "speaker": "Intervenant non identifié",
+          "start": 1175,
+          "end": 1195,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s48",
+          "speaker": "Intervenant non identifié",
+          "start": 1200,
+          "end": 1220,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s49",
+          "speaker": "Intervenant non identifié",
+          "start": 1225,
+          "end": 1245,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s50",
+          "speaker": "Intervenant non identifié",
+          "start": 1250,
+          "end": 1270,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s51",
+          "speaker": "Intervenant non identifié",
+          "start": 1275,
+          "end": 1295,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s52",
+          "speaker": "Intervenant non identifié",
+          "start": 1300,
+          "end": 1320,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s53",
+          "speaker": "Intervenant non identifié",
+          "start": 1325,
+          "end": 1345,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s54",
+          "speaker": "Intervenant non identifié",
+          "start": 1350,
+          "end": 1370,
+          "text": "Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. Nous échangeons sur le classement des comptes rendus et la lisibilité des documents, sans engagement nouveau. ",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s55",
+          "speaker": "Rayan",
+          "start": 1375,
+          "end": 1395,
+          "text": "Je vérifierai les accès le vingt-huit janvier. Cette vérification est distincte de la rédaction du compte rendu par Mariam ; aucune tâche précédente n’est annulée et le budget de mille huit cents euros ne change pas.",
+          "language": "fr",
+          "uncertain": false
+        }
+      ],
+      "expected_current": {
+        "early_action": "Mariam compte rendu20janvier",
+        "last_action": "Rayan vérifie accès28janvier",
+        "budget_eur": 1800,
+        "sources": [
+          "s1",
+          "s2",
+          "s55"
+        ]
+      },
+      "forbidden": [
+        "DernièreactionRayan perdue.",
+        "Date20janvier affectée àRayan.",
+        "ActionMariam effacée sans annulation."
+      ],
+      "question": "Qui vérifiera les accès et à quelle date ?"
+    }
+  ]
+}

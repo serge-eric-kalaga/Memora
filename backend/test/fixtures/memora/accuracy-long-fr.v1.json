@@ -1,0 +1,109 @@
+{
+  "version": "long-fr-1",
+  "seed": 20261028,
+  "description": "Synthetic French95s, frozen before ASR; exact28s slot starts cross30s window ends with2s overlap. Complete WER/CER plus lexical probes, never marker-only.",
+  "acceptance": {
+    "primary": "score complete95s reference WER numeric and strict, S/D/I/CER; no unreported truncation or duplicate phrase at overlap",
+    "secondary": "inspect each block, all critical amounts/polarity and end; markers alone do not establish transcription quality",
+    "requested_duration_seconds": 95,
+    "chunk_duration_seconds": 30,
+    "overlap_duration_seconds": 2,
+    "chunk_start_seconds": [
+      0,
+      28,
+      56,
+      84
+    ],
+    "window_end_seconds": [
+      30,
+      58,
+      86,
+      95
+    ]
+  },
+  "number_normalization": {
+    "six mille trois cents": "6300",
+    "six mille trois cent": "6300",
+    "soixante trois mille": "63000",
+    "sept mille quatre cents": "7400",
+    "sept mille quatre cent": "7400",
+    "huit mille cinq cents": "8500",
+    "huit mille cinq cent": "8500",
+    "quatre vingt cinq mille": "85000",
+    "neuf mille six cents": "9600",
+    "neuf mille six cent": "9600"
+  },
+  "cases": [
+    {
+      "id": "long-fr-boundaries",
+      "split": "holdout",
+      "language": "fr",
+      "chunks": [
+        {
+          "text": "Au début, nous examinons le dossier Orion. Le montant est de six mille trois cents euros, pas de soixante-trois mille. Soraya préparera le document vendredi. Aucune somme ne doit partir avant la validation du responsable. Nous conserverons le rapport précédent et toutes les questions encore ouvertes. Le budget reste provisoire. Cette réunion sert à préparer la prochaine revue, sans autoriser de dépense supplémentaire pour le moment.",
+          "voice": "Thomas",
+          "rate": 170,
+          "gap_ms": 0,
+          "slot_seconds": 28
+        },
+        {
+          "text": "À la deuxième étape, le montant est de sept mille quatre cents euros. Ce montant ne remplace pas la première estimation. Karim ne doit rien signer avant mardi. Le service Docker attend notre accord et la décision restera ouverte tant que la vérification ne sera pas terminée. Nous n’avons pas accepté cette offre. Les participants doivent encore comparer les options techniques et vérifier le détail des coûts annoncés.",
+          "voice": "Thomas",
+          "rate": 170,
+          "gap_ms": 0,
+          "slot_seconds": 28
+        },
+        {
+          "text": "À la troisième étape, nous évoquons huit mille cinq cents euros, et non quatre-vingt-cinq mille. Le projet Neptune ne sera pas livré lundi. Amina vérifiera le calendrier jeudi. Cette discussion ne constitue pas une décision de lancement ; nous attendons une réponse avant de confirmer la date. La responsabilité reste à confirmer. Aucun invité ne pourra transformer cette discussion en ordre d’achat sans une validation écrite de l’équipe.",
+          "voice": "Thomas",
+          "rate": 170,
+          "gap_ms": 0,
+          "slot_seconds": 28
+        },
+        {
+          "text": "Pour finir, la réserve est de neuf mille six cents euros. Personne ne doit envoyer de paiement avant confirmation. Merci de relire les chiffres.",
+          "voice": "Thomas",
+          "rate": 170,
+          "gap_ms": 0,
+          "slot_seconds": 11
+        }
+      ],
+      "critical": [
+        [
+          "orion"
+        ],
+        [
+          "6300",
+          "pas",
+          "63000"
+        ],
+        [
+          "7400"
+        ],
+        [
+          "rien",
+          "signer"
+        ],
+        [
+          "8500",
+          "non",
+          "85000"
+        ],
+        [
+          "pas",
+          "livré",
+          "lundi"
+        ],
+        [
+          "9600"
+        ],
+        [
+          "personne",
+          "envoyer",
+          "confirmation"
+        ]
+      ],
+      "keywords": []
+    }
+  ]
+}

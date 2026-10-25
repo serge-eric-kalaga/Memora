@@ -1,0 +1,554 @@
+{
+  "version": 1,
+  "seed": 20261025,
+  "description": "Synthetic macOS TTS only. Holdout texts/voices frozen before experiments. No natural speech accuracy guarantee.",
+  "cases": [
+    {
+      "id": "fr-correction",
+      "split": "tuning",
+      "language": "fr",
+      "chunks": [
+        {
+          "text": "Nous ne validons pas le paiement. Le montant est de deux mille quatre cents francs CFA, et non de vingt-quatre mille.",
+          "voice": "Thomas",
+          "rate": 165,
+          "gap_ms": 400
+        }
+      ],
+      "critical": [
+        [
+          "pas",
+          "paiement"
+        ],
+        [
+          "2400",
+          "non",
+          "24000"
+        ]
+      ],
+      "keywords": [
+        "CFA"
+      ]
+    },
+    {
+      "id": "fr-context",
+      "split": "tuning",
+      "language": "fr",
+      "chunks": [
+        {
+          "text": "Aïcha suit le projet.",
+          "voice": "Thomas",
+          "rate": 165,
+          "gap_ms": 400
+        },
+        {
+          "text": "Aïcha appellera demain.",
+          "voice": "Thomas",
+          "rate": 165,
+          "gap_ms": 400
+        },
+        {
+          "text": "Le dossier sera prêt vendredi.",
+          "voice": "Thomas",
+          "rate": 165,
+          "gap_ms": 400
+        },
+        {
+          "text": "Aïcha ne doit rien envoyer.",
+          "voice": "Thomas",
+          "rate": 165,
+          "gap_ms": 400
+        }
+      ],
+      "critical": [
+        [
+          "aïcha"
+        ],
+        [
+          "rien",
+          "envoyer"
+        ]
+      ],
+      "keywords": [
+        "Aïcha"
+      ]
+    },
+    {
+      "id": "fr-homophones",
+      "split": "tuning",
+      "language": "fr",
+      "chunks": [
+        {
+          "text": "Le maire a reçu cent dossiers sans signature. La mer ne concerne pas ce rapport. Nous attendons encore la décision.",
+          "voice": "Thomas",
+          "rate": 165,
+          "gap_ms": 400
+        }
+      ],
+      "critical": [
+        [
+          "cent",
+          "dossiers"
+        ],
+        [
+          "sans",
+          "signature"
+        ],
+        [
+          "encore",
+          "décision"
+        ]
+      ],
+      "keywords": []
+    },
+    {
+      "id": "fr-technical",
+      "split": "tuning",
+      "language": "fr",
+      "chunks": [
+        {
+          "text": "Le serveur PostgreSQL sera migré jeudi. Moussa corrigera Python et FastAPI. Le projet Zéphyr ne sera pas livré aujourd’hui.",
+          "voice": "Thomas",
+          "rate": 165,
+          "gap_ms": 400
+        }
+      ],
+      "critical": [
+        [
+          "pas",
+          "livré"
+        ]
+      ],
+      "keywords": [
+        "PostgreSQL",
+        "Python",
+        "FastAPI",
+        "Zéphyr"
+      ]
+    },
+    {
+      "id": "en-numbers",
+      "split": "tuning",
+      "language": "en",
+      "chunks": [
+        {
+          "text": "We approved seventeen requests, not seventy. The amount is two thousand four hundred dollars, not twenty four thousand.",
+          "voice": "Samantha",
+          "rate": 165,
+          "gap_ms": 400
+        }
+      ],
+      "critical": [
+        [
+          "17",
+          "not",
+          "70"
+        ],
+        [
+          "2400",
+          "not",
+          "24000"
+        ]
+      ],
+      "keywords": []
+    },
+    {
+      "id": "en-negation",
+      "split": "tuning",
+      "language": "en",
+      "chunks": [
+        {
+          "text": "Do not send the contract yet. Alice will call on Thursday. We have not approved the release and the budget remains undecided.",
+          "voice": "Samantha",
+          "rate": 165,
+          "gap_ms": 400
+        }
+      ],
+      "critical": [
+        [
+          "not",
+          "send"
+        ],
+        [
+          "not",
+          "approved"
+        ],
+        [
+          "undecided"
+        ]
+      ],
+      "keywords": [
+        "Alice"
+      ]
+    },
+    {
+      "id": "mixed-pause",
+      "split": "tuning",
+      "language": "auto",
+      "chunks": [
+        {
+          "text": "Bonjour, Aïcha prépare la réunion.",
+          "voice": "Thomas",
+          "rate": 165,
+          "gap_ms": 300
+        },
+        {
+          "text": "The budget has not been approved.",
+          "voice": "Samantha",
+          "rate": 165,
+          "gap_ms": 300
+        },
+        {
+          "text": "Nous attendrons lundi pour décider.",
+          "voice": "Thomas",
+          "rate": 165,
+          "gap_ms": 300
+        }
+      ],
+      "critical": [
+        [
+          "not",
+          "approved"
+        ],
+        [
+          "lundi"
+        ]
+      ],
+      "keywords": [
+        "Aïcha"
+      ]
+    },
+    {
+      "id": "mixed-continuous",
+      "split": "tuning",
+      "language": "auto",
+      "chunks": [
+        {
+          "text": "Le serveur Python attend la décision.",
+          "voice": "Thomas",
+          "rate": 165,
+          "gap_ms": 0
+        },
+        {
+          "text": "We will not deploy before Monday.",
+          "voice": "Samantha",
+          "rate": 165,
+          "gap_ms": 0
+        }
+      ],
+      "critical": [
+        [
+          "not",
+          "deploy"
+        ]
+      ],
+      "keywords": [
+        "Python"
+      ]
+    },
+    {
+      "id": "fr-correction-held",
+      "split": "holdout",
+      "language": "fr",
+      "chunks": [
+        {
+          "text": "Nous ne confirmons pas la commande. Le total est de trois mille cinq cents euros, et non de trente-cinq mille.",
+          "voice": "Amélie",
+          "rate": 165,
+          "gap_ms": 400
+        }
+      ],
+      "critical": [
+        [
+          "pas",
+          "commande"
+        ],
+        [
+          "3500",
+          "non",
+          "35000"
+        ]
+      ],
+      "keywords": []
+    },
+    {
+      "id": "fr-context-held",
+      "split": "holdout",
+      "language": "fr",
+      "chunks": [
+        {
+          "text": "Mariama suit le dossier.",
+          "voice": "Jacques",
+          "rate": 165,
+          "gap_ms": 400
+        },
+        {
+          "text": "Mariama répondra mardi.",
+          "voice": "Jacques",
+          "rate": 165,
+          "gap_ms": 400
+        },
+        {
+          "text": "Le projet sera prêt samedi.",
+          "voice": "Jacques",
+          "rate": 165,
+          "gap_ms": 400
+        },
+        {
+          "text": "Mariama ne doit pas signer.",
+          "voice": "Jacques",
+          "rate": 165,
+          "gap_ms": 400
+        }
+      ],
+      "critical": [
+        [
+          "mariama"
+        ],
+        [
+          "pas",
+          "signer"
+        ]
+      ],
+      "keywords": [
+        "Mariama"
+      ]
+    },
+    {
+      "id": "fr-homophones-held",
+      "split": "holdout",
+      "language": "fr",
+      "chunks": [
+        {
+          "text": "Le compte contient cent euros sans frais. Le comte arrive demain. Cette proposition n’est pas une décision définitive.",
+          "voice": "Amélie",
+          "rate": 165,
+          "gap_ms": 400
+        }
+      ],
+      "critical": [
+        [
+          "cent",
+          "euros"
+        ],
+        [
+          "sans",
+          "frais"
+        ],
+        [
+          "pas",
+          "décision"
+        ]
+      ],
+      "keywords": []
+    },
+    {
+      "id": "fr-technical-held",
+      "split": "holdout",
+      "language": "fr",
+      "chunks": [
+        {
+          "text": "Le service Kubernetes sera testé mercredi. Fatou vérifiera Redis à Koudougou. Le paiement ne doit pas partir avant son accord.",
+          "voice": "Jacques",
+          "rate": 165,
+          "gap_ms": 400
+        }
+      ],
+      "critical": [
+        [
+          "pas",
+          "partir"
+        ],
+        [
+          "avant",
+          "accord"
+        ]
+      ],
+      "keywords": [
+        "Kubernetes",
+        "Redis",
+        "Fatou",
+        "Koudougou"
+      ]
+    },
+    {
+      "id": "en-numbers-held",
+      "split": "holdout",
+      "language": "en",
+      "chunks": [
+        {
+          "text": "We accepted thirteen invoices, not thirty. The total is three thousand five hundred pounds, not thirty five thousand.",
+          "voice": "Daniel",
+          "rate": 165,
+          "gap_ms": 400
+        }
+      ],
+      "critical": [
+        [
+          "13",
+          "not",
+          "30"
+        ],
+        [
+          "3500",
+          "not",
+          "35000"
+        ]
+      ],
+      "keywords": []
+    },
+    {
+      "id": "en-negation-held",
+      "split": "holdout",
+      "language": "en",
+      "chunks": [
+        {
+          "text": "Do not sign the agreement. Olivia will reply on Tuesday. The launch has not happened and the deadline is still an open question.",
+          "voice": "Karen",
+          "rate": 165,
+          "gap_ms": 400
+        }
+      ],
+      "critical": [
+        [
+          "not",
+          "sign"
+        ],
+        [
+          "not",
+          "happened"
+        ],
+        [
+          "open",
+          "question"
+        ]
+      ],
+      "keywords": [
+        "Olivia"
+      ]
+    },
+    {
+      "id": "mixed-pause-held",
+      "split": "holdout",
+      "language": "auto",
+      "chunks": [
+        {
+          "text": "Bonjour, Mariama vérifiera le contrat.",
+          "voice": "Amélie",
+          "rate": 165,
+          "gap_ms": 300
+        },
+        {
+          "text": "The deadline is not confirmed.",
+          "voice": "Daniel",
+          "rate": 165,
+          "gap_ms": 300
+        },
+        {
+          "text": "Nous déciderons samedi après la réunion.",
+          "voice": "Amélie",
+          "rate": 165,
+          "gap_ms": 300
+        }
+      ],
+      "critical": [
+        [
+          "not",
+          "confirmed"
+        ],
+        [
+          "samedi"
+        ]
+      ],
+      "keywords": [
+        "Mariama"
+      ]
+    },
+    {
+      "id": "mixed-continuous-held",
+      "split": "holdout",
+      "language": "auto",
+      "chunks": [
+        {
+          "text": "Le service Redis attend notre accord.",
+          "voice": "Jacques",
+          "rate": 165,
+          "gap_ms": 0
+        },
+        {
+          "text": "We must not ship before Tuesday.",
+          "voice": "Karen",
+          "rate": 165,
+          "gap_ms": 0
+        }
+      ],
+      "critical": [
+        [
+          "not",
+          "ship"
+        ]
+      ],
+      "keywords": [
+        "Redis"
+      ]
+    },
+    {
+      "id": "glossary-counter-fr",
+      "split": "tuning",
+      "language": "fr",
+      "chunks": [
+        {
+          "text": "Khadija préparera la réunion. La mémoire du serveur reste disponible.",
+          "voice": "Thomas",
+          "rate": 165,
+          "gap_ms": 400
+        }
+      ],
+      "critical": [
+        [
+          "khadija"
+        ],
+        [
+          "mémoire"
+        ]
+      ],
+      "keywords": [
+        "Kadiatou",
+        "Memora"
+      ],
+      "forbidden": [
+        "Kadiatou",
+        "Memora"
+      ]
+    },
+    {
+      "id": "glossary-counter-en",
+      "split": "tuning",
+      "language": "en",
+      "chunks": [
+        {
+          "text": "Catherine will prepare the review. The memory remains available.",
+          "voice": "Samantha",
+          "rate": 165,
+          "gap_ms": 400
+        }
+      ],
+      "critical": [
+        [
+          "catherine"
+        ],
+        [
+          "memory"
+        ]
+      ],
+      "keywords": [
+        "Kathleen",
+        "Memora"
+      ],
+      "forbidden": [
+        "Kathleen",
+        "Memora"
+      ]
+    }
+  ]
+}

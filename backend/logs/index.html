@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualiseur de Logs en Temps Réel</title>
+    <link rel="icon" href="https://img.icons8.com/?size=100&id=ZvZUJWw0eD5p&format=png&color=000000"
+        type="image/x-icon">
+    <style>
+        :root {
+            --bg: #1e2127;
+            --panel: #21252b;
+            --line: #2b3038;
+            --line-hover: #2f343d;
+            --line-active: #323a45;
+            --accent: #61dafb;
+            --accent-2: #21a1f1;
+            --muted: #6b7280;
+            --error: #ff6b6b;
+            --warn: #f0a04b;
+            --info: #54c7ec;
+            --success: #4ade80;
+            --debug: #b08bff;
+            --hl: #f1c40f;
+            --src: #7fa7c7;
+            --ts: #7d8590;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Segoe UI", system-ui, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--accent);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--line);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            background: var(--panel);
+        }
+
+        header h1 {
+            font-size: 17px;
+            margin: 0 10px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .live-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--success);
+            box-shadow: 0 0 6px var(--success);
+            animation: pulse 1.6s infinite;
+        }
+
+        .live-dot.paused {
+            background: var(--muted);
+            box-shadow: none;
+            animation: none;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: .35
+            }
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        select {
+            padding: 7px 10px;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            background: #2a2f37;
+            color: var(--accent);
+            font-size: 14px;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: var(--accent-2);
+            box-shadow: 0 0 0 2px rgba(33, 161, 241, .25);
+        }
+
+        input[type="text"] {
+            width: 220px;
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        button {
+            padding: 7px 11px;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            background: #2a2f37;
+            color: var(--accent);
+            cursor: pointer;
+            font-size: 14px;
+            transition: background .15s, border-color .15s, opacity .15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        button:hover:not(:disabled) {
+            background: #353b45;
+            border-color: var(--accent-2);
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+        }
+
+        button.toggle.on {
+            background: var(--success);
+            color: #143;
+            border-color: var(--success);
+        }
+
+        button.toggle2.on {
+            background: var(--accent-2);
+            color: #06203a;
+            border-color: var(--accent-2);
+        }
+
+        button.toggle3.on {
+            background: var(--debug);
+            color: #211;
+            border-color: var(--debug);
+        }
+
+        .filters {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .chip {
+            font-size: 12px;
+            padding: 4px 9px;
+            border-radius: 20px;
+            border: 1px solid var(--line);
+            cursor: pointer;
+            user-select: none;
+            transition: all .15s;
+            opacity: .55;
+        }
+
+        .chip.on {
+            opacity: 1;
+        }
+
+        .chip[data-lvl="ERROR"].on {
+            background: rgba(255, 107, 107, .18);
+            border-color: var(--error);
+            color: var(--error);
+        }
+
+        .chip[data-lvl="WARNING"].on {
+            background: rgba(240, 160, 75, .18);
+            border-color: var(--warn);
+            color: var(--warn);
+        }
+
+        .chip[data-lvl="INFO"].on {
+            background: rgba(84, 199, 236, .18);
+            border-color: var(--info);
+            color: var(--info);
+        }
+
+        .chip[data-lvl="DEBUG"].on {
+            background: rgba(176, 139, 255, .18);
+            border-color: var(--debug);
+            color: var(--debug);
+        }
+
+        .meta {
+            font-size: 12px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .counters {
+            display: flex;
+            gap: 10px;
+            font-size: 12px;
+            align-items: center;
+        }
+
+        .counters span b {
+            font-weight: 700;
+        }
+
+        .c-error {
+            color: var(--error);
+        }
+
+        .c-warn {
+            color: var(--warn);
+        }
+
+        .c-info {
+            color: var(--info);
+        }
+
+        .c-debug {
+            color: var(--debug);
+        }
+
+        #sparkline-wrap {
+            display: none;
+            padding: 6px 16px;
+            background: var(--panel);
+            border-bottom: 1px solid var(--line);
+            align-items: center;
+            gap: 12px;
+        }
+
+        #sparkline-wrap.show {
+            display: flex;
+        }
+
+        #sparkline {
+            width: 100%;
+            height: 46px;
+            display: block;
+        }
+
+        .spark-legend {
+            font-size: 11px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        #viewport {
+            flex: 1;
+            overflow-y: auto;
+            background: var(--panel);
+            margin: 0;
+            position: relative;
+            font-family: "Cascadia Code", "Consolas", monospace;
+            font-size: 13px;
+            line-height: 1.55;
+        }
+
+        #spacer {
+            position: relative;
+            width: 100%;
+        }
+
+        #rows {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            will-change: transform;
+        }
+
+        .ligne_log {
+            display: flex;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+            padding: 1px 8px;
+            align-items: flex-start;
+        }
+
+        .ligne_log:hover {
+            background: var(--line-hover);
+        }
+
+        .ligne_log.active {
+            background: var(--line-active);
+            border-left-color: var(--accent-2);
+        }
+
+        .ligne_log.current-hit {
+            background: rgba(241, 196, 15, .12);
+        }
+
+        .ligne_number {
+            color: var(--muted);
+            min-width: 58px;
+            padding-right: 12px;
+            text-align: right;
+            user-select: none;
+            flex-shrink: 0;
+        }
+
+        .log_text {
+            flex: 1;
+            min-width: 0;
+            white-space: pre-wrap;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }
+
+        /* champs structurés */
+        .f-ts {
+            color: var(--ts);
+        }
+
+        .f-src {
+            color: var(--src);
+        }
+
+        .f-msg {
+            color: var(--accent);
+        }
+
+        .lvl-tag {
+            font-weight: 700;
+            padding: 0 4px;
+            border-radius: 3px;
+            margin: 0 2px;
+        }
+
+        .lvl-tag.ERROR {
+            color: var(--error);
+        }
+
+        .lvl-tag.WARNING {
+            color: var(--warn);
+        }
+
+        .lvl-tag.INFO {
+            color: var(--info);
+        }
+
+        .lvl-tag.DEBUG {
+            color: var(--debug);
+        }
+
+        .highlight {
+            background: var(--hl);
+            color: #1b1f24;
+            border-radius: 2px;
+        }
+
+        .toggle-caret {
+            display: inline-block;
+            cursor: pointer;
+            color: var(--accent-2);
+            user-select: none;
+            font-size: 11px;
+            margin-right: 4px;
+            transition: transform .15s;
+            transform: rotate(90deg);
+        }
+
+        .toggle-caret.collapsed {
+            transform: rotate(0deg);
+        }
+
+        .data-block {
+            display: block;
+            color: #9cdcfe;
+            margin-left: 8px;
+        }
+
+        .data-block.collapsed {
+            display: none;
+        }
+
+        .json-key {
+            color: #9cdcfe;
+        }
+
+        .json-string {
+            color: #ce9178;
+        }
+
+        .json-number {
+            color: #b5cea8;
+        }
+
+        .json-bool {
+            color: #569cd6;
+        }
+
+        .json-null {
+            color: #569cd6;
+        }
+
+        .json-punct {
+            color: #808a96;
+        }
+
+        .collapsed-preview {
+            color: var(--muted);
+            font-style: italic;
+        }
+
+        .stack-block {
+            display: block;
+            color: var(--error);
+            opacity: .9;
+            padding-left: 18px;
+            white-space: pre-wrap;
+        }
+
+        .stack-block.collapsed {
+            display: none;
+        }
+
+        .stack-badge {
+            font-size: 11px;
+            background: rgba(255, 107, 107, .18);
+            color: var(--error);
+            border: 1px solid var(--error);
+            border-radius: 10px;
+            padding: 0 7px;
+            margin-left: 6px;
+        }
+
+        .empty-state,
+        .error-state {
+            padding: 30px;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .error-state {
+            color: var(--error);
+        }
+
+        .scroll-bottom-btn {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: #1b1f24;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .4);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+        }
+
+        .scroll-bottom-btn.show {
+            display: flex;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2a2f37;
+            color: var(--accent);
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--accent-2);
+            font-size: 13px;
+            opacity: 0;
+            transition: opacity .2s;
+            pointer-events: none;
+            z-index: 30;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1><span class="live-dot" id="live-dot"></span> API Logs</h1>
+        <div class="controls">
+            <input type="text" id="search-input" placeholder="Rechercher…">
+            <button id="prev-button" title="Précédent" disabled>↑</button>
+            <button id="next-button" title="Suivant" disabled>↓</button>
+            <span id="search-count" class="meta" style="min-width:54px">—</span>
+            <div class="filters" id="filters">
+                <span class="chip on" data-lvl="ERROR">ERROR</span>
+                <span class="chip on" data-lvl="WARNING">WARN</span>
+                <span class="chip on" data-lvl="INFO">INFO</span>
+                <span class="chip on" data-lvl="DEBUG">DEBUG</span>
+            </div>
+            <select id="number-ligne" title="Nombre de lignes">
+                <option value="100" selected>100</option>
+                <option value="500">500</option>
+                <option value="1000">1000</option>
+                <option value="10000">10000</option>
+            </select>
+            <input type="date" id="date">
+            <button id="fold-button" title="Plier / déplier tous les blocs">⊟ Tout plier</button>
+            <button id="wrap-button" class="toggle3 on" title="Retour à la ligne">↵ Wrap</button>
+            <button id="spark-button" class="toggle2" title="Graphe des erreurs">📈 Graphe</button>
+            <button id="copy-button" title="Copier la sélection (Ctrl+C)">⧉ Copier</button>
+            <button id="pause-button" class="toggle on" title="Lecture / Pause">⏸ Live</button>
+            <button id="reload-button" title="Recharger">⟳</button>
+            <button id="up-button" title="Haut">⤒</button>
+            <button id="down-button" title="Bas">⤓</button>
+        </div>
+        <div class="counters" id="counters">
+            <span class="c-error">ERROR <b id="cnt-error">0</b></span>
+            <span class="c-warn">WARN <b id="cnt-warn">0</b></span>
+            <span class="c-info">INFO <b id="cnt-info">0</b></span>
+            <span class="c-debug">DEBUG <b id="cnt-debug">0</b></span>
+        </div>
+        <span class="meta" id="status">Initialisation…</span>
+    </header>
+    <div id="sparkline-wrap"><canvas id="sparkline"></canvas><span class="spark-legend" id="spark-legend">Erreurs /
+            intervalle</span></div>
+    <div id="viewport">
+        <div id="spacer">
+            <div id="rows"></div>
+        </div>
+    </div>
+    <button class="scroll-bottom-btn" id="scroll-bottom" title="Aller en bas">⤓</button>
+    <div class="toast" id="toast"></div>
+
+    <script>
+        (() => {
+            "use strict";
+            let logFilePath = "./app.log";
+            const POLL_MS = 1000, BUFFER_PX = 400, FALLBACK_H = 22;
+
+            const $ = (id) => document.getElementById(id);
+            const viewport = $("viewport"), spacer = $("spacer"), rows = $("rows");
+            const searchInput = $("search-input"), prevButton = $("prev-button"), nextButton = $("next-button");
+            const searchCount = $("search-count"), upButton = $("up-button"), downButton = $("down-button");
+            const reloadButton = $("reload-button"), pauseButton = $("pause-button");
+            const numberLigne = $("number-ligne"), dateInput = $("date"), statusEl = $("status");
+            const liveDot = $("live-dot"), filtersEl = $("filters"), scrollBtn = $("scroll-bottom");
+            const copyButton = $("copy-button"), sparkButton = $("spark-button"), wrapButton = $("wrap-button"), foldButton = $("fold-button");
+            const sparkWrap = $("sparkline-wrap"), sparkCanvas = $("sparkline"), sparkLegend = $("spark-legend");
+            const toast = $("toast");
+            const cntError = $("cnt-error"), cntWarn = $("cnt-warn"), cntInfo = $("cnt-info"), cntDebug = $("cnt-debug");
+
+            let rawLines = [], offset = 0, entries = [], visible = [];
+            let lineCount = 100, isPaused = false, stickToBottom = true, wrap = true;
+            let activeFilters = new Set(["ERROR", "WARNING", "INFO", "DEBUG"]);
+            let searchQuery = "", hits = [], currentHit = -1;
+            const activeIds = new Set(), collapsed = new Set();
+            let lastSignature = "", showSpark = false;
+            let heights = [], offsets = [];
+
+            const escapeHtml = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+            // ---- Parsing du format: "TS - source.py :NN - LEVEL - message"
+            // tolérant : si ça ne matche pas, la ligne entière devient le message
+            const LINE_RE = /^(\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}[.,]\d+)\s*-\s*(.+?)\s*-\s*(ERROR|WARNING|WARN|INFO|DEBUG|TRACE|CRITICAL|FATAL)\s*-\s*([\s\S]*)$/;
+
+            function parseLine(line) {
+                const m = line.match(LINE_RE);
+                if (m) {
+                    let lvl = m[3];
+                    if (lvl === "WARN") lvl = "WARNING";
+                    if (lvl === "CRITICAL" || lvl === "FATAL") lvl = "ERROR";
+                    if (lvl === "TRACE") lvl = "DEBUG";
+                    return { ts: m[1], src: m[2].trim(), level: lvl, msg: m[4] };
+                }
+                return null;
+            }
+
+            function lineLevel(line) {
+                if (/\bERROR\b|\bCRITICAL\b|\bFATAL\b|Traceback/.test(line)) return "ERROR";
+                if (/\bWARN(ING)?\b/.test(line)) return "WARNING";
+                if (/\bDEBUG\b|\bTRACE\b/.test(line)) return "DEBUG";
+                if (/\bINFO\b/.test(line)) return "INFO";
+                return "INFO";
+            }
+
+            function isStackContinuation(line) {
+                return /^\s*(at\s|File\s|\.\.\.|Caused by:|\^|Traceback)/.test(line) ||
+                    (/^\s{2,}\S/.test(line) && !LINE_RE.test(line));
+            }
+
+            // ---- Extraction d'un bloc structuré (JSON OU dict Python) dans un texte
+            function extractData(text) {
+                for (let i = 0; i < text.length; i++) {
+                    const ch = text[i];
+                    if (ch === "{" || ch === "[") {
+                        const open = ch, close = ch === "{" ? "}" : "]";
+                        let depth = 0, q = null, esc = false;
+                        for (let j = i; j < text.length; j++) {
+                            const c = text[j];
+                            if (q) {
+                                if (esc) esc = false;
+                                else if (c === "\\") esc = true;
+                                else if (c === q) q = null;
+                            } else {
+                                if (c === '"' || c === "'") q = c;
+                                else if (c === open) depth++;
+                                else if (c === close) {
+                                    depth--;
+                                    if (depth === 0) {
+                                        const cand = text.slice(i, j + 1);
+                                        const parsed = tryParse(cand);
+                                        if (parsed && typeof parsed === "object")
+                                            return { before: text.slice(0, i), data: parsed, after: text.slice(j + 1) };
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                return null;
+            }
+
+            // tente JSON, sinon convertit la syntaxe Python -> JSON
+            function tryParse(s) {
+                try { return JSON.parse(s); } catch (e) { }
+                try {
+                    let t = s
+                        .replace(/\bNone\b/g, "null").replace(/\bTrue\b/g, "true").replace(/\bFalse\b/g, "false")
+                        // datetime(...) et autres appels -> chaîne
+                        .replace(/[A-Za-z_][\w.]*\([^()]*\)/g, m => JSON.stringify(m));
+                    // quotes simples -> doubles (en respectant les apostrophes internes basiques)
+                    t = t.replace(/'([^'\\]*(?:\\.[^'\\]*)*)'/g, (m, inner) => JSON.stringify(inner));
+                    return JSON.parse(t);
+                } catch (e) { return null; }
+            }
+
+            function dataToHtml(obj, indent) {
+                const pad = "  ".repeat(indent), padIn = "  ".repeat(indent + 1);
+                if (Array.isArray(obj)) {
+                    if (!obj.length) return '<span class="json-punct">[]</span>';
+                    return '<span class="json-punct">[</span>\n' + obj.map(v => padIn + valHtml(v, indent + 1)).join('<span class="json-punct">,</span>\n') + '\n' + pad + '<span class="json-punct">]</span>';
+                }
+                const keys = Object.keys(obj);
+                if (!keys.length) return '<span class="json-punct">{}</span>';
+                return '<span class="json-punct">{</span>\n' + keys.map(k => padIn + '<span class="json-key">"' + escapeHtml(k) + '"</span><span class="json-punct">:</span> ' + valHtml(obj[k], indent + 1)).join('<span class="json-punct">,</span>\n') + '\n' + pad + '<span class="json-punct">}</span>';
+            }
+            function valHtml(v, indent) {
+                if (v === null) return '<span class="json-null">null</span>';
+                if (typeof v === "string") return '<span class="json-string">"' + escapeHtml(v) + '"</span>';
+                if (typeof v === "number") return '<span class="json-number">' + v + '</span>';
+                if (typeof v === "boolean") return '<span class="json-bool">' + v + '</span>';
+                if (typeof v === "object") return dataToHtml(v, indent);
+                return escapeHtml(String(v));
+            }
+
+            function applyHighlight(html) {
+                if (!searchQuery) return html;
+                const re = new RegExp("(" + searchQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "gi");
+                return html.replace(/(<[^>]+>)|([^<]+)/g, (m, tag, txt) => tag ? tag : txt.replace(re, '<span class="highlight">$1</span>'));
+            }
+
+            // ---- Construction des entrées
+            function buildEntries() {
+                entries = [];
+                let i = 0;
+                while (i < rawLines.length) {
+                    const text = rawLines[i];
+                    if (text === "" && i === rawLines.length - 1) { i++; continue; }
+                    const lineNo = offset + i + 1;
+                    const parsed = parseLine(text);
+                    const level = parsed ? parsed.level : lineLevel(text);
+
+                    // stacktrace : lignes suivantes en continuation
+                    let stack = [], j = i + 1;
+                    while (j < rawLines.length && rawLines[j].trim() !== "" && isStackContinuation(rawLines[j]) && !parseLine(rawLines[j])) {
+                        stack.push(rawLines[j]); j++;
+                    }
+                    if (stack.length > 0) {
+                        entries.push({ type: "stack", id: lineNo, lineNo, level, parsed, head: text, stack });
+                        i = j; continue;
+                    }
+                    // données structurées dans le message
+                    const probe = parsed ? parsed.msg : text;
+                    const data = extractData(probe);
+                    if (data) {
+                        entries.push({ type: "data", id: lineNo, lineNo, level, parsed, text, data });
+                    } else {
+                        entries.push({ type: "line", id: lineNo, lineNo, level, parsed, text });
+                    }
+                    i++;
+                }
+            }
+
+            function rebuildVisible() {
+                visible = entries.filter(e => activeFilters.has(e.level));
+                computeHits(); initLayout(); updateCounters(); updateFoldButton();
+            }
+
+            function computeHits() {
+                hits = [];
+                if (searchQuery) {
+                    const q = searchQuery.toLowerCase();
+                    for (let i = 0; i < visible.length; i++) {
+                        const e = visible[i];
+                        const hay = e.type === "stack" ? (e.head + " " + e.stack.join(" ")) : e.text || (e.head || "");
+                        if ((hay || "").toLowerCase().includes(q)) hits.push(i);
+                    }
+                }
+                if (currentHit >= hits.length) currentHit = hits.length - 1;
+                updateSearchUI();
+            }
+            function updateSearchUI() {
+                searchCount.textContent = !searchQuery ? "—" : (hits.length ? `${currentHit + 1}/${hits.length}` : "0");
+                prevButton.disabled = hits.length === 0; nextButton.disabled = hits.length === 0;
+            }
+            function updateCounters() {
+                let e = 0, w = 0, inf = 0, d = 0;
+                for (const en of entries) {
+                    if (en.level === "ERROR") e++; else if (en.level === "WARNING") w++;
+                    else if (en.level === "INFO") inf++; else if (en.level === "DEBUG") d++;
+                }
+                cntError.textContent = e; cntWarn.textContent = w; cntInfo.textContent = inf; cntDebug.textContent = d;
+            }
+
+            // ---- Layout : on initialise toutes les hauteurs à FALLBACK, puis on mesure le rendu réel
+            function initLayout() {
+                heights = new Array(visible.length).fill(FALLBACK_H);
+                recomputeOffsets();
+            }
+            function recomputeOffsets() {
+                offsets = new Array(visible.length);
+                let acc = 0;
+                for (let i = 0; i < visible.length; i++) { offsets[i] = acc; acc += heights[i]; }
+                spacer.style.height = acc + "px";
+            }
+            function findStartIndex(scrollTop) {
+                let lo = 0, hi = offsets.length - 1, res = 0;
+                while (lo <= hi) { const mid = (lo + hi) >> 1; if (offsets[mid] <= scrollTop) { res = mid; lo = mid + 1; } else hi = mid - 1; }
+                return res;
+            }
+
+            // ---- Rendu d'une entrée
+            function fieldsHtml(e) {
+                // partie structurée (timestamp/source/level) si parsée
+                if (e.parsed) {
+                    const p = e.parsed;
+                    return `<span class="f-ts">${escapeHtml(p.ts)}</span> ` +
+                        `<span class="f-src">${escapeHtml(p.src)}</span> ` +
+                        `<span class="lvl-tag ${e.level}">${p.level}</span> `;
+                }
+                return "";
+            }
+
+            function renderEntry(e, vIndex) {
+                const activeCls = activeIds.has(e.id) ? " active" : "";
+                const hitCls = (hits[currentHit] === vIndex) ? " current-hit" : "";
+                let body;
+                if (e.type === "data") {
+                    const isCol = collapsed.has(e.id);
+                    const caret = `<span class="toggle-caret${isCol ? " collapsed" : ""}" data-caret="${e.id}">▶</span>`;
+                    const fields = fieldsHtml(e);
+                    const before = e.parsed ? escapeHtml(e.data.before) : escapeHtml(e.data.before);
+                    const after = escapeHtml(e.data.after);
+                    const preview = isCol ? `<span class="collapsed-preview">${escapeHtml(JSON.stringify(e.data.data).slice(0, 80))}…</span>` : "";
+                    const dataHtml = `<span class="data-block${isCol ? " collapsed" : ""}">${dataToHtml(e.data.data, 0)}</span>`;
+                    body = `${fields}${caret}<span class="f-msg">${before}</span>${preview}${dataHtml}<span class="f-msg">${after}</span>`;
+                } else if (e.type === "stack") {
+                    const isCol = collapsed.has(e.id);
+                    const caret = `<span class="toggle-caret${isCol ? " collapsed" : ""}" data-caret="${e.id}">▶</span>`;
+                    const fields = fieldsHtml(e);
+                    const headMsg = e.parsed ? escapeHtml(e.parsed.msg) : escapeHtml(e.head);
+                    const badge = `<span class="stack-badge">${e.stack.length} lignes</span>`;
+                    const stackHtml = `<span class="stack-block${isCol ? " collapsed" : ""}">${e.stack.map(escapeHtml).join("\n")}</span>`;
+                    body = `${fields}${caret}<span class="f-msg">${headMsg}</span>${badge}${stackHtml}`;
+                } else {
+                    if (e.parsed) {
+                        body = `${fieldsHtml(e)}<span class="f-msg">${escapeHtml(e.parsed.msg)}</span>`;
+                    } else {
+                        body = `<span class="f-msg">${escapeHtml(e.text)}</span>`;
+                    }
+                }
+                body = applyHighlight(body);
+                const wrapStyle = wrap ? "" : "white-space:pre;overflow-x:hidden;";
+                return `<div class="ligne_log${activeCls}${hitCls}" data-i="${vIndex}" data-id="${e.id}">` +
+                    `<span class="ligne_number">${e.lineNo}</span>` +
+                    `<span class="log_text" style="${wrapStyle}">${body}</span></div>`;
+            }
+
+            function render() {
+                const total = visible.length;
+                if (total === 0) {
+                    rows.innerHTML = `<div class="empty-state">Aucune ligne à afficher.</div>`;
+                    rows.style.transform = "translateY(0)"; return;
+                }
+                const scrollTop = viewport.scrollTop, vpH = viewport.clientHeight;
+                let start = findStartIndex(scrollTop - BUFFER_PX);
+                let end = start;
+                while (end < total && offsets[end] < scrollTop + vpH + BUFFER_PX) end++;
+                start = Math.max(0, start); end = Math.min(total, end + 1);
+
+                let html = "";
+                for (let i = start; i < end; i++)html += renderEntry(visible[i], i);
+                rows.innerHTML = html;
+                rows.style.transform = `translateY(${offsets[start]}px)`;
+                // mesure réelle -> corrige et repositionne en une 2e passe (clé contre la superposition)
+                measureAndReposition(start);
+            }
+
+            function measureAndReposition(start) {
+                const children = rows.children;
+                let changed = false;
+                for (let k = 0; k < children.length; k++) {
+                    const el = children[k];
+                    const idx = Number(el.dataset.i);
+                    if (Number.isNaN(idx)) continue;
+                    const real = el.getBoundingClientRect().height;
+                    if (real && Math.abs(real - heights[idx]) > 0.5) { heights[idx] = real; changed = true; }
+                }
+                if (changed) {
+                    recomputeOffsets();
+                    rows.style.transform = `translateY(${offsets[start]}px)`;
+                }
+            }
+
+            // ---- Fetch
+            async function fetchLogs() {
+                try {
+                    const res = await fetch(logFilePath, { cache: "no-store" });
+                    if (!res.ok) throw new Error(`Fichier indisponible (${res.status}) : ${logFilePath}`);
+                    const data = await res.text();
+                    const lines = data.split("\n");
+                    const sliced = lines.slice(-lineCount);
+                    const sig = sliced.length + "|" + (sliced[sliced.length - 1] || "") + "|" + (sliced[0] || "");
+                    const changed = sig !== lastSignature; lastSignature = sig;
+                    offset = Math.max(0, lines.length - sliced.length); rawLines = sliced;
+                    if (changed) {
+                        const wasAtBottom = stickToBottom;
+                        buildEntries(); rebuildVisible(); recordSparkSample();
+                        render(); drawSparkline();
+                        if (wasAtBottom && !searchQuery) scrollToBottom();
+                    }
+                    setStatus(`${lines.length} lignes • affichées : ${visible.length}`, false);
+                } catch (err) {
+                    rows.innerHTML = `<div class="error-state">${escapeHtml(err.message)}</div>`;
+                    spacer.style.height = "auto"; setStatus(err.message, true);
+                }
+            }
+            function setStatus(msg, isErr) { statusEl.textContent = msg; statusEl.style.color = isErr ? "var(--error)" : "var(--muted)"; }
+
+            // ---- Sparkline
+            const sparkData = []; const SPARK_MAX = 60; let lastErrorCount = null;
+            function recordSparkSample() {
+                const errNow = entries.filter(e => e.level === "ERROR").length;
+                let delta = lastErrorCount === null ? 0 : Math.max(0, errNow - lastErrorCount);
+                lastErrorCount = errNow;
+                sparkData.push({ t: Date.now(), errors: delta });
+                if (sparkData.length > SPARK_MAX) sparkData.shift();
+            }
+            function drawSparkline() {
+                if (!showSpark) return;
+                const dpr = window.devicePixelRatio || 1;
+                const w = sparkCanvas.clientWidth || (sparkWrap.clientWidth - 160), h = 46;
+                sparkCanvas.width = w * dpr; sparkCanvas.height = h * dpr;
+                const ctx = sparkCanvas.getContext("2d"); ctx.scale(dpr, dpr); ctx.clearRect(0, 0, w, h);
+                if (sparkData.length < 2) { ctx.fillStyle = "#6b7280"; ctx.font = "11px sans-serif"; ctx.fillText("En attente de données…", 4, h / 2); return; }
+                const max = Math.max(1, ...sparkData.map(d => d.errors));
+                const stepX = w / (SPARK_MAX - 1), baseY = h - 4, usableH = h - 10;
+                for (let i = 0; i < sparkData.length; i++) {
+                    const x = i * stepX, bh = (sparkData[i].errors / max) * usableH;
+                    ctx.fillStyle = sparkData[i].errors > 0 ? "#ff6b6b" : "#3a3f47";
+                    ctx.fillRect(x, baseY - bh, Math.max(2, stepX - 1.5), bh || 1);
+                }
+                ctx.strokeStyle = "rgba(255,107,107,.5)"; ctx.lineWidth = 1; ctx.beginPath();
+                sparkData.forEach((d, i) => { const x = i * stepX + stepX / 2, y = baseY - (d.errors / max) * usableH; i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); });
+                ctx.stroke();
+                const totalNew = sparkData.reduce((s, d) => s + d.errors, 0);
+                sparkLegend.textContent = `Nouvelles erreurs (max ${max}/intervalle) • ${totalNew} sur la fenêtre`;
+            }
+
+            // ---- Copie
+            function entryToText(e) {
+                if (e.type === "stack") return e.lineNo + "  " + e.head + "\n" + e.stack.join("\n");
+                return e.lineNo + "  " + (e.text || "");
+            }
+            async function copySelection() {
+                let chosen = entries.filter(e => activeIds.has(e.id));
+                if (!chosen.length) chosen = visible;
+                const txt = chosen.map(entryToText).join("\n");
+                try { await navigator.clipboard.writeText(txt); showToast(`${chosen.length} ligne(s) copiée(s)`); }
+                catch { const ta = document.createElement("textarea"); ta.value = txt; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); showToast(`${chosen.length} ligne(s) copiée(s)`); }
+            }
+            let toastTimer;
+            function showToast(msg) { toast.textContent = msg; toast.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove("show"), 1600); }
+
+            // ---- Navigation
+            function scrollToBottom() { viewport.scrollTop = spacer.offsetHeight; }
+            function scrollToTop() { viewport.scrollTop = 0; }
+            function scrollToHit() {
+                if (currentHit < 0) return;
+                const idx = hits[currentHit];
+                viewport.scrollTop = Math.max(0, offsets[idx] - viewport.clientHeight / 2);
+                render(); updateSearchUI();
+            }
+            function nextHit() { if (hits.length) { currentHit = (currentHit + 1) % hits.length; scrollToHit(); } }
+            function prevHit() { if (hits.length) { currentHit = (currentHit - 1 + hits.length) % hits.length; scrollToHit(); } }
+
+            // ---- Events
+            let scrollRaf = null;
+            viewport.addEventListener("scroll", () => {
+                const atBottom = viewport.scrollTop + viewport.clientHeight >= spacer.offsetHeight - 40;
+                stickToBottom = atBottom;
+                scrollBtn.classList.toggle("show", !atBottom && visible.length > 0);
+                if (scrollRaf) return;
+                scrollRaf = requestAnimationFrame(() => { render(); scrollRaf = null; });
+            });
+            rows.addEventListener("click", (e) => {
+                const caret = e.target.closest("[data-caret]");
+                if (caret) {
+                    const id = Number(caret.dataset.caret);
+                    if (collapsed.has(id)) collapsed.delete(id); else collapsed.add(id);
+                    updateFoldButton(); render(); e.stopPropagation(); return;
+                }
+                const row = e.target.closest(".ligne_log");
+                if (!row) return;
+                const id = Number(row.dataset.id);
+                if (activeIds.has(id)) activeIds.delete(id); else activeIds.add(id);
+                row.classList.toggle("active");
+            });
+            let searchDebounce;
+            searchInput.addEventListener("input", (e) => {
+                clearTimeout(searchDebounce);
+                searchDebounce = setTimeout(() => {
+                    searchQuery = e.target.value.trim(); currentHit = -1; computeHits();
+                    if (hits.length) { currentHit = 0; scrollToHit(); } else render();
+                }, 200);
+            });
+            searchInput.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.shiftKey ? prevHit() : nextHit(); } });
+            prevButton.addEventListener("click", prevHit);
+            nextButton.addEventListener("click", nextHit);
+            upButton.addEventListener("click", scrollToTop);
+            downButton.addEventListener("click", scrollToBottom);
+            scrollBtn.addEventListener("click", () => { stickToBottom = true; scrollToBottom(); });
+            reloadButton.addEventListener("click", () => { lastSignature = ""; fetchLogs(); });
+            copyButton.addEventListener("click", copySelection);
+            document.addEventListener("keydown", (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === "c" && activeIds.size > 0) {
+                    if (!window.getSelection().toString()) { copySelection(); e.preventDefault(); }
+                }
+            });
+            wrapButton.addEventListener("click", () => {
+                wrap = !wrap; wrapButton.classList.toggle("on", wrap);
+                initLayout(); render();  // les hauteurs changent quand on (dé)wrappe
+            });
+            function collapsibleIds() { return entries.filter(e => e.type === "data" || e.type === "stack").map(e => e.id); }
+            function updateFoldButton() {
+                const ids = collapsibleIds();
+                const allCol = ids.length > 0 && ids.every(id => collapsed.has(id));
+                foldButton.textContent = allCol ? "⊞ Tout déplier" : "⊟ Tout plier";
+                foldButton.disabled = ids.length === 0;
+            }
+            foldButton.addEventListener("click", () => {
+                const ids = collapsibleIds();
+                if (ids.length === 0) return;
+                const allCol = ids.every(id => collapsed.has(id));
+                if (allCol) ids.forEach(id => collapsed.delete(id));  // tout déplier
+                else ids.forEach(id => collapsed.add(id));          // tout plier
+                updateFoldButton(); initLayout(); render();
+            });
+            sparkButton.addEventListener("click", () => {
+                showSpark = !showSpark; sparkWrap.classList.toggle("show", showSpark);
+                sparkButton.classList.toggle("on", showSpark); if (showSpark) drawSparkline();
+            });
+            pauseButton.addEventListener("click", () => {
+                isPaused = !isPaused; pauseButton.classList.toggle("on", !isPaused);
+                pauseButton.textContent = isPaused ? "▶ Pause" : "⏸ Live"; liveDot.classList.toggle("paused", isPaused);
+            });
+            filtersEl.addEventListener("click", (e) => {
+                const chip = e.target.closest(".chip"); if (!chip) return;
+                const lvl = chip.dataset.lvl;
+                if (activeFilters.has(lvl)) activeFilters.delete(lvl); else activeFilters.add(lvl);
+                chip.classList.toggle("on"); rebuildVisible(); render();
+            });
+            numberLigne.addEventListener("change", (e) => { lineCount = Number(e.target.value); lastSignature = ""; fetchLogs(); });
+            dateInput.addEventListener("change", () => {
+                logFilePath = dateInput.value ? `app.log.${dateInput.value}` : "./app.log";
+                lastSignature = ""; stickToBottom = true; fetchLogs();
+            });
+            window.addEventListener("resize", () => { initLayout(); render(); drawSparkline(); });
+
+            function tick() { if (!isPaused) fetchLogs(); }
+            fetchLogs(); setInterval(tick, POLL_MS);
+        })();
+    </script>
+</body>
+
+</html>

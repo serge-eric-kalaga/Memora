@@ -1,0 +1,162 @@
+services:
+
+  mysql:
+    image: mysql:latest
+    restart: always
+    volumes:
+      - mysql_data:/var/lib/mysql
+    expose:
+      - 3306
+    networks:
+      - asgard
+      - monitor
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "mysql" ]
+      interval: 5s
+      timeout: 30s
+      retries: 10
+    env_file:
+      - ./.env.dev
+
+  backend:
+    build: ./backend
+    environment:
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+    restart: always
+    volumes:
+      - ./backend/:/app/
+    expose:
+      - 80
+    ports:
+      - "8080:80"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - thor
+      - asgard
+      - loky
+      - monitor
+    env_file:
+      - ./.env.dev
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost/api/healthcheck/')"]
+      interval: 5m30s
+      timeout: 30s
+      retries: 3
+      start_period: 30s
+
+  # Broker dédié : le cache peut être vidé/évincé sans perdre les tâches.
+  task-broker:
+    image: rabbitmq:4.1-alpine
+    hostname: task-broker
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:?Configurer le compte du broker}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:?Configurer le mot de passe du broker}
+    volumes: [task_broker_data:/var/lib/rabbitmq]
+    networks: [loky]
+    healthcheck:
+      test: [CMD, rabbitmq-diagnostics, -q, ping]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 30s
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "3"}
+
+  worker:
+    build: ./backend
+    restart: unless-stopped
+    command: [celery, -A, api.services.background:celery_app, worker, --loglevel=INFO, --concurrency=2, --hostname=worker@%h]
+    env_file: .env.dev
+    environment:
+      INITIALISE_DATABASE: "false"
+    volumes:
+      - ./backend:/app
+    networks: [asgard, loky]
+    depends_on:
+      task-broker:
+        condition: service_healthy
+    stop_grace_period: 330s
+    healthcheck:
+      test: [CMD-SHELL, 'celery -A api.services.background:celery_app inspect ping --destination "worker@$$HOSTNAME" --timeout 5 | grep -q pong']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "3"}
+
+  frontend:
+    build: ./frontend
+    restart: always
+    volumes:
+      - ./frontend:/app
+      # Contrat public pour régénérer le SDK sans exposer le code ou les secrets backend.
+      - ./backend/openapi.json:/backend/openapi.json:ro
+      - frontend_node_modules:/app/node_modules
+      - frontend_next:/app/.next
+    expose:
+      - 3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - asgard
+    env_file:
+      - ./.env.dev
+    environment:
+      BACKEND_URL: http://backend:80
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    restart: always
+    ports:
+      - "8081:80"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - asgard
+    env_file:
+      - ./.env.dev
+
+  redis:
+    image: redis:latest
+    restart: always
+    env_file:
+      - ./.env.dev
+    networks:
+      - loky
+    expose:
+      - 6379
+
+
+  log_viewer:
+    image: httpd:latest
+    restart: always
+    ports:
+      - "7777:80"
+    volumes:
+      - ./backend/logs:/usr/local/apache2/htdocs
+
+networks:
+  asgard:
+  thor:
+  loky:
+  monitor:
+
+volumes:
+  task_broker_data:
+  mysql_data:
+  frontend_node_modules:
+  frontend_next:

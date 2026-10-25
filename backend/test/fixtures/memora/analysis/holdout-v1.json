@@ -1,0 +1,357 @@
+{
+  "version": 1,
+  "role": "holdout frozen before inference; not used in prompt examples",
+  "synthetic_only": true,
+  "scoring": "Manual semantic adjudication; exact punctuation or spelling equality not required.",
+  "cases": [
+    {
+      "id": "holdout_request_vs_suggestion",
+      "segments": [
+        {
+          "id": "s1",
+          "start": 0,
+          "end": 4,
+          "speaker": "Lina",
+          "text": "On pourrait réorganiser les archives si le service déménage. C’est seulement une piste.",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s2",
+          "start": 5,
+          "end": 9,
+          "speaker": "Lina",
+          "text": "Karim, merci de vérifier dès maintenant la liste des sauvegardes.",
+          "language": "fr",
+          "uncertain": false
+        }
+      ],
+      "expected_facts": [
+        {
+          "id": "f1",
+          "proposition": "Réorganiser les archives est seulement une piste conditionnelle au déménagement.",
+          "modality": "conditional_proposal",
+          "categories": [
+            "summary",
+            "topics"
+          ],
+          "owner": null,
+          "deadline": null,
+          "sources": [
+            "s1"
+          ]
+        },
+        {
+          "id": "f2",
+          "proposition": "Lina demande explicitement à Karim de vérifier la liste des sauvegardes maintenant ; aucune acceptation de Karim n’est rapportée.",
+          "modality": "requested_action",
+          "categories": [
+            "actions"
+          ],
+          "owner": "Karim",
+          "deadline": "dès maintenant",
+          "sources": [
+            "s2"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "Réorganisation approuvée ou assignée.",
+        "Karim a accepté ou déjà terminé la vérification."
+      ],
+      "question": null,
+      "expected_answer": null
+    },
+    {
+      "id": "holdout_explicit_budget_refusal",
+      "segments": [
+        {
+          "id": "s1",
+          "start": 0,
+          "end": 4,
+          "speaker": "Moussa",
+          "text": "Nous décidons de refuser le budget de huit mille euros. Il ne doit pas être engagé.",
+          "language": "fr",
+          "uncertain": false
+        }
+      ],
+      "expected_facts": [
+        {
+          "id": "f1",
+          "proposition": "Le collectif décide explicitement de refuser le budget de8000EUR et de ne pas l’engager.",
+          "modality": "explicit_negative_decision",
+          "categories": [
+            "summary",
+            "decisions"
+          ],
+          "value": 8000,
+          "currency": "EUR",
+          "owner": null,
+          "deadline": null,
+          "sources": [
+            "s1"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "Budget approuvé ou dépense autorisée.",
+        "Simple absence de décision à la place du refus explicite."
+      ],
+      "question": null,
+      "expected_answer": null
+    },
+    {
+      "id": "holdout_collective_future",
+      "segments": [
+        {
+          "id": "s1",
+          "start": 0,
+          "end": 4,
+          "speaker": "Nora",
+          "text": "Nous rédigerons ensemble le dossier de candidature. Personne n’est désigné comme responsable individuel.",
+          "language": "fr",
+          "uncertain": false
+        }
+      ],
+      "expected_facts": [
+        {
+          "id": "f1",
+          "proposition": "La rédaction du dossier est un engagement collectif futur ; aucun responsable individuel établi.",
+          "modality": "collective_future_action",
+          "categories": [
+            "summary",
+            "actions"
+          ],
+          "owner": "collectif nous, pas Nora individuellement",
+          "deadline": null,
+          "sources": [
+            "s1"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "Nora seule responsable.",
+        "Dossier déjà rédigé.",
+        "Équipe ou personne non nommée inventée."
+      ],
+      "question": null,
+      "expected_answer": null
+    },
+    {
+      "id": "holdout_not_before",
+      "segments": [
+        {
+          "id": "s1",
+          "start": 0,
+          "end": 4,
+          "speaker": "Omar",
+          "text": "Je lancerai la migration, mais pas avant le trois novembre. Ce n’est pas une date limite de fin.",
+          "language": "fr",
+          "uncertain": false
+        }
+      ],
+      "expected_facts": [
+        {
+          "id": "f1",
+          "proposition": "Omar prévoit de lancer la migration pas avant le3novembre ; borne minimale de démarrage et non date limite de fin.",
+          "modality": "future_action_lower_time_bound",
+          "categories": [
+            "summary",
+            "actions"
+          ],
+          "owner": "Omar",
+          "deadline": "pas avant le trois novembre",
+          "sources": [
+            "s1"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "Migration à terminer le3novembre.",
+        "Migration lancée ou prévue avant le3novembre.",
+        "Ajout d’une année non dite."
+      ],
+      "question": null,
+      "expected_answer": null
+    },
+    {
+      "id": "holdout_no_later_than",
+      "segments": [
+        {
+          "id": "s1",
+          "start": 0,
+          "end": 4,
+          "speaker": "Grace",
+          "text": "Ethan, please deliver the audit no later than the ninth of December. The audit has not been delivered.",
+          "language": "en",
+          "uncertain": false
+        }
+      ],
+      "expected_facts": [
+        {
+          "id": "f1",
+          "proposition": "Grace demande à Ethan de livrer l’audit au plus tard le9décembre, livraison encore non faite.",
+          "modality": "requested_future_action_upper_time_bound",
+          "categories": [
+            "summary",
+            "actions"
+          ],
+          "owner": "Ethan",
+          "deadline": "no later than the ninth of December / au plus tard le neuf décembre",
+          "sources": [
+            "s1"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "Audit déjà livré.",
+        "Date simple perdant au plus tard.",
+        "Grace responsable de produire l’audit.",
+        "Acceptation par Ethan inventée."
+      ],
+      "question": null,
+      "expected_answer": null
+    },
+    {
+      "id": "holdout_cancel_and_replace",
+      "segments": [
+        {
+          "id": "s1",
+          "start": 0,
+          "end": 4,
+          "speaker": "Awa",
+          "text": "J’enverrai le devis à la mairie le quinze décembre.",
+          "language": "fr",
+          "uncertain": false
+        },
+        {
+          "id": "s2",
+          "start": 5,
+          "end": 9,
+          "speaker": "Awa",
+          "text": "J’annule cet envoi. À la place, Idriss, prépare une estimation interne pour le dix-huit décembre.",
+          "language": "fr",
+          "uncertain": false
+        }
+      ],
+      "expected_facts": [
+        {
+          "id": "f1",
+          "proposition": "L’envoi du devis à la mairie par Awa est annulé, ancienne date15décembre inactive.",
+          "modality": "cancelled_action",
+          "categories": [
+            "summary",
+            "decisions"
+          ],
+          "owner": "Awa",
+          "deadline": null,
+          "sources": [
+            "s1",
+            "s2"
+          ]
+        },
+        {
+          "id": "f2",
+          "proposition": "Awa demande en remplacement à Idriss une estimation interne pour le18décembre ; acceptation non connue.",
+          "modality": "replacement_requested_action",
+          "categories": [
+            "summary",
+            "actions"
+          ],
+          "owner": "Idriss",
+          "deadline": "pour le dix-huit décembre",
+          "sources": [
+            "s2"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "Ancien envoi toujours actif.",
+        "Idriss doit envoyer le devis à la mairie.",
+        "Date15décembre affectée à nouvelle estimation."
+      ],
+      "question": null,
+      "expected_answer": null
+    },
+    {
+      "id": "holdout_english_unapproved_idea",
+      "segments": [
+        {
+          "id": "s1",
+          "start": 0,
+          "end": 4,
+          "speaker": "Rachel",
+          "text": "I suggest buying a second server, but this is only an idea and it has not been approved. Do not assign the purchase to me.",
+          "language": "en",
+          "uncertain": false
+        }
+      ],
+      "expected_facts": [
+        {
+          "id": "f1",
+          "proposition": "Achat du second serveur seulement proposé, non approuvé, Rachel explicitement non assignée.",
+          "modality": "unapproved_proposal_with_assignment_refusal",
+          "categories": [
+            "summary",
+            "topics"
+          ],
+          "owner": null,
+          "deadline": null,
+          "sources": [
+            "s1"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "Achat approuvé.",
+        "Rachel chargée d’acheter le serveur.",
+        "Commande déjà passée."
+      ],
+      "question": "Who is responsible for purchasing the second server?",
+      "expected_answer": {
+        "proposition": "No purchaser has been assigned; Rachel explicitly refuses that assignment.",
+        "sources": [
+          "s1"
+        ],
+        "abstain": true
+      }
+    },
+    {
+      "id": "holdout_conditional_commitment",
+      "segments": [
+        {
+          "id": "s1",
+          "start": 0,
+          "end": 4,
+          "speaker": "Nadia",
+          "text": "Si le financement est confirmé, je pourrai tester le capteur. Pour le moment, le financement n’est pas confirmé et je ne m’engage pas à réaliser le test.",
+          "language": "fr",
+          "uncertain": false
+        }
+      ],
+      "expected_facts": [
+        {
+          "id": "f1",
+          "proposition": "Nadia évoque une possibilité conditionnelle de tester le capteur si financement confirmé ; condition non satisfaite et aucun engagement actuel.",
+          "modality": "uncommitted_conditional_possibility",
+          "categories": [
+            "summary",
+            "topics"
+          ],
+          "owner": null,
+          "deadline": null,
+          "sources": [
+            "s1"
+          ]
+        }
+      ],
+      "forbidden_claims": [
+        "Test assigné à Nadia sans réserve.",
+        "Financement confirmé.",
+        "Test déjà réalisé."
+      ],
+      "question": null,
+      "expected_answer": null
+    }
+  ]
+}

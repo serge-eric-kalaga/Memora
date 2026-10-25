@@ -1,0 +1,71 @@
+[project]
+name = "backend-template"
+version = "1.0.0"
+description = "backend_template"
+authors = [{ name = "Your Name", email = "you@example.com" }]
+requires-python = ">=3.11,<4"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+dependencies = [
+    "boto3>=1.43.114,<2",
+    "celery>=5.6.3,<5.7",
+    "fastapi[standard]>=0.148.0,<0.149",
+    "uvicorn>=0.54.0,<0.55",
+    "werkzeug>=3.1.9,<4",
+    "pytest>=9.1.1,<10",
+    "redis>=8.1.0,<9",
+    "pymysql>=1.2.3,<2",
+    "python-jose>=3.5.0,<4",
+    "pycryptodome>=4.1.0,<5",
+    "requests>=2.34.2,<3",
+    "python-multipart>=0.0.32,<0.1",
+    "sqlalchemy-utils>=0.43.0,<0.44",
+    "cryptography>=50.0.2,<51",
+    "pydantic-settings>=2.16.0,<3",
+    "sqlalchemy>=2.1.5,<3",
+    "httpx>=0.28.1,<0.29",
+    "prometheus-fastapi-instrumentator>=8.1.0,<9",
+    "python-json-logger>=4.2.0,<5",
+    "python-socketio>=5.17.0,<6",
+    "greenlet>=3.5.6,<4",
+    "faker>=40.43.0,<41",
+    "pydantic>=2.14.1,<3",
+    "certifi>=2026.10.18,<2027",
+    "bcrypt>=5.0.0,<6",
+    "fastapi-redis-sdk>=0.9.1,<0.10",
+    "pillow>=13.0.0,<14",
+    "alembic>=1.20.0,<2",
+    "faster-whisper>=1.2,<2",
+    "av>=15,<17",
+    "mlx-audio[stt]==0.6.1 ; platform_machine == 'arm64' and sys_platform == 'darwin'",
+    "mlx-whisper>=0.4,<1 ; platform_machine == 'arm64' and sys_platform == 'darwin'",
+    "torch==2.14.1 ; platform_machine == 'arm64' and sys_platform == 'darwin'",
+]
+
+[build-system]
+requires = ["uv_build"]
+build-backend = "uv_build"
+
+
+[tool.uv.build-backend]
+module-name = "api"
+module-root = "."
+
+[dependency-groups]
+dev = ["ruff==0.17.1"]
+
+[tool.ruff]
+target-version = "py311"
+extend-exclude = [".venv", "logs", "static"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "UP017", "B008"]
+
+[tool.ruff.lint.per-file-ignores]
+# Les modèles utilisent BaseTemplate exporté par ce package : imports différés intentionnels.
+"api/database/__init__.py" = ["E402"]

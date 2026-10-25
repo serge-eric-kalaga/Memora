@@ -1,0 +1,11 @@
+# V11 — propositions de suppression et veto conservateur
+
+AI SHA actuel327822444067fe6e5c8dd9dc5cc1680edcf8d79f8c5bdbe4d1a0ffa728f76292, identique au snapshot de démarrage de recette ROOT. Singlebatch et transcribe inchangés ; modifications helpers de réconciliation uniquement.
+
+Plan considéré comme proposition non fiable. Toute suppression cancelled/superseded/resolved/not_action doit recevoir une vérification étroite indépendante : textes originaux candidat/proposition, contexte compact chronologique complet avec originaux actifs et résumés dérivés. Question : changement explicitement adopté et encore applicable au même objet, jamais simple proposition/refus/confirmation/répétition/citation. not_action exige de prouver que l'original n'est pas un travail encore à accomplir. Citations exactes non vides et source autorisée vérifiées localement.
+
+Une proposition sans source ultérieure requise, à preuve refusée/inventée ou non vérifiable dans le budget est VETO : original conservé avec préfixe À vérifier/Unresolved, sources de l'original+proposition et limitation transparente. Aucune fausse histoire de remplacement, aucune suppression silencieuse et aucun échec réunion pour cette seule proposition invalide. Source étrangère, schéma/catégorie incorrecte et contexte initial irréductible continuent à refuser le traitement. Une panne technique d'inférence peut encore échouer normalement, pas de succès simulé.
+
+Tests isolés61PASS0,98s et Ruff. Couvre annulation vérifiée, proposition sans preuve ultérieure, vérification refusée/citation inventée, vrai futur malclassé not_action conservé, questionrésolue, sources inconnues/budget/ordre/nontroncature. Ce ne sont pas des preuves de qualité réelle du modèle.
+
+Runner `scripts/memora-qa-veto-plans.py` prêt CPU : cinq plans depuis map réels V10 préservés (3indépendants+2connus), SHA des entrées, bruts, table opaque inverse, véritable ai.reconcile production sans monkeypatch de logique. Seul generate enveloppé pour sauvegarde. Pas de nouvelle extraction ni relecture audio. Attente libération GPU ROOT avant lancement. Si réussite ciblée, ROOT demande au moins vrai full cas de réaffectation/questionrépondue ensuite ; preuves composées à distinguer.

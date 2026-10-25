@@ -1,0 +1,71 @@
+# Local environment and secrets (keep example files versioned)
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Python environments, builds and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+htmlcov/
+.coverage*
+coverage.xml
+
+# Next.js / Node.js
+node_modules/
+.next/
+out/
+coverage/
+.npm/
+*.tsbuildinfo
+next-env.d.ts
+.vercel/
+
+# Runtime files
+*.log
+*.pid
+*.db
+*.db-journal
+backend/logs/*
+!backend/logs/index.html
+backend/test/logs/
+backend/api/images/*
+/mysql/data/
+/data/
+monitoring/grafana/data/*
+!monitoring/grafana/data/test.txt
+monitoring/prometheus/data/*
+!monitoring/prometheus/data/test.txt
+monitoring/grafana/grafana_data/
+monitoring/prometheus/prometheus_data/
+
+# OS and local tools
+.DS_Store
+Thumbs.db
+/.agents/
+/backend/static/uploads/*
+!/backend/static/uploads/.gitkeep
+
+# Sauvegardes privées avant mise à jour du monitoring
+/monitoring/backups/
+
+# Memora local execution artifacts
+agents/logs/*
+!agents/logs/.gitkeep
+.memora/
+
+# Version the Memora guide despite a global docs/ ignore rule
+!/docs/
+/docs/*
+!/docs/MEMORA.md

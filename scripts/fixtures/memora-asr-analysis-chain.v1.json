@@ -1,0 +1,108 @@
+{
+  "version": 1,
+  "frozen_at": "2026-10-25T08:59:36.803767+00:00",
+  "selection": "Before reading Parakeet v2 outputs; fixed two source cases, clean audio only. No selection by model score.",
+  "synthetic_only": true,
+  "source_corpus": "backend/test/fixtures/memora/accuracy-corpus.v2.json",
+  "source_corpus_sha256": "d659c2c6612c168d12c12e843bd36be872a5dea4af760a547e9aa2de8f8e7850",
+  "cases": [
+    {
+      "id": "reserve-fr-budget",
+      "profile": "clean",
+      "asr_language": "fr",
+      "audio": ".memora/accuracy-benchmark/v2/reserve-fr-budget-clean.wav",
+      "audio_sha256": "ca0fafd8c09cd4a119c4112edecc430bb3e2218ff086a5930e55d253ef9b5106",
+      "seconds": 9.41275,
+      "reference_text": "Alors, nous ne réglons pas la facture aujourd’hui. Le total est de mille six cents euros, pas de seize mille. Nadia vérifiera le relevé mercredi matin.",
+      "reference_sha256": "3ee94c651922d72331d294c4c22d897094d80fd31a1d7f6901c730880584fc56",
+      "expected_facts": [
+        {
+          "id": "f1",
+          "text": "La facture ne sera pas réglée aujourd’hui.",
+          "kind": "negative_constraint",
+          "owner": null,
+          "deadline": "aujourd’hui (interdiction, pas échéance de paiement)"
+        },
+        {
+          "id": "f2",
+          "text": "Le total est de 1600 euros et non 16000 euros.",
+          "kind": "corrected_amount",
+          "owner": null,
+          "deadline": null
+        },
+        {
+          "id": "f3",
+          "text": "Nadia vérifiera le relevé mercredi matin.",
+          "kind": "future_action",
+          "owner": "Nadia",
+          "deadline": "mercredi matin"
+        }
+      ],
+      "forbidden_claims": [
+        "Paiement effectué ou approuvé pour aujourd’hui.",
+        "Montant de16000 euros retenu.",
+        "Nadia a déjà vérifié le relevé.",
+        "Année/date calendaire calculée sans référence."
+      ],
+      "reference_analysis_segment": {
+        "id": "s1",
+        "start": 0,
+        "end": 9.41275,
+        "text": "Alors, nous ne réglons pas la facture aujourd’hui. Le total est de mille six cents euros, pas de seize mille. Nadia vérifiera le relevé mercredi matin.",
+        "speaker": "Intervenant non identifié",
+        "language": "unknown",
+        "uncertain": false
+      }
+    },
+    {
+      "id": "reserve-mixed-infra",
+      "profile": "clean",
+      "asr_language": "auto",
+      "audio": ".memora/accuracy-benchmark/v2/reserve-mixed-infra-clean.wav",
+      "audio_sha256": "6a6eec6df5ed8d4411c6d28f5acbc54f2324af3c87bb2febfb15aedc6a303b8c",
+      "seconds": 7.5866875,
+      "reference_text": "Le service Python attend notre accord. We must not restart the server before Friday. Inès conservera toutes les sauvegardes.",
+      "reference_sha256": "691e01d13e450a217e4f80dc2a720b5c0f5d4567005c09f0830eeba2da7a5c97",
+      "expected_facts": [
+        {
+          "id": "f1",
+          "text": "Le service Python attend notre accord.",
+          "kind": "pending_approval",
+          "owner": null,
+          "deadline": null
+        },
+        {
+          "id": "f2",
+          "text": "Le serveur ne doit pas redémarrer avant vendredi.",
+          "kind": "not_before_constraint",
+          "owner": null,
+          "deadline": "vendredi (borne de démarrage, pas promesse de redémarrage vendredi)"
+        },
+        {
+          "id": "f3",
+          "text": "Inès conservera toutes les sauvegardes.",
+          "kind": "future_action",
+          "owner": "Inès",
+          "deadline": null
+        }
+      ],
+      "forbidden_claims": [
+        "Accord du service Python déjà obtenu.",
+        "Redémarrage autorisé avant vendredi.",
+        "Redémarrage définitivement décidé vendredi.",
+        "Inès responsable du redémarrage ou de Python.",
+        "Suppression de sauvegardes.",
+        "Échéance vendredi attribuée à la conservation des sauvegardes."
+      ],
+      "reference_analysis_segment": {
+        "id": "s1",
+        "start": 0,
+        "end": 7.5866875,
+        "text": "Le service Python attend notre accord. We must not restart the server before Friday. Inès conservera toutes les sauvegardes.",
+        "speaker": "Intervenant non identifié",
+        "language": "unknown",
+        "uncertain": false
+      }
+    }
+  ]
+}

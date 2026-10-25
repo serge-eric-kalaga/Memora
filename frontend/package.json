@@ -1,0 +1,58 @@
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test:api": "node tests/api-auth.mjs",
+    "test:i18n": "node --test tests/i18n.test.mjs",
+    "test:passwords": "node tests/password-api.mjs",
+    "api:generate": "node scripts/generate-api.mjs",
+    "api:check": "node scripts/generate-api.mjs --check",
+    "test:generated-api": "node tests/generated-api.mjs",
+    "test:admin-cache": "node --test tests/admin-cache.test.mjs",
+    "test:memora": "node tests/memora-e2e.mjs",
+    "build:memora": "MEMORA_LOCAL=1 NEXT_PUBLIC_APP_NAME=Memora next build --webpack"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.9.2",
+    "@radix-ui/react-dropdown-menu": "^2.2.1",
+    "@tanstack/react-query": "^5.104.4",
+    "i18next": "^26.5.2",
+    "lucide-react": "^1.59.0",
+    "next": "16.4.2",
+    "next-themes": "^0.4.6",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-hook-form": "^7.90.0",
+    "react-i18next": "^17.1.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@hey-api/openapi-ts": "0.99.0",
+    "@playwright/test": "1.62.1",
+    "@tailwindcss/turbopack": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.2",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "overrides": {
+    "@next/eslint-plugin-next": {
+      "fast-glob": "npm:tinyglobby@0.2.17"
+    },
+    "@hey-api/json-schema-ref-parser": {
+      "js-yaml": "4.3.2"
+    }
+  }
+}

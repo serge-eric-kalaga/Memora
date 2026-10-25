@@ -1,0 +1,6 @@
+- targets: [backend:80]
+  labels: {role: metrics, service: backend}
+- targets: ["http://backend:80/api/healthcheck/"]
+  labels: {role: probe, service: backend}
+- targets: ["http://frontend:3000/api/auth/config"]
+  labels: {role: probe, service: frontend}

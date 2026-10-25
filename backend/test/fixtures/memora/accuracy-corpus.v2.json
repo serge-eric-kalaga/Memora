@@ -1,0 +1,525 @@
+{
+  "version": 2,
+  "seed": 20261026,
+  "description": "New synthetic reserve created after v1 holdout was consumed; all references/probes frozen before ASR. Not a blind validation of ideas later derived from this reserve.",
+  "acceptance": {
+    "primary": "clean numeric micro WER <= 0.10, not a natural-speech guarantee",
+    "secondary": "report every language/profile, lexical critical errors, hallucinations and regressions; never drop difficult cases",
+    "split": "all 12 sources held out, no tuning on this reserve",
+    "difficult_source_ids": [
+      "reserve-fr-short-hard",
+      "reserve-mixed-continuous-hard"
+    ]
+  },
+  "number_normalization": {
+    "mille six cents": "1600",
+    "mille six cent": "1600",
+    "seize mille": "16000",
+    "sixteen hundred": "1600",
+    "sixteen thousand": "16000",
+    "two thousand eight hundred": "2800",
+    "twenty eight thousand": "28000"
+  },
+  "cases": [
+    {
+      "id": "reserve-fr-budget",
+      "split": "holdout",
+      "language": "fr",
+      "chunks": [
+        {
+          "text": "Alors, nous ne réglons pas la facture aujourd’hui.",
+          "voice": "Thomas",
+          "rate": 178,
+          "gap_ms": 350
+        },
+        {
+          "text": "Le total est de mille six cents euros, pas de seize mille.",
+          "voice": "Thomas",
+          "rate": 178,
+          "gap_ms": 350
+        },
+        {
+          "text": "Nadia vérifiera le relevé mercredi matin.",
+          "voice": "Thomas",
+          "rate": 178,
+          "gap_ms": 350
+        }
+      ],
+      "critical": [
+        [
+          "pas",
+          "facture"
+        ],
+        [
+          "1600",
+          "pas",
+          "16000"
+        ],
+        [
+          "nadia",
+          "mercredi"
+        ]
+      ],
+      "keywords": [
+        "Nadia"
+      ],
+      "difficult": false
+    },
+    {
+      "id": "reserve-fr-infra",
+      "split": "holdout",
+      "language": "fr",
+      "chunks": [
+        {
+          "text": "Le cache Redis sera redémarré jeudi.",
+          "voice": "Amélie",
+          "rate": 152,
+          "gap_ms": 350
+        },
+        {
+          "text": "Inès ne supprimera aucune sauvegarde.",
+          "voice": "Amélie",
+          "rate": 152,
+          "gap_ms": 350
+        },
+        {
+          "text": "La migration PostgreSQL attend encore notre accord.",
+          "voice": "Amélie",
+          "rate": 152,
+          "gap_ms": 350
+        }
+      ],
+      "critical": [
+        [
+          "redis"
+        ],
+        [
+          "aucune",
+          "sauvegarde"
+        ],
+        [
+          "attend",
+          "accord"
+        ]
+      ],
+      "keywords": [
+        "Redis",
+        "Inès",
+        "PostgreSQL"
+      ],
+      "difficult": false
+    },
+    {
+      "id": "reserve-fr-short-hard",
+      "split": "holdout",
+      "language": "fr",
+      "chunks": [
+        {
+          "text": "Binta vérifie le dossier.",
+          "voice": "Jacques",
+          "rate": 158,
+          "gap_ms": 400
+        },
+        {
+          "text": "Binta répondra lundi.",
+          "voice": "Jacques",
+          "rate": 158,
+          "gap_ms": 400
+        },
+        {
+          "text": "Le client attend toujours.",
+          "voice": "Jacques",
+          "rate": 158,
+          "gap_ms": 400
+        },
+        {
+          "text": "Binta ne doit pas payer.",
+          "voice": "Jacques",
+          "rate": 158,
+          "gap_ms": 400
+        }
+      ],
+      "critical": [
+        [
+          "binta"
+        ],
+        [
+          "pas",
+          "payer"
+        ]
+      ],
+      "keywords": [
+        "Binta"
+      ],
+      "difficult": true
+    },
+    {
+      "id": "reserve-fr-planning",
+      "split": "holdout",
+      "language": "fr",
+      "chunks": [
+        {
+          "text": "Bon, ce calendrier reste une proposition.",
+          "voice": "Thomas",
+          "rate": 202,
+          "gap_ms": 250
+        },
+        {
+          "text": "Nous n’avons pas confirmé le rendez-vous à Banfora.",
+          "voice": "Thomas",
+          "rate": 202,
+          "gap_ms": 250
+        },
+        {
+          "text": "Clément présentera le prototype mardi, si le serveur fonctionne.",
+          "voice": "Thomas",
+          "rate": 202,
+          "gap_ms": 250
+        }
+      ],
+      "critical": [
+        [
+          "pas",
+          "confirmé"
+        ],
+        [
+          "banfora"
+        ],
+        [
+          "mardi",
+          "si"
+        ]
+      ],
+      "keywords": [
+        "Banfora",
+        "Clément"
+      ],
+      "difficult": false
+    },
+    {
+      "id": "reserve-en-budget",
+      "split": "holdout",
+      "language": "en",
+      "chunks": [
+        {
+          "text": "Well, we have not approved the invoice.",
+          "voice": "Daniel",
+          "rate": 172,
+          "gap_ms": 350
+        },
+        {
+          "text": "The total is two thousand eight hundred pounds, not twenty eight thousand.",
+          "voice": "Daniel",
+          "rate": 172,
+          "gap_ms": 350
+        },
+        {
+          "text": "Noah will check the figures on Wednesday.",
+          "voice": "Daniel",
+          "rate": 172,
+          "gap_ms": 350
+        }
+      ],
+      "critical": [
+        [
+          "not",
+          "approved"
+        ],
+        [
+          "2800",
+          "not",
+          "28000"
+        ],
+        [
+          "noah",
+          "wednesday"
+        ]
+      ],
+      "keywords": [
+        "Noah"
+      ],
+      "difficult": false
+    },
+    {
+      "id": "reserve-en-infra",
+      "split": "holdout",
+      "language": "en",
+      "chunks": [
+        {
+          "text": "The Kubernetes service will restart on Friday.",
+          "voice": "Karen",
+          "rate": 155,
+          "gap_ms": 350
+        },
+        {
+          "text": "Emma must not delete any backup.",
+          "voice": "Karen",
+          "rate": 155,
+          "gap_ms": 350
+        },
+        {
+          "text": "The Redis migration is still waiting for approval.",
+          "voice": "Karen",
+          "rate": 155,
+          "gap_ms": 350
+        }
+      ],
+      "critical": [
+        [
+          "kubernetes"
+        ],
+        [
+          "not",
+          "delete"
+        ],
+        [
+          "waiting",
+          "approval"
+        ]
+      ],
+      "keywords": [
+        "Kubernetes",
+        "Emma",
+        "Redis"
+      ],
+      "difficult": false
+    },
+    {
+      "id": "reserve-en-short",
+      "split": "holdout",
+      "language": "en",
+      "chunks": [
+        {
+          "text": "Amir owns the checklist.",
+          "voice": "Samantha",
+          "rate": 195,
+          "gap_ms": 400
+        },
+        {
+          "text": "Amir will answer tomorrow.",
+          "voice": "Samantha",
+          "rate": 195,
+          "gap_ms": 400
+        },
+        {
+          "text": "The client is still waiting.",
+          "voice": "Samantha",
+          "rate": 195,
+          "gap_ms": 400
+        },
+        {
+          "text": "Amir must not sign yet.",
+          "voice": "Samantha",
+          "rate": 195,
+          "gap_ms": 400
+        }
+      ],
+      "critical": [
+        [
+          "amir"
+        ],
+        [
+          "not",
+          "sign"
+        ]
+      ],
+      "keywords": [
+        "Amir"
+      ],
+      "difficult": false
+    },
+    {
+      "id": "reserve-en-planning",
+      "split": "holdout",
+      "language": "en",
+      "chunks": [
+        {
+          "text": "This schedule is only a proposal.",
+          "voice": "Moira",
+          "rate": 165,
+          "gap_ms": 350
+        },
+        {
+          "text": "We have not confirmed the meeting in Dublin.",
+          "voice": "Moira",
+          "rate": 165,
+          "gap_ms": 350
+        },
+        {
+          "text": "Grace will show the prototype on Thursday if the network is available.",
+          "voice": "Moira",
+          "rate": 165,
+          "gap_ms": 350
+        }
+      ],
+      "critical": [
+        [
+          "not",
+          "confirmed"
+        ],
+        [
+          "thursday",
+          "if"
+        ]
+      ],
+      "keywords": [
+        "Dublin",
+        "Grace"
+      ],
+      "difficult": false
+    },
+    {
+      "id": "reserve-mixed-budget",
+      "split": "holdout",
+      "language": "auto",
+      "chunks": [
+        {
+          "text": "Nous ne payons pas la facture avant validation.",
+          "voice": "Thomas",
+          "rate": 173,
+          "gap_ms": 300
+        },
+        {
+          "text": "The amount is sixteen hundred euros, not sixteen thousand.",
+          "voice": "Samantha",
+          "rate": 173,
+          "gap_ms": 300
+        },
+        {
+          "text": "Nadia vérifiera les chiffres mercredi.",
+          "voice": "Thomas",
+          "rate": 173,
+          "gap_ms": 300
+        }
+      ],
+      "critical": [
+        [
+          "pas",
+          "facture"
+        ],
+        [
+          "1600",
+          "not",
+          "16000"
+        ]
+      ],
+      "keywords": [
+        "Nadia"
+      ],
+      "difficult": false
+    },
+    {
+      "id": "reserve-mixed-infra",
+      "split": "holdout",
+      "language": "auto",
+      "chunks": [
+        {
+          "text": "Le service Python attend notre accord.",
+          "voice": "Amélie",
+          "rate": 160,
+          "gap_ms": 400
+        },
+        {
+          "text": "We must not restart the server before Friday.",
+          "voice": "Daniel",
+          "rate": 160,
+          "gap_ms": 400
+        },
+        {
+          "text": "Inès conservera toutes les sauvegardes.",
+          "voice": "Amélie",
+          "rate": 160,
+          "gap_ms": 400
+        }
+      ],
+      "critical": [
+        [
+          "not",
+          "restart"
+        ],
+        [
+          "inès",
+          "sauvegardes"
+        ]
+      ],
+      "keywords": [
+        "Python",
+        "Inès"
+      ],
+      "difficult": false
+    },
+    {
+      "id": "reserve-mixed-continuous-hard",
+      "split": "holdout",
+      "language": "auto",
+      "chunks": [
+        {
+          "text": "Le dossier Binta reste en attente.",
+          "voice": "Jacques",
+          "rate": 170,
+          "gap_ms": 0
+        },
+        {
+          "text": "We have not approved the contract for Monday.",
+          "voice": "Karen",
+          "rate": 170,
+          "gap_ms": 0
+        }
+      ],
+      "critical": [
+        [
+          "binta"
+        ],
+        [
+          "not",
+          "approved"
+        ],
+        [
+          "monday"
+        ]
+      ],
+      "keywords": [
+        "Binta"
+      ],
+      "difficult": true
+    },
+    {
+      "id": "reserve-mixed-planning",
+      "split": "holdout",
+      "language": "auto",
+      "chunks": [
+        {
+          "text": "Nous discuterons du calendrier demain.",
+          "voice": "Thomas",
+          "rate": 187,
+          "gap_ms": 200
+        },
+        {
+          "text": "This is a proposal, not a final decision.",
+          "voice": "Samantha",
+          "rate": 187,
+          "gap_ms": 200
+        },
+        {
+          "text": "Le lancement dépend encore du réseau.",
+          "voice": "Thomas",
+          "rate": 187,
+          "gap_ms": 200
+        }
+      ],
+      "critical": [
+        [
+          "not",
+          "final",
+          "decision"
+        ],
+        [
+          "dépend",
+          "réseau"
+        ]
+      ],
+      "keywords": [],
+      "difficult": false
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+FROM python:3.14-slim-bookworm AS builder
+ENV UV_PROJECT_ENVIRONMENT=/opt/venv UV_LINK_MODE=copy
+WORKDIR /app
+# Figer uv pour éviter un changement implicite d’outil entre deux builds.
+# Les caches restent dans BuildKit et ne sont pas copiés dans l’image finale.
+RUN --mount=type=cache,id=fullstack-python,target=/root/.cache pip install --disable-pip-version-check uv==0.13.1
+COPY pyproject.toml uv.lock ./
+RUN --mount=type=cache,id=fullstack-python,target=/root/.cache uv sync --frozen --no-dev --no-install-project
+COPY . .
+RUN --mount=type=cache,id=fullstack-python,target=/root/.cache uv sync --frozen --no-dev
+
+FROM python:3.14-slim-bookworm
+ENV PATH="/opt/venv/bin:$PATH" PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
+WORKDIR /app
+RUN groupadd --gid 10001 application && useradd --uid 10001 --gid application --no-create-home application
+COPY --from=builder /opt/venv /opt/venv
+COPY --from=builder --chown=application:application /app /app
+RUN mkdir -p logs static/uploads && chown -R application:application logs static/uploads
+USER application
+EXPOSE 8000
+CMD ["uvicorn", "run:app", "--host", "0.0.0.0", "--port", "8000", "--no-proxy-headers"]

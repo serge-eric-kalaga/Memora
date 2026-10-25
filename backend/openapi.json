@@ -1,0 +1,5135 @@
+{
+  "components": {
+    "schemas": {
+      "AccessItem": {
+        "additionalProperties": false,
+        "description": "Identifiant et nom d’un rôle ou d’une permission.",
+        "properties": {
+          "description": {
+            "default": "",
+            "title": "Description",
+            "type": "string"
+          },
+          "id": {
+            "description": "Identifiant SQL du rôle ou de la permission",
+            "title": "Id",
+            "type": "integer"
+          },
+          "is_active": {
+            "default": true,
+            "title": "Is Active",
+            "type": "boolean"
+          },
+          "name": {
+            "examples": [
+              "reports.read"
+            ],
+            "pattern": "^[a-z][a-z0-9_.:-]{0,99}$",
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "id"
+        ],
+        "title": "AccessItem",
+        "type": "object"
+      },
+      "AccessName": {
+        "additionalProperties": false,
+        "description": "Code stable utilisé dans les dépendances, par exemple editor ou reports.read.",
+        "properties": {
+          "name": {
+            "examples": [
+              "reports.read"
+            ],
+            "pattern": "^[a-z][a-z0-9_.:-]{0,99}$",
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "AccessName",
+        "type": "object"
+      },
+      "AccessUpdate": {
+        "additionalProperties": false,
+        "description": "Métadonnées modifiables ; le code reste stable pour les dépendances métier.",
+        "properties": {
+          "description": {
+            "description": "Description du droit ou du rôle",
+            "maxLength": 500,
+            "title": "Description",
+            "type": "string"
+          },
+          "is_active": {
+            "description": "Désactiver suspend les droits sans effacer les attributions",
+            "title": "Is Active",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "description",
+          "is_active"
+        ],
+        "title": "AccessUpdate",
+        "type": "object"
+      },
+      "AdminCreateUser": {
+        "additionalProperties": false,
+        "description": "Créer un compte normal, sans accepter de rôle ou statut privilégié dans le corps.",
+        "properties": {
+          "email": {
+            "anyOf": [
+              {
+                "format": "email",
+                "maxLength": 254,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Adresse privée de récupération, obligatoire si EMAIL_VERIFICATION_ENABLED est activée.",
+            "title": "Email"
+          },
+          "language": {
+            "default": "fr",
+            "description": "Langue du lien de confirmation : fr ou en.",
+            "pattern": "^(fr|en)$",
+            "title": "Language",
+            "type": "string"
+          },
+          "password": {
+            "description": "Mot de passe à définir pour le compte. Il est haché par le backend avant son enregistrement. Ce champ doit être présent dans la requête.",
+            "examples": [
+              "ExempleMotDePasse!2026"
+            ],
+            "format": "password",
+            "maxLength": 128,
+            "minLength": 8,
+            "title": "Password",
+            "type": "string"
+          },
+          "telephone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Numéro de téléphone facultatif.",
+            "examples": [
+              "+22670000000"
+            ],
+            "title": "Telephone"
+          },
+          "username": {
+            "description": "Nom d’utilisateur unique à créer.",
+            "examples": [
+              "utilisateur_demo"
+            ],
+            "maxLength": 64,
+            "minLength": 3,
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ],
+        "title": "AdminCreateUser",
+        "type": "object"
+      },
+      "AdminUser": {
+        "description": "Projection limitée du compte pour les listes d’administration.",
+        "properties": {
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "is_superuser": {
+            "title": "Is Superuser",
+            "type": "boolean"
+          },
+          "username": {
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": [
+          "username",
+          "email",
+          "is_superuser"
+        ],
+        "title": "AdminUser",
+        "type": "object"
+      },
+      "AnalyzeRequest": {
+        "properties": {
+          "request_id": {
+            "maxLength": 100,
+            "minLength": 8,
+            "pattern": "^[a-zA-Z0-9_-]+$",
+            "title": "Request Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id"
+        ],
+        "title": "AnalyzeRequest",
+        "type": "object"
+      },
+      "AuthConfiguration": {
+        "description": "Options publiques que le frontend utilise pour adapter l’inscription.",
+        "properties": {
+          "email_verification_enabled": {
+            "description": "Exiger une confirmation de l’adresse avant la connexion des nouveaux comptes.",
+            "title": "Email Verification Enabled",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "email_verification_enabled"
+        ],
+        "title": "AuthConfiguration",
+        "type": "object"
+      },
+      "Body_uploadProfilePhoto": {
+        "properties": {
+          "photo": {
+            "contentMediaType": "application/octet-stream",
+            "description": "Photo fixe JPEG, PNG ou WebP, 5 Mio maximum par défaut. Réencodée en WebP, 1024 × 1024 maximum, sans métadonnées.",
+            "title": "Photo",
+            "type": "string"
+          }
+        },
+        "required": [
+          "photo"
+        ],
+        "title": "Body_uploadProfilePhoto",
+        "type": "object"
+      },
+      "ChangeEmail": {
+        "additionalProperties": false,
+        "description": "Associer une adresse de récupération après réauthentification.",
+        "properties": {
+          "current_password": {
+            "description": "Mot de passe actuel, requis pour changer l’adresse.",
+            "format": "password",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Current Password",
+            "type": "string",
+            "writeOnly": true
+          },
+          "email": {
+            "description": "Adresse e-mail unique de récupération.",
+            "format": "email",
+            "maxLength": 254,
+            "title": "Email",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "current_password"
+        ],
+        "title": "ChangeEmail",
+        "type": "object"
+      },
+      "ChangePassword": {
+        "additionalProperties": false,
+        "description": "Vérifier le mot de passe actuel avant de révoquer toutes les sessions.",
+        "properties": {
+          "current_password": {
+            "description": "Mot de passe actuel du compte.",
+            "format": "password",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Current Password",
+            "type": "string",
+            "writeOnly": true
+          },
+          "new_password": {
+            "description": "Nouveau mot de passe (8 à 128 caractères).",
+            "format": "password",
+            "maxLength": 128,
+            "minLength": 8,
+            "title": "New Password",
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "current_password",
+          "new_password"
+        ],
+        "title": "ChangePassword",
+        "type": "object"
+      },
+      "ConfirmEmail": {
+        "additionalProperties": false,
+        "description": "Secret reçu par e-mail, jamais retourné par l’API.",
+        "properties": {
+          "token": {
+            "description": "Jeton de confirmation temporaire à usage unique.",
+            "format": "password",
+            "maxLength": 43,
+            "minLength": 43,
+            "title": "Token",
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "token"
+        ],
+        "title": "ConfirmEmail",
+        "type": "object"
+      },
+      "Correction": {
+        "properties": {
+          "editor_name": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "minLength": 2,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Editor Name"
+          },
+          "segments": {
+            "items": {
+              "$ref": "#/components/schemas/Segment"
+            },
+            "maxItems": 50000,
+            "title": "Segments",
+            "type": "array"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "version",
+          "segments"
+        ],
+        "title": "Correction",
+        "type": "object"
+      },
+      "CreateMeeting": {
+        "properties": {
+          "meeting_date": {
+            "anyOf": [
+              {
+                "maxLength": 40,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meeting Date"
+          },
+          "mode": {
+            "default": "import",
+            "enum": [
+              "recording",
+              "import"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "title": {
+            "default": "Réunion sans titre",
+            "maxLength": 200,
+            "title": "Title",
+            "type": "string"
+          },
+          "transcription_language": {
+            "default": "auto",
+            "enum": [
+              "auto",
+              "fr",
+              "en"
+            ],
+            "title": "Transcription Language",
+            "type": "string"
+          }
+        },
+        "title": "CreateMeeting",
+        "type": "object"
+      },
+      "CreateUserModel": {
+        "description": "Informations nécessaires à la création d’un compte utilisateur.",
+        "properties": {
+          "email": {
+            "anyOf": [
+              {
+                "format": "email",
+                "maxLength": 254,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Adresse privée de récupération, obligatoire si EMAIL_VERIFICATION_ENABLED est activée.",
+            "title": "Email"
+          },
+          "language": {
+            "default": "fr",
+            "description": "Langue du lien de confirmation : fr ou en.",
+            "pattern": "^(fr|en)$",
+            "title": "Language",
+            "type": "string"
+          },
+          "password": {
+            "description": "Mot de passe à définir pour le compte. Il est haché par le backend avant son enregistrement. Ce champ doit être présent dans la requête.",
+            "examples": [
+              "ExempleMotDePasse!2026"
+            ],
+            "format": "password",
+            "maxLength": 128,
+            "minLength": 8,
+            "title": "Password",
+            "type": "string"
+          },
+          "telephone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Numéro de téléphone facultatif.",
+            "examples": [
+              "+22670000000"
+            ],
+            "title": "Telephone"
+          },
+          "username": {
+            "description": "Nom d’utilisateur unique à créer.",
+            "examples": [
+              "utilisateur_demo"
+            ],
+            "maxLength": 64,
+            "minLength": 3,
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ],
+        "title": "CreateUserModel",
+        "type": "object"
+      },
+      "CurrentUserModel": {
+        "description": "Profil privé du compte connecté et dernière authentification réussie.",
+        "properties": {
+          "email": {
+            "anyOf": [
+              {
+                "format": "email",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Adresse privée de récupération du compte connecté.",
+            "title": "Email"
+          },
+          "email_verified_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Date UTC de confirmation de l’adresse actuelle ; null si non confirmée.",
+            "title": "Email Verified At"
+          },
+          "last_login_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Date UTC de la dernière connexion réussie ; null pour un compte jamais connecté.",
+            "examples": [
+              "2026-10-19T16:30:00Z"
+            ],
+            "readOnly": true,
+            "title": "Last Login At"
+          },
+          "profile_photo_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "URL relative de la photo de profil. Lecture authentifiée ; modification via PUT /api/user/me/photo.",
+            "examples": [
+              "/api/user/utilisateur_demo/photo?v=identifiant.webp"
+            ],
+            "readOnly": true,
+            "title": "Profile Photo Url"
+          },
+          "telephone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Numéro de téléphone de l’utilisateur. Facultatif ; aucun format spécifique n’est imposé par ce schéma.",
+            "examples": [
+              "+22670000000"
+            ],
+            "title": "Telephone"
+          },
+          "username": {
+            "description": "Nom d’utilisateur unique identifiant le compte.",
+            "examples": [
+              "utilisateur_demo"
+            ],
+            "include": "true",
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": [
+          "username"
+        ],
+        "title": "CurrentUserModel",
+        "type": "object"
+      },
+      "Finalize": {
+        "properties": {
+          "expected_chunks": {
+            "maximum": 100001.0,
+            "minimum": 1.0,
+            "title": "Expected Chunks",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "expected_chunks"
+        ],
+        "title": "Finalize",
+        "type": "object"
+      },
+      "ForgotPassword": {
+        "additionalProperties": false,
+        "description": "Demande publique ; sa réponse ne révèle pas l’existence du compte.",
+        "properties": {
+          "email": {
+            "description": "Adresse associée au compte à récupérer.",
+            "format": "email",
+            "maxLength": 254,
+            "title": "Email",
+            "type": "string"
+          },
+          "language": {
+            "default": "fr",
+            "description": "Langue du message envoyé.",
+            "enum": [
+              "fr",
+              "en"
+            ],
+            "title": "Language",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email"
+        ],
+        "title": "ForgotPassword",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "Invitation": {
+        "properties": {
+          "emails": {
+            "items": {
+              "format": "email",
+              "type": "string"
+            },
+            "maxItems": 30,
+            "minItems": 1,
+            "title": "Emails",
+            "type": "array"
+          },
+          "password": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Password"
+          },
+          "summary": {
+            "default": "",
+            "maxLength": 2000,
+            "title": "Summary",
+            "type": "string"
+          }
+        },
+        "required": [
+          "emails"
+        ],
+        "title": "Invitation",
+        "type": "object"
+      },
+      "LoginModel": {
+        "description": "Identifiants nécessaires à la connexion d’un utilisateur.",
+        "properties": {
+          "password": {
+            "description": "Mot de passe du compte, transmis pour vérifier les identifiants.",
+            "examples": [
+              "ExempleMotDePasse!2026"
+            ],
+            "format": "password",
+            "title": "Password",
+            "type": "string"
+          },
+          "username": {
+            "description": "Nom d’utilisateur du compte auquel se connecter.",
+            "examples": [
+              "utilisateur_demo"
+            ],
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ],
+        "title": "LoginModel",
+        "type": "object"
+      },
+      "LoginResponse": {
+        "description": "Réponse standard contenant les informations de connexion.",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/LoginResponseModel",
+            "description": "Identité de l’utilisateur connecté et jeton JWT associé."
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "ok",
+            "title": "Message"
+          },
+          "status": {
+            "default": 1,
+            "title": "Status",
+            "type": "integer"
+          },
+          "status_code": {
+            "default": 200,
+            "title": "Status Code",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "LoginResponse",
+        "type": "object"
+      },
+      "LoginResponseModel": {
+        "description": "Utilisateur connecté et jeton d’accès délivré par l’API.",
+        "properties": {
+          "token": {
+            "description": "Jeton JWT à envoyer dans l’en-tête Authorization sous la forme Bearer <token> pour les routes protégées.",
+            "examples": [
+              "<jeton_jwt>"
+            ],
+            "title": "Token",
+            "type": "string"
+          },
+          "username": {
+            "description": "Nom de l’utilisateur authentifié.",
+            "examples": [
+              "utilisateur_demo"
+            ],
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": [
+          "username",
+          "token"
+        ],
+        "title": "LoginResponseModel",
+        "type": "object"
+      },
+      "MeetingPatch": {
+        "properties": {
+          "archived": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Archived"
+          },
+          "filename": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Filename"
+          },
+          "mime_type": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mime Type"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "enum": [
+                  "recording",
+                  "paused",
+                  "interrupted"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "State"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "transcription_language": {
+            "anyOf": [
+              {
+                "enum": [
+                  "auto",
+                  "fr",
+                  "en"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transcription Language"
+          }
+        },
+        "title": "MeetingPatch",
+        "type": "object"
+      },
+      "OwnProfileUpdate": {
+        "additionalProperties": false,
+        "description": "Champs modifiables depuis l’espace personnel ; l’identifiant reste stable.",
+        "properties": {
+          "telephone": {
+            "anyOf": [
+              {
+                "maxLength": 32,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Numéro de téléphone ; null pour l’effacer.",
+            "examples": [
+              "+22670000000"
+            ],
+            "title": "Telephone"
+          }
+        },
+        "title": "OwnProfileUpdate",
+        "type": "object"
+      },
+      "Page_AccessItem_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AccessItem"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "page": {
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "pages": {
+            "title": "Pages",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size",
+          "pages"
+        ],
+        "title": "Page[AccessItem]",
+        "type": "object"
+      },
+      "Page_AdminUser_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AdminUser"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "page": {
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "pages": {
+            "title": "Pages",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size",
+          "pages"
+        ],
+        "title": "Page[AdminUser]",
+        "type": "object"
+      },
+      "Page_UserModel_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/UserModel"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "page": {
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "pages": {
+            "title": "Pages",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size",
+          "pages"
+        ],
+        "title": "Page[UserModel]",
+        "type": "object"
+      },
+      "Permissions": {
+        "properties": {
+          "audio": {
+            "default": true,
+            "title": "Audio",
+            "type": "boolean"
+          },
+          "chat": {
+            "default": true,
+            "title": "Chat",
+            "type": "boolean"
+          },
+          "edit": {
+            "default": false,
+            "title": "Edit",
+            "type": "boolean"
+          },
+          "report": {
+            "default": true,
+            "title": "Report",
+            "type": "boolean"
+          },
+          "transcript": {
+            "default": true,
+            "title": "Transcript",
+            "type": "boolean"
+          }
+        },
+        "title": "Permissions",
+        "type": "object"
+      },
+      "Question": {
+        "properties": {
+          "question": {
+            "maxLength": 2000,
+            "minLength": 2,
+            "title": "Question",
+            "type": "string"
+          }
+        },
+        "required": [
+          "question"
+        ],
+        "title": "Question",
+        "type": "object"
+      },
+      "RegistrationModel": {
+        "description": "Résultat d’inscription ; un compte en attente ne reçoit aucun JWT.",
+        "properties": {
+          "profile_photo_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "URL relative de la photo de profil. Lecture authentifiée ; modification via PUT /api/user/me/photo.",
+            "examples": [
+              "/api/user/utilisateur_demo/photo?v=identifiant.webp"
+            ],
+            "readOnly": true,
+            "title": "Profile Photo Url"
+          },
+          "telephone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Numéro de téléphone de l’utilisateur. Facultatif ; aucun format spécifique n’est imposé par ce schéma.",
+            "examples": [
+              "+22670000000"
+            ],
+            "title": "Telephone"
+          },
+          "username": {
+            "description": "Nom d’utilisateur unique identifiant le compte.",
+            "examples": [
+              "utilisateur_demo"
+            ],
+            "include": "true",
+            "title": "Username",
+            "type": "string"
+          },
+          "verification_required": {
+            "description": "Confirmer l’adresse avant de se connecter.",
+            "title": "Verification Required",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "username",
+          "verification_required"
+        ],
+        "title": "RegistrationModel",
+        "type": "object"
+      },
+      "ResendConfirmation": {
+        "additionalProperties": false,
+        "description": "Demande publique, sans indication sur l’existence d’un compte.",
+        "properties": {
+          "email": {
+            "description": "Adresse du compte à confirmer.",
+            "format": "email",
+            "maxLength": 254,
+            "title": "Email",
+            "type": "string"
+          },
+          "language": {
+            "default": "fr",
+            "description": "Langue du message envoyé.",
+            "enum": [
+              "fr",
+              "en"
+            ],
+            "title": "Language",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email"
+        ],
+        "title": "ResendConfirmation",
+        "type": "object"
+      },
+      "ResetPassword": {
+        "additionalProperties": false,
+        "description": "Jeton opaque reçu par e-mail et nouveau mot de passe.",
+        "properties": {
+          "new_password": {
+            "description": "Nouveau mot de passe (8 à 128 caractères).",
+            "format": "password",
+            "maxLength": 128,
+            "minLength": 8,
+            "title": "New Password",
+            "type": "string",
+            "writeOnly": true
+          },
+          "token": {
+            "description": "Jeton temporaire à usage unique du lien reçu par e-mail.",
+            "format": "password",
+            "maxLength": 128,
+            "minLength": 43,
+            "title": "Token",
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "token",
+          "new_password"
+        ],
+        "title": "ResetPassword",
+        "type": "object"
+      },
+      "Response": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "ok",
+            "title": "Message"
+          },
+          "status": {
+            "default": 1,
+            "title": "Status",
+            "type": "integer"
+          },
+          "status_code": {
+            "default": 200,
+            "title": "Status Code",
+            "type": "integer"
+          }
+        },
+        "title": "Response",
+        "type": "object"
+      },
+      "Response_AccessItem_": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AccessItem"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "ok",
+            "title": "Message"
+          },
+          "status": {
+            "default": 1,
+            "title": "Status",
+            "type": "integer"
+          },
+          "status_code": {
+            "default": 200,
+            "title": "Status Code",
+            "type": "integer"
+          }
+        },
+        "title": "Response[AccessItem]",
+        "type": "object"
+      },
+      "Response_AdminUser_": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AdminUser"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "ok",
+            "title": "Message"
+          },
+          "status": {
+            "default": 1,
+            "title": "Status",
+            "type": "integer"
+          },
+          "status_code": {
+            "default": 200,
+            "title": "Status Code",
+            "type": "integer"
+          }
+        },
+        "title": "Response[AdminUser]",
+        "type": "object"
+      },
+      "Response_AuthConfiguration_": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AuthConfiguration"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "ok",
+            "title": "Message"
+          },
+          "status": {
+            "default": 1,
+            "title": "Status",
+            "type": "integer"
+          },
+          "status_code": {
+            "default": 200,
+            "title": "Status Code",
+            "type": "integer"
+          }
+        },
+        "title": "Response[AuthConfiguration]",
+        "type": "object"
+      },
+      "Response_CurrentUserModel_": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CurrentUserModel"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "ok",
+            "title": "Message"
+          },
+          "status": {
+            "default": 1,
+            "title": "Status",
+            "type": "integer"
+          },
+          "status_code": {
+            "default": 200,
+            "title": "Status Code",
+            "type": "integer"
+          }
+        },
+        "title": "Response[CurrentUserModel]",
+        "type": "object"
+      },
+      "Response_NoneType_": {
+        "properties": {
+          "data": {
+            "title": "Data",
+            "type": "null"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "ok",
+            "title": "Message"
+          },
+          "status": {
+            "default": 1,
+            "title": "Status",
+            "type": "integer"
+          },
+          "status_code": {
+            "default": 200,
+            "title": "Status Code",
+            "type": "integer"
+          }
+        },
+        "title": "Response[NoneType]",
+        "type": "object"
+      },
+      "Response_Page_AccessItem__": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Page_AccessItem_"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "ok",
+            "title": "Message"
+          },
+          "status": {
+            "default": 1,
+            "title": "Status",
+            "type": "integer"
+          },
+          "status_code": {
+            "default": 200,
+            "title": "Status Code",
+            "type": "integer"
+          }
+        },
+        "title": "Response[Page[AccessItem]]",
+        "type": "object"
+      },
+      "Response_Page_AdminUser__": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Page_AdminUser_"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "ok",
+            "title": "Message"
+          },
+          "status": {
+            "default": 1,
+            "title": "Status",
+            "type": "integer"
+          },
+          "status_code": {
+            "default": 200,
+            "title": "Status Code",
+            "type": "integer"
+          }
+        },
+        "title": "Response[Page[AdminUser]]",
+        "type": "object"
+      },
+      "Response_Page_UserModel__": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Page_UserModel_"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "ok",
+            "title": "Message"
+          },
+          "status": {
+            "default": 1,
+            "title": "Status",
+            "type": "integer"
+          },
+          "status_code": {
+            "default": 200,
+            "title": "Status Code",
+            "type": "integer"
+          }
+        },
+        "title": "Response[Page[UserModel]]",
+        "type": "object"
+      },
+      "Response_RegistrationModel_": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RegistrationModel"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "ok",
+            "title": "Message"
+          },
+          "status": {
+            "default": 1,
+            "title": "Status",
+            "type": "integer"
+          },
+          "status_code": {
+            "default": 200,
+            "title": "Status Code",
+            "type": "integer"
+          }
+        },
+        "title": "Response[RegistrationModel]",
+        "type": "object"
+      },
+      "Response_RoleDetail_": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RoleDetail"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "ok",
+            "title": "Message"
+          },
+          "status": {
+            "default": 1,
+            "title": "Status",
+            "type": "integer"
+          },
+          "status_code": {
+            "default": 200,
+            "title": "Status Code",
+            "type": "integer"
+          }
+        },
+        "title": "Response[RoleDetail]",
+        "type": "object"
+      },
+      "Response_UserAccess_": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/UserAccess"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "ok",
+            "title": "Message"
+          },
+          "status": {
+            "default": 1,
+            "title": "Status",
+            "type": "integer"
+          },
+          "status_code": {
+            "default": 200,
+            "title": "Status Code",
+            "type": "integer"
+          }
+        },
+        "title": "Response[UserAccess]",
+        "type": "object"
+      },
+      "Response_UserModel_": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/UserModel"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "ok",
+            "title": "Message"
+          },
+          "status": {
+            "default": 1,
+            "title": "Status",
+            "type": "integer"
+          },
+          "status_code": {
+            "default": 200,
+            "title": "Status Code",
+            "type": "integer"
+          }
+        },
+        "title": "Response[UserModel]",
+        "type": "object"
+      },
+      "Response_list_UserModel__": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/UserModel"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "ok",
+            "title": "Message"
+          },
+          "status": {
+            "default": 1,
+            "title": "Status",
+            "type": "integer"
+          },
+          "status_code": {
+            "default": 200,
+            "title": "Status Code",
+            "type": "integer"
+          }
+        },
+        "title": "Response[list[UserModel]]",
+        "type": "object"
+      },
+      "Response_str_": {
+        "properties": {
+          "data": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "ok",
+            "title": "Message"
+          },
+          "status": {
+            "default": 1,
+            "title": "Status",
+            "type": "integer"
+          },
+          "status_code": {
+            "default": 200,
+            "title": "Status Code",
+            "type": "integer"
+          }
+        },
+        "title": "Response[str]",
+        "type": "object"
+      },
+      "RetranscribeRequest": {
+        "properties": {
+          "language": {
+            "anyOf": [
+              {
+                "enum": [
+                  "auto",
+                  "fr",
+                  "en"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language"
+          },
+          "request_id": {
+            "maxLength": 100,
+            "minLength": 8,
+            "pattern": "^[a-zA-Z0-9_-]+$",
+            "title": "Request Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id"
+        ],
+        "title": "RetranscribeRequest",
+        "type": "object"
+      },
+      "RoleDetail": {
+        "additionalProperties": false,
+        "description": "Permissions explicitement associées au rôle.",
+        "properties": {
+          "description": {
+            "default": "",
+            "title": "Description",
+            "type": "string"
+          },
+          "id": {
+            "description": "Identifiant SQL du rôle ou de la permission",
+            "title": "Id",
+            "type": "integer"
+          },
+          "is_active": {
+            "default": true,
+            "title": "Is Active",
+            "type": "boolean"
+          },
+          "name": {
+            "examples": [
+              "reports.read"
+            ],
+            "pattern": "^[a-z][a-z0-9_.:-]{0,99}$",
+            "title": "Name",
+            "type": "string"
+          },
+          "permissions": {
+            "description": "Permissions accordées au rôle",
+            "items": {
+              "$ref": "#/components/schemas/AccessItem"
+            },
+            "title": "Permissions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "name",
+          "id",
+          "permissions"
+        ],
+        "title": "RoleDetail",
+        "type": "object"
+      },
+      "Segment": {
+        "properties": {
+          "end": {
+            "minimum": 0.0,
+            "title": "End",
+            "type": "number"
+          },
+          "id": {
+            "pattern": "^s[0-9]+$",
+            "title": "Id",
+            "type": "string"
+          },
+          "language": {
+            "default": "unknown",
+            "maxLength": 20,
+            "title": "Language",
+            "type": "string"
+          },
+          "speaker": {
+            "default": "Intervenant non identifié",
+            "maxLength": 100,
+            "title": "Speaker",
+            "type": "string"
+          },
+          "start": {
+            "minimum": 0.0,
+            "title": "Start",
+            "type": "number"
+          },
+          "text": {
+            "maxLength": 10000,
+            "title": "Text",
+            "type": "string"
+          },
+          "uncertain": {
+            "default": false,
+            "title": "Uncertain",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "start",
+          "end",
+          "text"
+        ],
+        "title": "Segment",
+        "type": "object"
+      },
+      "Settings": {
+        "properties": {
+          "allow_guest_edit": {
+            "default": false,
+            "title": "Allow Guest Edit",
+            "type": "boolean"
+          },
+          "audio_retention_days": {
+            "default": 30,
+            "maximum": 365.0,
+            "minimum": 1.0,
+            "title": "Audio Retention Days",
+            "type": "integer"
+          },
+          "email_notifications": {
+            "default": true,
+            "title": "Email Notifications",
+            "type": "boolean"
+          },
+          "max_duration_minutes": {
+            "default": 120,
+            "maximum": 240.0,
+            "minimum": 1.0,
+            "title": "Max Duration Minutes",
+            "type": "integer"
+          },
+          "max_upload_mb": {
+            "default": 250,
+            "maximum": 500.0,
+            "minimum": 1.0,
+            "title": "Max Upload Mb",
+            "type": "integer"
+          },
+          "report_language": {
+            "default": "fr",
+            "enum": [
+              "fr",
+              "en"
+            ],
+            "title": "Report Language",
+            "type": "string"
+          }
+        },
+        "title": "Settings",
+        "type": "object"
+      },
+      "ShareCreate": {
+        "properties": {
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "password": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "minLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Password"
+          },
+          "permissions": {
+            "$ref": "#/components/schemas/Permissions"
+          }
+        },
+        "title": "ShareCreate",
+        "type": "object"
+      },
+      "UpdateUserModel": {
+        "additionalProperties": false,
+        "description": "Champs à modifier ; les champs omis ou à null sont ignorés.",
+        "properties": {
+          "telephone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Nouveau numéro de téléphone. Omettre ce champ ou envoyer null pour conserver la valeur actuelle.",
+            "examples": [
+              "+22670000001"
+            ],
+            "title": "Telephone"
+          },
+          "username": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Nouveau nom d’utilisateur. Omettre ce champ ou envoyer null pour conserver la valeur actuelle.",
+            "examples": [
+              "utilisateur_modifie"
+            ],
+            "title": "Username"
+          }
+        },
+        "title": "UpdateUserModel",
+        "type": "object"
+      },
+      "UserAccess": {
+        "description": "Droits SQL de l’utilisateur, en distinguant droits directs et effectifs.",
+        "properties": {
+          "direct_permissions": {
+            "description": "Permissions accordées directement au compte",
+            "items": {
+              "type": "string"
+            },
+            "title": "Direct Permissions",
+            "type": "array"
+          },
+          "is_superuser": {
+            "default": false,
+            "description": "Statut super administrateur attribué uniquement côté serveur",
+            "title": "Is Superuser",
+            "type": "boolean"
+          },
+          "permissions": {
+            "description": "Union des permissions directes et héritées des rôles",
+            "items": {
+              "type": "string"
+            },
+            "title": "Permissions",
+            "type": "array"
+          },
+          "roles": {
+            "description": "Rôles directement attribués au compte",
+            "items": {
+              "type": "string"
+            },
+            "title": "Roles",
+            "type": "array"
+          },
+          "username": {
+            "description": "Nom du compte concerné",
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": [
+          "username",
+          "roles",
+          "direct_permissions",
+          "permissions"
+        ],
+        "title": "UserAccess",
+        "type": "object"
+      },
+      "UserModel": {
+        "description": "Informations publiques d’un utilisateur, sans mot de passe.",
+        "properties": {
+          "profile_photo_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "URL relative de la photo de profil. Lecture authentifiée ; modification via PUT /api/user/me/photo.",
+            "examples": [
+              "/api/user/utilisateur_demo/photo?v=identifiant.webp"
+            ],
+            "readOnly": true,
+            "title": "Profile Photo Url"
+          },
+          "telephone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Numéro de téléphone de l’utilisateur. Facultatif ; aucun format spécifique n’est imposé par ce schéma.",
+            "examples": [
+              "+22670000000"
+            ],
+            "title": "Telephone"
+          },
+          "username": {
+            "description": "Nom d’utilisateur unique identifiant le compte.",
+            "examples": [
+              "utilisateur_demo"
+            ],
+            "include": "true",
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": [
+          "username"
+        ],
+        "title": "UserModel",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "OAuth2PasswordBearer": {
+        "flows": {
+          "password": {
+            "scopes": {},
+            "tokenUrl": "/api/auth/doc-login"
+          }
+        },
+        "type": "oauth2"
+      }
+    }
+  },
+  "info": {
+    "title": "Fullstack API",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/access/me": {
+      "get": {
+        "description": "Consulter uniquement ses propres droits, pour adapter l’interface.",
+        "operationId": "getMyAccess",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_UserAccess_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Authentification requise"
+          },
+          "403": {
+            "description": "Permission access.read ou access.manage requise"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "My Access",
+        "tags": [
+          "ACCESS"
+        ]
+      }
+    },
+    "/api/access/permissions": {
+      "get": {
+        "description": "Lister les permissions ; permission access.read requise.",
+        "operationId": "listPermissions",
+        "parameters": [
+          {
+            "description": "Page demandée, à partir de 1",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "description": "Page demandée, à partir de 1",
+              "maximum": 1000000,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Éléments par page, maximum 100",
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "description": "Éléments par page, maximum 100",
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Recherche textuelle littérale",
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "default": "",
+              "description": "Recherche textuelle littérale",
+              "maxLength": 100,
+              "title": "Q",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Nom d’un champ de tri autorisé",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "default": "id",
+              "description": "Nom d’un champ de tri autorisé",
+              "maxLength": 50,
+              "title": "Sort",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Sens du tri",
+            "in": "query",
+            "name": "order",
+            "required": false,
+            "schema": {
+              "default": "asc",
+              "description": "Sens du tri",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "title": "Order",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_Page_AccessItem__"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Authentification requise"
+          },
+          "403": {
+            "description": "Permission access.read ou access.manage requise"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "List Permissions",
+        "tags": [
+          "ACCESS"
+        ]
+      },
+      "post": {
+        "description": "Créer une permission ou retourner celle du même nom ; access.manage requise.",
+        "operationId": "createPermission",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccessName"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_AccessItem_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Authentification requise"
+          },
+          "403": {
+            "description": "Permission access.read ou access.manage requise"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Add Permission",
+        "tags": [
+          "ACCESS"
+        ]
+      }
+    },
+    "/api/access/permissions/{permission_id}": {
+      "patch": {
+        "description": "Modifier la description ou suspendre la permission ; conserver son code métier.",
+        "operationId": "updatePermission",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "permission_id",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "title": "Permission Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccessUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_AccessItem_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Authentification requise"
+          },
+          "403": {
+            "description": "Permission access.read ou access.manage requise"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Update Permission",
+        "tags": [
+          "ACCESS"
+        ]
+      }
+    },
+    "/api/access/roles": {
+      "get": {
+        "description": "Lister les rôles ; permission access.read requise.",
+        "operationId": "listRoles",
+        "parameters": [
+          {
+            "description": "Page demandée, à partir de 1",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "description": "Page demandée, à partir de 1",
+              "maximum": 1000000,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Éléments par page, maximum 100",
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "description": "Éléments par page, maximum 100",
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Recherche textuelle littérale",
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "default": "",
+              "description": "Recherche textuelle littérale",
+              "maxLength": 100,
+              "title": "Q",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Nom d’un champ de tri autorisé",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "default": "id",
+              "description": "Nom d’un champ de tri autorisé",
+              "maxLength": 50,
+              "title": "Sort",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Sens du tri",
+            "in": "query",
+            "name": "order",
+            "required": false,
+            "schema": {
+              "default": "asc",
+              "description": "Sens du tri",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "title": "Order",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_Page_AccessItem__"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Authentification requise"
+          },
+          "403": {
+            "description": "Permission access.read ou access.manage requise"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "List Roles",
+        "tags": [
+          "ACCESS"
+        ]
+      },
+      "post": {
+        "description": "Créer un rôle ou retourner celui du même nom ; access.manage requise.",
+        "operationId": "createRole",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccessName"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_AccessItem_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Authentification requise"
+          },
+          "403": {
+            "description": "Permission access.read ou access.manage requise"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Add Role",
+        "tags": [
+          "ACCESS"
+        ]
+      }
+    },
+    "/api/access/roles/{role_id}": {
+      "get": {
+        "description": "Consulter un rôle et ses permissions.",
+        "operationId": "getRole",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "role_id",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "title": "Role Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_RoleDetail_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Authentification requise"
+          },
+          "403": {
+            "description": "Permission access.read ou access.manage requise"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Role Detail",
+        "tags": [
+          "ACCESS"
+        ]
+      },
+      "patch": {
+        "description": "Modifier les métadonnées du rôle ; sa désactivation suspend ses droits hérités.",
+        "operationId": "updateRole",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "role_id",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "title": "Role Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccessUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_AccessItem_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Authentification requise"
+          },
+          "403": {
+            "description": "Permission access.read ou access.manage requise"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Update Role",
+        "tags": [
+          "ACCESS"
+        ]
+      }
+    },
+    "/api/access/roles/{role_id}/permissions/{permission_id}": {
+      "delete": {
+        "description": "Retirer une permission du rôle, donc de tous ses bénéficiaires indirects.",
+        "operationId": "revokeRolePermission",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "role_id",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "title": "Role Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "permission_id",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "title": "Permission Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_NoneType_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Authentification requise"
+          },
+          "403": {
+            "description": "Permission access.read ou access.manage requise"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Unassign Role Permission",
+        "tags": [
+          "ACCESS"
+        ]
+      },
+      "put": {
+        "description": "Accorder une permission existante à un rôle.",
+        "operationId": "grantRolePermission",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "role_id",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "title": "Role Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "permission_id",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "title": "Permission Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_NoneType_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Authentification requise"
+          },
+          "403": {
+            "description": "Permission access.read ou access.manage requise"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Assign Role Permission",
+        "tags": [
+          "ACCESS"
+        ]
+      }
+    },
+    "/api/access/users": {
+      "get": {
+        "description": "Lister et rechercher les utilisateurs pour gérer leurs attributions.",
+        "operationId": "listAdminUsers",
+        "parameters": [
+          {
+            "description": "Page demandée, à partir de 1",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "description": "Page demandée, à partir de 1",
+              "maximum": 1000000,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Éléments par page, maximum 100",
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "description": "Éléments par page, maximum 100",
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Recherche textuelle littérale",
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "default": "",
+              "description": "Recherche textuelle littérale",
+              "maxLength": 100,
+              "title": "Q",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Nom d’un champ de tri autorisé",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "default": "id",
+              "description": "Nom d’un champ de tri autorisé",
+              "maxLength": 50,
+              "title": "Sort",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Sens du tri",
+            "in": "query",
+            "name": "order",
+            "required": false,
+            "schema": {
+              "default": "asc",
+              "description": "Sens du tri",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "title": "Order",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_Page_AdminUser__"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Authentification requise"
+          },
+          "403": {
+            "description": "Permission access.read ou access.manage requise"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "List Users",
+        "tags": [
+          "ACCESS"
+        ]
+      },
+      "post": {
+        "description": "Créer un compte normal en conservant la confirmation d’e-mail configurée.",
+        "operationId": "adminCreateUser",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminCreateUser"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_AdminUser_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Authentification requise"
+          },
+          "403": {
+            "description": "Permission access.read ou access.manage requise"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Create Admin User",
+        "tags": [
+          "ACCESS"
+        ]
+      }
+    },
+    "/api/access/users/{username}": {
+      "get": {
+        "description": "Consulter les rôles, permissions directes et permissions effectives d’un compte.",
+        "operationId": "getUserAccess",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "username",
+            "required": true,
+            "schema": {
+              "title": "Username",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_UserAccess_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Authentification requise"
+          },
+          "403": {
+            "description": "Permission access.read ou access.manage requise"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "User Access",
+        "tags": [
+          "ACCESS"
+        ]
+      }
+    },
+    "/api/access/users/{username}/permissions/{permission_id}": {
+      "delete": {
+        "description": "Retirer le lien direct ; les permissions héritées restent effectives.",
+        "operationId": "revokeUserPermission",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "username",
+            "required": true,
+            "schema": {
+              "title": "Username",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "permission_id",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "title": "Permission Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_NoneType_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Authentification requise"
+          },
+          "403": {
+            "description": "Permission access.read ou access.manage requise"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Unassign User Permission",
+        "tags": [
+          "ACCESS"
+        ]
+      },
+      "put": {
+        "description": "Accorder directement une permission à un compte.",
+        "operationId": "grantUserPermission",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "username",
+            "required": true,
+            "schema": {
+              "title": "Username",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "permission_id",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "title": "Permission Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_NoneType_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Authentification requise"
+          },
+          "403": {
+            "description": "Permission access.read ou access.manage requise"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Assign User Permission",
+        "tags": [
+          "ACCESS"
+        ]
+      }
+    },
+    "/api/access/users/{username}/roles/{role_id}": {
+      "delete": {
+        "description": "Retirer le lien de rôle ; un lien déjà absent est accepté.",
+        "operationId": "revokeUserRole",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "username",
+            "required": true,
+            "schema": {
+              "title": "Username",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "role_id",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "title": "Role Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_NoneType_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Authentification requise"
+          },
+          "403": {
+            "description": "Permission access.read ou access.manage requise"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Unassign Role",
+        "tags": [
+          "ACCESS"
+        ]
+      },
+      "put": {
+        "description": "Attribuer un rôle existant ; un lien déjà présent est accepté.",
+        "operationId": "grantUserRole",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "username",
+            "required": true,
+            "schema": {
+              "title": "Username",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "role_id",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "title": "Role Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_NoneType_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Authentification requise"
+          },
+          "403": {
+            "description": "Permission access.read ou access.manage requise"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Assign Role",
+        "tags": [
+          "ACCESS"
+        ]
+      }
+    },
+    "/api/auth/config": {
+      "get": {
+        "description": "Exposer uniquement le drapeau public ; aucune configuration SMTP ni secret.",
+        "operationId": "authConfig",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_AuthConfiguration_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Options publiques d’inscription",
+        "tags": [
+          "AUTH"
+        ]
+      }
+    },
+    "/api/auth/forgot-password": {
+      "post": {
+        "description": "Réponse identique pour toute adresse ; envoi différé et demandes limitées par adresse/IP.",
+        "operationId": "authForgotPassword",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPassword"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Demander un lien de réinitialisation",
+        "tags": [
+          "AUTH"
+        ]
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "description": "Connecte un utilisateur et retourne un token d'accès JWT",
+        "operationId": "authLogin",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Login",
+        "tags": [
+          "AUTH"
+        ]
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "description": "Créer un compte ; en mode vérification, exiger l’e-mail et différer son accès.",
+        "operationId": "authRegister",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_RegistrationModel_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create User",
+        "tags": [
+          "AUTH"
+        ]
+      }
+    },
+    "/api/auth/resend-verification": {
+      "post": {
+        "description": "Même réponse pour toute adresse, compte confirmé, limite atteinte ou option désactivée.",
+        "operationId": "authResendVerification",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResendConfirmation"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Renvoyer le lien de confirmation",
+        "tags": [
+          "AUTH"
+        ]
+      }
+    },
+    "/api/auth/reset-password": {
+      "post": {
+        "description": "Le jeton est à usage unique ; toute ancienne session ou demande est révoquée.",
+        "operationId": "authResetPassword",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPassword"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Réinitialiser le mot de passe avec le lien reçu par e-mail",
+        "tags": [
+          "AUTH"
+        ]
+      }
+    },
+    "/api/auth/verify-email": {
+      "post": {
+        "description": "Validation explicite en POST ; ouvrir le lien ne consomme pas le jeton.",
+        "operationId": "authVerifyEmail",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmEmail"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Confirmer son adresse e-mail",
+        "tags": [
+          "AUTH"
+        ]
+      }
+    },
+    "/api/healthcheck/": {
+      "get": {
+        "description": "Vérifie la santé de l'application",
+        "operationId": "verifyHealth_api_healthcheck__get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_str_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Verifyhealth",
+        "tags": [
+          "OTHER"
+        ]
+      }
+    },
+    "/api/memora/mail": {
+      "get": {
+        "operationId": "mail_status_api_memora_mail_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Mail Status",
+        "tags": [
+          "Memora"
+        ]
+      }
+    },
+    "/api/memora/mail/{mail_id}/retry": {
+      "post": {
+        "operationId": "retry_mail_api_memora_mail__mail_id__retry_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mail_id",
+            "required": true,
+            "schema": {
+              "title": "Mail Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Retry Mail",
+        "tags": [
+          "Memora"
+        ]
+      }
+    },
+    "/api/memora/meetings": {
+      "get": {
+        "operationId": "meetings_api_memora_meetings_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Meetings",
+        "tags": [
+          "Memora"
+        ]
+      },
+      "post": {
+        "operationId": "create_meeting_api_memora_meetings_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMeeting"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Create Meeting",
+        "tags": [
+          "Memora"
+        ]
+      }
+    },
+    "/api/memora/meetings/{mid}": {
+      "delete": {
+        "operationId": "delete_meeting_api_memora_meetings__mid__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mid",
+            "required": true,
+            "schema": {
+              "title": "Mid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Meeting",
+        "tags": [
+          "Memora"
+        ]
+      },
+      "get": {
+        "operationId": "get_meeting_api_memora_meetings__mid__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mid",
+            "required": true,
+            "schema": {
+              "title": "Mid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Meeting",
+        "tags": [
+          "Memora"
+        ]
+      },
+      "patch": {
+        "operationId": "patch_meeting_api_memora_meetings__mid__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mid",
+            "required": true,
+            "schema": {
+              "title": "Mid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MeetingPatch"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Patch Meeting",
+        "tags": [
+          "Memora"
+        ]
+      }
+    },
+    "/api/memora/meetings/{mid}/analyze": {
+      "post": {
+        "operationId": "analyze_api_memora_meetings__mid__analyze_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mid",
+            "required": true,
+            "schema": {
+              "title": "Mid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/AnalyzeRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Analyze",
+        "tags": [
+          "Memora"
+        ]
+      }
+    },
+    "/api/memora/meetings/{mid}/audio": {
+      "get": {
+        "operationId": "audio_api_memora_meetings__mid__audio_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mid",
+            "required": true,
+            "schema": {
+              "title": "Mid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Audio",
+        "tags": [
+          "Memora"
+        ]
+      }
+    },
+    "/api/memora/meetings/{mid}/chat": {
+      "post": {
+        "operationId": "chat_api_memora_meetings__mid__chat_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mid",
+            "required": true,
+            "schema": {
+              "title": "Mid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Question"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Chat",
+        "tags": [
+          "Memora"
+        ]
+      }
+    },
+    "/api/memora/meetings/{mid}/chunks": {
+      "post": {
+        "operationId": "upload_chunk_api_memora_meetings__mid__chunks_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mid",
+            "required": true,
+            "schema": {
+              "title": "Mid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "seq",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "title": "Seq",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Upload Chunk",
+        "tags": [
+          "Memora"
+        ]
+      }
+    },
+    "/api/memora/meetings/{mid}/finalize": {
+      "post": {
+        "operationId": "finalize_api_memora_meetings__mid__finalize_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mid",
+            "required": true,
+            "schema": {
+              "title": "Mid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Finalize"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Finalize",
+        "tags": [
+          "Memora"
+        ]
+      }
+    },
+    "/api/memora/meetings/{mid}/retranscribe": {
+      "post": {
+        "operationId": "retranscribe_api_memora_meetings__mid__retranscribe_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mid",
+            "required": true,
+            "schema": {
+              "title": "Mid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RetranscribeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Retranscribe",
+        "tags": [
+          "Memora"
+        ]
+      }
+    },
+    "/api/memora/meetings/{mid}/shares": {
+      "get": {
+        "operationId": "list_shares_api_memora_meetings__mid__shares_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mid",
+            "required": true,
+            "schema": {
+              "title": "Mid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Shares",
+        "tags": [
+          "Memora"
+        ]
+      },
+      "post": {
+        "operationId": "create_share_api_memora_meetings__mid__shares_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mid",
+            "required": true,
+            "schema": {
+              "title": "Mid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShareCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Share",
+        "tags": [
+          "Memora"
+        ]
+      }
+    },
+    "/api/memora/meetings/{mid}/shares/{token}": {
+      "delete": {
+        "operationId": "revoke_share_api_memora_meetings__mid__shares__token__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mid",
+            "required": true,
+            "schema": {
+              "title": "Mid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "title": "Token",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Revoke Share",
+        "tags": [
+          "Memora"
+        ]
+      }
+    },
+    "/api/memora/meetings/{mid}/shares/{token}/invite": {
+      "post": {
+        "operationId": "invite_api_memora_meetings__mid__shares__token__invite_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mid",
+            "required": true,
+            "schema": {
+              "title": "Mid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "title": "Token",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Invitation"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Invite",
+        "tags": [
+          "Memora"
+        ]
+      }
+    },
+    "/api/memora/meetings/{mid}/transcript": {
+      "get": {
+        "operationId": "read_transcript_api_memora_meetings__mid__transcript_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mid",
+            "required": true,
+            "schema": {
+              "title": "Mid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "version",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Version"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Transcript",
+        "tags": [
+          "Memora"
+        ]
+      },
+      "put": {
+        "operationId": "correct_api_memora_meetings__mid__transcript_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mid",
+            "required": true,
+            "schema": {
+              "title": "Mid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Correction"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Correct",
+        "tags": [
+          "Memora"
+        ]
+      }
+    },
+    "/api/memora/notifications": {
+      "get": {
+        "operationId": "notifications_api_memora_notifications_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Notifications",
+        "tags": [
+          "Memora"
+        ]
+      }
+    },
+    "/api/memora/notifications/{nid}": {
+      "patch": {
+        "operationId": "mark_notification_api_memora_notifications__nid__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "nid",
+            "required": true,
+            "schema": {
+              "title": "Nid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Mark Notification",
+        "tags": [
+          "Memora"
+        ]
+      }
+    },
+    "/api/memora/settings": {
+      "get": {
+        "operationId": "settings_api_memora_settings_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Settings",
+        "tags": [
+          "Memora"
+        ]
+      },
+      "put": {
+        "operationId": "update_settings_api_memora_settings_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Settings"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Update Settings",
+        "tags": [
+          "Memora"
+        ]
+      }
+    },
+    "/api/memora/share/{token}": {
+      "get": {
+        "operationId": "open_share_api_memora_share__token__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "title": "Token",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Open Share",
+        "tags": [
+          "Memora"
+        ]
+      }
+    },
+    "/api/user/": {
+      "get": {
+        "description": "Get all users",
+        "operationId": "get_all_user_api_user__get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_list_UserModel__"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Get All User",
+        "tags": [
+          "USER"
+        ]
+      }
+    },
+    "/api/user/me": {
+      "get": {
+        "description": "Retourner le compte du JWT et son dernier horodatage de connexion.",
+        "operationId": "getCurrentUser",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_CurrentUserModel_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Consulter son profil",
+        "tags": [
+          "USER"
+        ]
+      },
+      "patch": {
+        "description": "Modifier uniquement les champs autorisés du compte connecté.",
+        "operationId": "updateCurrentUser",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OwnProfileUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_CurrentUserModel_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Modifier son profil",
+        "tags": [
+          "USER"
+        ]
+      }
+    },
+    "/api/user/me/email": {
+      "patch": {
+        "description": "Exiger le mot de passe actuel ; révoquer les sessions et les liens de l’ancienne adresse.",
+        "operationId": "changeEmail",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangeEmail"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Définir son adresse de récupération",
+        "tags": [
+          "USER"
+        ]
+      }
+    },
+    "/api/user/me/password": {
+      "put": {
+        "description": "Réauthentifier le compte, changer le hash et révoquer toutes ses sessions.",
+        "operationId": "changePassword",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePassword"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Modifier son mot de passe",
+        "tags": [
+          "USER"
+        ]
+      }
+    },
+    "/api/user/me/photo": {
+      "put": {
+        "description": "Modifier uniquement la photo du compte désigné par le JWT, sans choisir un autre utilisateur.",
+        "operationId": "uploadProfilePhoto",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_uploadProfilePhoto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_UserModel_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "description": "Image illisible"
+          },
+          "404": {
+            "description": "Compte introuvable"
+          },
+          "413": {
+            "description": "Limite de taille ou de pixels dépassée"
+          },
+          "415": {
+            "description": "Format non accepté ou incohérent"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Ajouter ou remplacer sa photo de profil",
+        "tags": [
+          "USER"
+        ]
+      }
+    },
+    "/api/user/page": {
+      "get": {
+        "description": "Recherche sur username et telephone. Tri autorisé : id ou username. Authentification requise.",
+        "operationId": "listUsersPage",
+        "parameters": [
+          {
+            "description": "Page demandée, à partir de 1",
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "description": "Page demandée, à partir de 1",
+              "maximum": 1000000,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Éléments par page, maximum 100",
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "description": "Éléments par page, maximum 100",
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Recherche textuelle littérale",
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "default": "",
+              "description": "Recherche textuelle littérale",
+              "maxLength": 100,
+              "title": "Q",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Nom d’un champ de tri autorisé",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "default": "id",
+              "description": "Nom d’un champ de tri autorisé",
+              "maxLength": 50,
+              "title": "Sort",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Sens du tri",
+            "in": "query",
+            "name": "order",
+            "required": false,
+            "schema": {
+              "default": "asc",
+              "description": "Sens du tri",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "title": "Order",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_Page_UserModel__"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Lister les utilisateurs avec pagination, recherche et tri",
+        "tags": [
+          "USER"
+        ]
+      }
+    },
+    "/api/user/{username}": {
+      "delete": {
+        "description": "Delete user",
+        "operationId": "delete_user_api_user__username__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "username",
+            "required": true,
+            "schema": {
+              "title": "Username",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Delete User",
+        "tags": [
+          "USER"
+        ]
+      },
+      "get": {
+        "description": "Get users details",
+        "operationId": "get_user_Details_api_user__username__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "username",
+            "required": true,
+            "schema": {
+              "title": "Username",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_UserModel_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Get User Details",
+        "tags": [
+          "USER"
+        ]
+      },
+      "put": {
+        "description": "Update User",
+        "operationId": "update_user_api_user__username__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "username",
+            "required": true,
+            "schema": {
+              "title": "Username",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response_UserModel_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Update User",
+        "tags": [
+          "USER"
+        ]
+      }
+    },
+    "/api/user/{username}/photo": {
+      "get": {
+        "description": "Lire la photo sans la mettre en cache HTTP ni stocker de binaire dans Redis.",
+        "operationId": "getProfilePhoto",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "username",
+            "required": true,
+            "schema": {
+              "title": "Username",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "image/webp": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "description": "Compte ou photo introuvable"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Consulter une photo de profil (authentification requise)",
+        "tags": [
+          "USER"
+        ]
+      }
+    },
+    "/metrics": {
+      "get": {
+        "description": "Endpoint that serves Prometheus metrics.",
+        "operationId": "metrics_metrics_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Metrics",
+        "tags": [
+          "OTHER"
+        ]
+      }
+    }
+  }
+}

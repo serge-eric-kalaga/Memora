@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ app_name | e }} — Erreur serveur</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background: #1e1e1e;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        .header {
+            background-color: #212121;
+            color: #ffffff;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .body {
+            padding: 20px;
+        }
+
+        .body p {
+            margin: 10px 0;
+            color: #bdbdbd;
+        }
+
+        .body .error-details {
+            background-color: #2c2c2c;
+            color: #e57373;
+            padding: 10px;
+            border-left: 4px solid #e53935;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow-wrap: anywhere;
+        }
+
+        .footer {
+            background-color: #1a1a1a;
+            text-align: center;
+            padding: 15px;
+            font-size: 12px;
+            color: #757575;
+        }
+
+        .footer a {
+            color: #66bb6a;
+            text-decoration: none;
+        }
+
+        .footer strong {
+            color: #bdbdbd;
+        }
+
+        .erreur_500 {
+            color: #fa0000;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <h1><span class="erreur_500">Erreur 500</span> — {{ app_name | e }}</h1>
+        </div>
+
+        <!-- Body Section -->
+        <div class="body">
+            <p>Bonjour,</p>
+            <p>Une erreur interne a été détectée dans le backend FastAPI de l’application <b>{{ app_name | e }}</b>. Voici les détails pour le diagnostic :</p>
+
+            <div class="error-details">
+                <strong>Type d'erreur :</strong> {{ error_type | e }}<br><br>
+                <strong>Message :</strong> <span style="white-space: pre-wrap;">{{ error_message | e }}</span><br><br>
+                <strong>Date et heure :</strong> {{ timestamp | e }} UTC<br>
+            </div>
+
+            <p>
+                Consultez les logs du backend et les outils de monitoring pour identifier la cause de cette erreur
+                et vérifier le rétablissement du service.
+            </p>
+        </div>
+
+        <!-- Footer Section -->
+        <div class="footer">
+            <p>
+                Ce courriel a été envoyé automatiquement par <strong>{{ app_name | e }}</strong>.
+            </p>
+            <p>
+                <strong>Template Fullstack — FastAPI + Next.js</strong>
+            </p>
+        </div>
+    </div>
+</body>
+
+</html>

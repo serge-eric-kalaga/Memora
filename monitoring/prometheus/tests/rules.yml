@@ -1,0 +1,54 @@
+rule_files: [../rules.yml]
+evaluation_interval: 1m
+tests:
+  - interval: 1m
+    input_series:
+      - series: 'up{job="backend",instance="backend:80"}'
+        values: '0+0x10'
+    alert_rule_test:
+      - eval_time: 1m
+        alertname: MonitoringTargetDown
+        exp_alerts: []
+      - eval_time: 3m
+        alertname: MonitoringTargetDown
+        exp_alerts:
+          - exp_labels: {job: backend, instance: "backend:80", severity: critical}
+            exp_annotations:
+              summary: "Collecte indisponible : backend"
+              description: "Prometheus ne joint plus backend:80 depuis deux minutes."
+  - interval: 1m
+    input_series:
+      - series: 'api_http_requests_total{job="backend",handler="/api/user/me",status="2xx"}'
+        values: '0+100x20'
+      - series: 'api_http_requests_total{job="backend",handler="/api/user/me",status="5xx"}'
+        values: '0+20x20'
+    alert_rule_test:
+      - eval_time: 12m
+        alertname: ApiHighErrorRate
+        exp_alerts:
+          - exp_labels: {severity: critical}
+            exp_annotations: {summary: Plus de 5 % de réponses API en erreur serveur}
+  - interval: 1m
+    input_series:
+      - series: 'api_http_requests_total{job="backend",handler="/api/user/me",status="5xx"}'
+        values: '0+1x20'
+    alert_rule_test:
+      - eval_time: 15m
+        alertname: ApiHighErrorRate
+        exp_alerts: []
+  - interval: 1m
+    input_series:
+      - series: 'api_http_request_duration_seconds_bucket{job="backend",handler="/api/user/me",le="1"}'
+        values: '0+0x20'
+      - series: 'api_http_request_duration_seconds_bucket{job="backend",handler="/api/user/me",le="2.5"}'
+        values: '0+100x20'
+      - series: 'api_http_request_duration_seconds_bucket{job="backend",handler="/api/user/me",le="+Inf"}'
+        values: '0+100x20'
+      - series: 'api_http_request_duration_seconds_count{job="backend",handler="/api/user/me"}'
+        values: '0+100x20'
+    alert_rule_test:
+      - eval_time: 14m
+        alertname: ApiHighLatency
+        exp_alerts:
+          - exp_labels: {severity: warning}
+            exp_annotations: {summary: Le percentile 95 de l’API dépasse une seconde}

@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="{{ 'en' if english else 'fr' }}">
+<head><meta charset="utf-8"><title>{{ 'Confirm your email' if english else 'Confirmez votre adresse e-mail' }}</title></head>
+<body style="font-family:Arial,sans-serif;background:#f4f7f5;padding:32px;color:#203329">
+<main style="max-width:560px;margin:auto;background:white;border-radius:16px;padding:32px">
+<p>{{ app_name|e }}</p>
+<h1>{{ 'Confirm your email address' if english else 'Confirmez votre adresse e-mail' }}</h1>
+<p>{{ 'Confirm this address to finish setting up your account.' if english else 'Confirmez cette adresse pour terminer la création de votre compte.' }}</p>
+<p><a href="{{ link|e }}" style="display:inline-block;padding:14px 22px;background:#203329;color:white;border-radius:8px">{{ 'Confirm my email' if english else 'Confirmer mon adresse' }}</a></p>
+<p>{{ 'This link can be used once and expires in' if english else 'Ce lien est utilisable une seule fois et expire dans' }} {{ minutes }} minutes.</p>
+<p>{{ 'If you did not request this, you can ignore this message.' if english else 'Si vous n’êtes pas à l’origine de cette demande, ignorez ce message.' }}</p>
+</main></body></html>

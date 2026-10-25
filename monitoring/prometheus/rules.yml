@@ -1,0 +1,67 @@
+groups:
+  - name: template-availability
+    rules:
+      # Signal permanent pour tester Prometheus → Alertmanager ; aucune notification externe.
+      - alert: Watchdog
+        expr: vector(1)
+        labels: {severity: info}
+        annotations:
+          summary: La chaîne d’alertes est active
+      - alert: MonitoringTargetDown
+        expr: up == 0
+        for: 2m
+        labels: {severity: critical}
+        annotations:
+          summary: "Collecte indisponible : {{ $labels.job }}"
+          description: "Prometheus ne joint plus {{ $labels.instance }} depuis deux minutes."
+      - alert: HttpServiceUnavailable
+        expr: probe_success{job="http-probes"} == 0
+        for: 2m
+        labels: {severity: critical}
+        annotations:
+          summary: "Service HTTP indisponible : {{ $labels.service }}"
+          description: "La sonde {{ $labels.instance }} échoue ; vérifier ses dépendances et ses logs."
+      - alert: MySQLUnavailable
+        expr: mysql_up == 0
+        for: 1m
+        labels: {severity: critical}
+        annotations: {summary: MySQL ne répond pas à l’exporteur}
+      - alert: RedisUnavailable
+        expr: redis_up == 0
+        for: 1m
+        labels: {severity: critical}
+        annotations: {summary: Redis ne répond pas à l’exporteur}
+  - name: template-api
+    rules:
+      - alert: ApiHighErrorRate
+        expr: (sum(rate(api_http_requests_total{job="backend",status=~"5..",handler!~"/metrics|/api/healthcheck/"}[5m])) / clamp_min(sum(rate(api_http_requests_total{job="backend",handler!~"/metrics|/api/healthcheck/"}[5m])), 0.001) > 0.05) and (sum(rate(api_http_requests_total{job="backend",handler!~"/metrics|/api/healthcheck/"}[5m])) > 0.1)
+        for: 5m
+        labels: {severity: critical}
+        annotations: {summary: Plus de 5 % de réponses API en erreur serveur}
+      - alert: ApiHighLatency
+        expr: (histogram_quantile(0.95, sum by (le) (rate(api_http_request_duration_seconds_bucket{job="backend",handler!~"/metrics|/api/healthcheck/"}[5m]))) > 1) and (sum(rate(api_http_request_duration_seconds_count{job="backend",handler!~"/metrics|/api/healthcheck/"}[5m])) > 0.1)
+        for: 10m
+        labels: {severity: warning}
+        annotations: {summary: Le percentile 95 de l’API dépasse une seconde}
+      - alert: ApiHighMemory
+        expr: process_resident_memory_bytes{job="backend"} > 536870912
+        for: 15m
+        labels: {severity: warning}
+        annotations: {summary: Le processus API utilise plus de 512 Mio}
+  - name: template-storage
+    rules:
+      - alert: MySQLConnectionsHigh
+        expr: mysql_global_status_threads_connected / mysql_global_variables_max_connections > 0.8
+        for: 10m
+        labels: {severity: warning}
+        annotations: {summary: MySQL utilise plus de 80 % de ses connexions}
+      - alert: RedisMemoryHigh
+        expr: (redis_memory_used_bytes / redis_memory_max_bytes > 0.8) and (redis_memory_max_bytes > 0)
+        for: 10m
+        labels: {severity: warning}
+        annotations: {summary: Redis utilise plus de 80 % de sa mémoire maximale}
+      - alert: RedisEvictions
+        expr: rate(redis_evicted_keys_total[5m]) > 0
+        for: 10m
+        labels: {severity: warning}
+        annotations: {summary: Redis évince des clés depuis dix minutes}

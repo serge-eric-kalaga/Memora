@@ -1,0 +1,527 @@
+{
+  "version": 3,
+  "seed": 20261027,
+  "description": "Independent synthetic reserve created after v2 was consumed. New references frozen before any inference; conditional FR-final Parakeet route was selected after v2 and is not blindly validated by v2.",
+  "acceptance": {
+    "primary": "clean numeric micro WER <= 0.10, not a natural-speech guarantee",
+    "secondary": "report every language/profile/source, lexical probes with semantic inspection, hallucinations, regressions, latency/RAM; no dropped difficult cases",
+    "candidate_policy": "explicit French final: vanilla Parakeet chunk30 overlap2; English/auto/bilingual/live: unchanged Turbo; no vocabulary or new tuning",
+    "safety_gate": "report any new polarity/amount/deadline loss or proper-name/technical-term regression; no global superiority claim from micro average",
+    "split": "all 12 sources held out; any tuning informed by these outputs consumes this reserve",
+    "difficult_source_ids": [
+      "reserve3-fr-short-hard",
+      "reserve3-mixed-continuous-hard"
+    ]
+  },
+  "number_normalization": {
+    "cinq mille six cents": "5600",
+    "cinq mille six cent": "5600",
+    "cinquante six mille": "56000",
+    "fifty six hundred": "5600",
+    "fifty six thousand": "56000",
+    "three thousand two hundred": "3200",
+    "thirty two thousand": "32000"
+  },
+  "cases": [
+    {
+      "id": "reserve3-fr-facture",
+      "split": "holdout",
+      "language": "fr",
+      "chunks": [
+        {
+          "text": "Alors, la facture ne sera pas réglée ce soir.",
+          "voice": "Thomas",
+          "rate": 181,
+          "gap_ms": 350
+        },
+        {
+          "text": "Le montant est de cinq mille six cents euros, et non de cinquante-six mille.",
+          "voice": "Thomas",
+          "rate": 181,
+          "gap_ms": 350
+        },
+        {
+          "text": "Rokia contrôlera le document vendredi.",
+          "voice": "Thomas",
+          "rate": 181,
+          "gap_ms": 350
+        }
+      ],
+      "critical": [
+        [
+          "pas",
+          "réglée"
+        ],
+        [
+          "5600",
+          "non",
+          "56000"
+        ],
+        [
+          "rokia",
+          "vendredi"
+        ]
+      ],
+      "keywords": [
+        "Rokia"
+      ],
+      "difficult": false
+    },
+    {
+      "id": "reserve3-fr-service",
+      "split": "holdout",
+      "language": "fr",
+      "chunks": [
+        {
+          "text": "Le tableau Grafana sera vérifié mardi matin.",
+          "voice": "Amélie",
+          "rate": 157,
+          "gap_ms": 350
+        },
+        {
+          "text": "Adama ne doit pas effacer les archives.",
+          "voice": "Amélie",
+          "rate": 157,
+          "gap_ms": 350
+        },
+        {
+          "text": "Le conteneur Docker attend notre confirmation avant le redémarrage.",
+          "voice": "Amélie",
+          "rate": 157,
+          "gap_ms": 350
+        }
+      ],
+      "critical": [
+        [
+          "grafana"
+        ],
+        [
+          "pas",
+          "effacer"
+        ],
+        [
+          "docker",
+          "confirmation"
+        ]
+      ],
+      "keywords": [
+        "Grafana",
+        "Adama",
+        "Docker"
+      ],
+      "difficult": false
+    },
+    {
+      "id": "reserve3-fr-short-hard",
+      "split": "holdout",
+      "language": "fr",
+      "chunks": [
+        {
+          "text": "Salif examine le contrat.",
+          "voice": "Jacques",
+          "rate": 164,
+          "gap_ms": 400
+        },
+        {
+          "text": "Salif appellera jeudi.",
+          "voice": "Jacques",
+          "rate": 164,
+          "gap_ms": 400
+        },
+        {
+          "text": "La cliente attend encore.",
+          "voice": "Jacques",
+          "rate": 164,
+          "gap_ms": 400
+        },
+        {
+          "text": "Salif ne doit rien signer.",
+          "voice": "Jacques",
+          "rate": 164,
+          "gap_ms": 400
+        }
+      ],
+      "critical": [
+        [
+          "salif"
+        ],
+        [
+          "rien",
+          "signer"
+        ]
+      ],
+      "keywords": [
+        "Salif"
+      ],
+      "difficult": true
+    },
+    {
+      "id": "reserve3-fr-proposition",
+      "split": "holdout",
+      "language": "fr",
+      "chunks": [
+        {
+          "text": "Bon, cette date reste une hypothèse.",
+          "voice": "Thomas",
+          "rate": 198,
+          "gap_ms": 250
+        },
+        {
+          "text": "Nous n’avons pas réservé la salle à Gaoua.",
+          "voice": "Thomas",
+          "rate": 198,
+          "gap_ms": 250
+        },
+        {
+          "text": "Camille montrera la maquette mercredi, si la connexion fonctionne.",
+          "voice": "Thomas",
+          "rate": 198,
+          "gap_ms": 250
+        }
+      ],
+      "critical": [
+        [
+          "pas",
+          "réservé"
+        ],
+        [
+          "gaoua"
+        ],
+        [
+          "mercredi",
+          "si"
+        ]
+      ],
+      "keywords": [
+        "Gaoua",
+        "Camille"
+      ],
+      "difficult": false
+    },
+    {
+      "id": "reserve3-en-invoice",
+      "split": "holdout",
+      "language": "en",
+      "chunks": [
+        {
+          "text": "Well, the invoice has not been paid yet.",
+          "voice": "Daniel",
+          "rate": 168,
+          "gap_ms": 350
+        },
+        {
+          "text": "The amount is three thousand two hundred pounds, not thirty two thousand.",
+          "voice": "Daniel",
+          "rate": 168,
+          "gap_ms": 350
+        },
+        {
+          "text": "Hannah will inspect the document on Friday.",
+          "voice": "Daniel",
+          "rate": 168,
+          "gap_ms": 350
+        }
+      ],
+      "critical": [
+        [
+          "not",
+          "paid"
+        ],
+        [
+          "3200",
+          "not",
+          "32000"
+        ],
+        [
+          "hannah",
+          "friday"
+        ]
+      ],
+      "keywords": [
+        "Hannah"
+      ],
+      "difficult": false
+    },
+    {
+      "id": "reserve3-en-service",
+      "split": "holdout",
+      "language": "en",
+      "chunks": [
+        {
+          "text": "The Docker container will restart on Tuesday.",
+          "voice": "Karen",
+          "rate": 176,
+          "gap_ms": 350
+        },
+        {
+          "text": "Leo must not remove the archives.",
+          "voice": "Karen",
+          "rate": 176,
+          "gap_ms": 350
+        },
+        {
+          "text": "The Grafana dashboard is still waiting for our confirmation.",
+          "voice": "Karen",
+          "rate": 176,
+          "gap_ms": 350
+        }
+      ],
+      "critical": [
+        [
+          "docker"
+        ],
+        [
+          "not",
+          "remove"
+        ],
+        [
+          "grafana",
+          "confirmation"
+        ]
+      ],
+      "keywords": [
+        "Docker",
+        "Leo",
+        "Grafana"
+      ],
+      "difficult": false
+    },
+    {
+      "id": "reserve3-en-short",
+      "split": "holdout",
+      "language": "en",
+      "chunks": [
+        {
+          "text": "Sofia owns the draft.",
+          "voice": "Samantha",
+          "rate": 201,
+          "gap_ms": 400
+        },
+        {
+          "text": "Sofia will call on Thursday.",
+          "voice": "Samantha",
+          "rate": 201,
+          "gap_ms": 400
+        },
+        {
+          "text": "The customer is still waiting.",
+          "voice": "Samantha",
+          "rate": 201,
+          "gap_ms": 400
+        },
+        {
+          "text": "Sofia must not approve anything.",
+          "voice": "Samantha",
+          "rate": 201,
+          "gap_ms": 400
+        }
+      ],
+      "critical": [
+        [
+          "sofia"
+        ],
+        [
+          "not",
+          "approve"
+        ]
+      ],
+      "keywords": [
+        "Sofia"
+      ],
+      "difficult": false
+    },
+    {
+      "id": "reserve3-en-proposal",
+      "split": "holdout",
+      "language": "en",
+      "chunks": [
+        {
+          "text": "This date is only an assumption.",
+          "voice": "Moira",
+          "rate": 179,
+          "gap_ms": 350
+        },
+        {
+          "text": "We have not booked the room in Bristol.",
+          "voice": "Moira",
+          "rate": 179,
+          "gap_ms": 350
+        },
+        {
+          "text": "Oscar will show the mockup on Wednesday if the connection works.",
+          "voice": "Moira",
+          "rate": 179,
+          "gap_ms": 350
+        }
+      ],
+      "critical": [
+        [
+          "not",
+          "booked"
+        ],
+        [
+          "wednesday",
+          "if"
+        ]
+      ],
+      "keywords": [
+        "Bristol",
+        "Oscar"
+      ],
+      "difficult": false
+    },
+    {
+      "id": "reserve3-mixed-invoice",
+      "split": "holdout",
+      "language": "auto",
+      "chunks": [
+        {
+          "text": "Nous ne réglerons rien avant confirmation.",
+          "voice": "Thomas",
+          "rate": 177,
+          "gap_ms": 300
+        },
+        {
+          "text": "The amount is fifty six hundred euros, not fifty six thousand.",
+          "voice": "Samantha",
+          "rate": 177,
+          "gap_ms": 300
+        },
+        {
+          "text": "Rokia contrôlera le document vendredi.",
+          "voice": "Thomas",
+          "rate": 177,
+          "gap_ms": 300
+        }
+      ],
+      "critical": [
+        [
+          "rien",
+          "confirmation"
+        ],
+        [
+          "5600",
+          "not",
+          "56000"
+        ]
+      ],
+      "keywords": [
+        "Rokia"
+      ],
+      "difficult": false
+    },
+    {
+      "id": "reserve3-mixed-service",
+      "split": "holdout",
+      "language": "auto",
+      "chunks": [
+        {
+          "text": "Le tableau Grafana attend notre validation.",
+          "voice": "Amélie",
+          "rate": 163,
+          "gap_ms": 400
+        },
+        {
+          "text": "We must not erase the archives before Tuesday.",
+          "voice": "Daniel",
+          "rate": 163,
+          "gap_ms": 400
+        },
+        {
+          "text": "Adama conservera tous les documents.",
+          "voice": "Amélie",
+          "rate": 163,
+          "gap_ms": 400
+        }
+      ],
+      "critical": [
+        [
+          "not",
+          "erase"
+        ],
+        [
+          "adama",
+          "documents"
+        ]
+      ],
+      "keywords": [
+        "Grafana",
+        "Adama"
+      ],
+      "difficult": false
+    },
+    {
+      "id": "reserve3-mixed-continuous-hard",
+      "split": "holdout",
+      "language": "auto",
+      "chunks": [
+        {
+          "text": "Le contrat de Salif reste en attente.",
+          "voice": "Jacques",
+          "rate": 172,
+          "gap_ms": 0
+        },
+        {
+          "text": "We have not approved the order for Thursday.",
+          "voice": "Karen",
+          "rate": 172,
+          "gap_ms": 0
+        }
+      ],
+      "critical": [
+        [
+          "salif"
+        ],
+        [
+          "not",
+          "approved"
+        ],
+        [
+          "thursday"
+        ]
+      ],
+      "keywords": [
+        "Salif"
+      ],
+      "difficult": true
+    },
+    {
+      "id": "reserve3-mixed-proposal",
+      "split": "holdout",
+      "language": "auto",
+      "chunks": [
+        {
+          "text": "Nous examinerons cette date demain.",
+          "voice": "Thomas",
+          "rate": 184,
+          "gap_ms": 200
+        },
+        {
+          "text": "This is an assumption, not a confirmed appointment.",
+          "voice": "Samantha",
+          "rate": 184,
+          "gap_ms": 200
+        },
+        {
+          "text": "La réunion dépend encore de la connexion.",
+          "voice": "Thomas",
+          "rate": 184,
+          "gap_ms": 200
+        }
+      ],
+      "critical": [
+        [
+          "not",
+          "confirmed",
+          "appointment"
+        ],
+        [
+          "dépend",
+          "connexion"
+        ]
+      ],
+      "keywords": [],
+      "difficult": false
+    }
+  ]
+}

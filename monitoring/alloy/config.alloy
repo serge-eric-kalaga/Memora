@@ -1,0 +1,35 @@
+// Collecter uniquement le journal applicatif monté en lecture seule, sans socket Docker.
+local.file_match "backend" {
+  path_targets = [{"__path__" = "/var/log/backend/app.log", "service" = "backend"}]
+}
+
+loki.source.file "backend" {
+  targets    = local.file_match.backend.targets
+  forward_to = [loki.process.backend.receiver]
+}
+
+loki.process "backend" {
+  stage.multiline {
+    firstline     = "^\\d{4}-\\d{2}-\\d{2} "
+    max_wait_time = "3s"
+  }
+  stage.regex {
+    expression = "^(?P<timestamp>\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2},\\d{3}).* - (?P<level>DEBUG|INFO|WARNING|ERROR|CRITICAL)\\s+- "
+  }
+  stage.timestamp {
+    source = "timestamp"
+    format = "2006-01-02 15:04:05,000"
+    location = "UTC"
+    action_on_failure = "skip"
+  }
+  stage.labels {
+    values = {"level" = ""}
+  }
+  forward_to = [loki.write.local.receiver]
+}
+
+loki.write "local" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}

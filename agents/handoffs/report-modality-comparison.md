@@ -1,0 +1,16 @@
+# Rapport : modalité décision future / réalisation
+
+Défaut sémantique confirmé malgré citations autorisées : Qwen3.5:4b transforme une décision de faire en fait accompli. Ce défaut n’est pas une perte ASR ni une citation étrangère : les IDs sont corrects mais la paraphrase est trop affirmative. REPORT_RULES contient déjà l’interdiction ; ajouter seulement un mot de prompt n’apporte pas une garantie générale. Aucun filtre lexical applicatif ajouté.
+
+Preuve exacte consolidée : `agents/logs/modality-comparison-final.json`, sources littérales synthétiques incluses. Cas exact sélectionné explicitement engine=mlx et case=mixed dans benchmark-mlx-final-auto.json : s1 « Bonjour. Nous décidons de lancer le projet Mémora lundi. Alice préparera la démonstration vendredi. » ; s2 anglais budget ouvert/discussion semaine prochaine.
+
+- Qwen résumé « Le projet Mémora est lancé lundi. » : FAIL modalité.14,962s. Mémoire libre avant73%, minimum échantillonné38%, après40% ; revenue71% quelques secondes après déchargement. Résultat modality-qwen-exact.json.
+- Gemma4:e4b résumé « Le projet Mémora sera lancé lundi, et Alice préparera la démonstration vendredi. Le budget reste une question ouverte et sera discuté la semaine prochaine. » ; décision « Nous décidons de lancer le projet Mémora lundi. » ; action Alice responsable explicite/vendredi ; budget ouvert conservé. PASS sur ce corpus.11,039s, libre72%→min30%→34% (déchargement différé). modality-gemma-exact.json/log.
+- Gemma3 régressions : Alice « Je préparerai » => Alice préparera vendredi, decisions=[] (8,520s) ; fragment vendredi adjacent => action Alice/vendredi/s1+s2, decisions=[] (8,360s) ; date Bob autre sujet => Alice sans échéance, Bob futur vendredi dans résumé, decisions=[] (5,834s). Ces corpus ne dépendent pas du moteur ASR, source déclarée synthétique. Leur RAM n’a pas été échantillonnée (ne pas inventer comparaison).
+- Toutes les citations de ces5 rapports non vides et incluses dans sources autorisées (vérification mécanique), sans prétendre cela prouve chaque inférence sémantique.
+
+Incident de probe explicitement corrigé : première lecture JSON prenait premier mixed (baseline), où Qwen avait également est lancé. Gardée uniquement comme preuve secondaire `modality-baseline-source-secondary.json/log`. Le consolidé exclut ces2 premiers résultats baseline et garde uniquement les3 régressions indépendantes d’ASR.
+
+Proposition pragmatique à ROOT : sélectionner Gemma4:e4b existant pour génération, puis recette complète avec cette configuration. Preuves5 cas seulement, pas garantie parfaite ; coût RAM plus élevé mais inférieur machine, appels sérialisés déjà en place. Aucun changement ai.py/configuration/modèle par cet agent, aucun download. Licence/capacités déjà vérifiées ROOT. Tous appels keep_alive=0, séquentiels, données synthétiques seulement.
+
+Script reproductible `backend/.venv/bin/python scripts/memora-qa-modality.py` : Qwen exact puis Gemma exact+3 régressions ; attend récupération mémoire avant Gemma, barrière45%libre, mesure avant/minpendant/après, sources+rapportsJSON. MEMORA_QA_MODELS permet sélection des modèles existants pour probe borné. Ruff PASS. Aucune nouvelle suite applicative requise car seul script ajouté, sources applicatives inchangées. ai.py/testsAI libérés.
