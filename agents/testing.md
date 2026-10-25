@@ -215,3 +215,9 @@ Activationmain : guard0jobs/0capture/aucun audio récent, restart scriptsmemora 
 ## Bandeaux et intervenants — correction25/10
 
 `node --test tests/memora-speaker-label.test.mjs` :2PASS ; lint/types/buildPASS. Recette isolée `--ui-audit-only --asr-engine mlx-whisper --french-asr-engine mlx-whisper --timeout600` avec Chromium1248 explicite :14UI PASS22,11s, zéroexceptionJS. Test supplémentaire injecte état analyzing +rapportpérimé dans réponseHTTP isolée et exige absence rappelpérimé ; pas preuve nouvelle logiqueworker, aucunworker changé. Préparationaudio/IA synthétique réelle. Logstatus-speaker-ui.log ; screenshotisolated-audit-single-analysis-status.png inspecté. Activation garde +4HTTP200 et empreintesdomaine inchangées, preuveprivée status-speaker-activation.json. Aucune donnée utilisateur retraitée.
+
+## Chat réponses longues — correction25/10
+
+`node --test tests/memora-chat-answer.test.mjs` :1PASS ; `node tests/memora-meeting-chat-browser.mjs` avec Chromium1248 :8PASS. Exemple15paragraphes,30sourcesdistinctes+doublon, sourcesfermées puis ouvertesliste≤240px etseekaudio, questiondansviewport, fontsansmonospace, renduHTMLnonexécuté, versions/permissions/abort/retry conservés. APIcomposant simulée. Logs chat-long-{unit,browser}.log ; captureschat-long-{mobile,desktop}.png.
+
+Lint/types/buildfinalPASS et linttestsPASS. Recette `--ui-audit-only --asr-engine mlx-whisper --french-asr-engine mlx-whisper --timeout600` :15UI PASS22,35s ;4capturesisolated-chat-long-{desktop,mobile}-{light,dark}.png, réponse longuefixtureHTTPisolée, donnéespersistéesinchangées. Préparationaudio/rapport réelle synthétique ; aucun testnouveau dequalitéIA. ExempledesktopdarkinspectéROOT ; zéroexceptionJS. Activation0jobs/0capture/aucun audio récent,4HTTP200 et empreintesdomaineinchangées ; .memora/chat-long-activation.json0600.

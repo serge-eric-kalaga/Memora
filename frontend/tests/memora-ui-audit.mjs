@@ -468,6 +468,62 @@ try {
     pass(
       "Chat principal accessible desktop/mobile clair/sombre, composer visible sans rapport concurrent",
     );
+    // Long-answer display fixture only; stored meeting/chat remain unchanged.
+    await page.route(detailRoute, async (route) => {
+      const response = await route.fetch();
+      const body = await response.json();
+      const value = body.data || body;
+      value.chat = [
+        {
+          version: value.version,
+          question: "Quels sont les points essentiels ?",
+          answer:
+            "## Points essentiels\n\n" +
+            Array.from(
+              { length: 12 },
+              (_, i) =>
+                `Point ${i + 1} : vérifier les accès et préparer la démonstration (u3, u7).`,
+            ).join("\n\n"),
+          sources: (value.segments || []).map((segment) => segment.id),
+        },
+      ];
+      await route.fulfill({ response, json: body });
+    });
+    await page.goto(base + "/reunions/" + meeting.id);
+    await page.getByRole("button", { name: "Chat IA", exact: true }).click();
+    await page
+      .getByRole("heading", { name: "Points essentiels", exact: true })
+      .waitFor();
+    for (const view of [
+      { name: "desktop", width: 1440, height: 1000 },
+      { name: "mobile", width: 390, height: 844 },
+    ]) {
+      await page.setViewportSize({ width: view.width, height: view.height });
+      for (const theme of ["light", "dark"]) {
+        await page
+          .getByRole("combobox", { name: "Thème", exact: true })
+          .selectOption(theme);
+        await primaryChat
+          .getByText("Quels sont les points essentiels ?", { exact: false })
+          .scrollIntoViewIfNeeded();
+        assert.equal(await primaryChat.getByText(/\(u3, u7\)/).count(), 0);
+        assert.equal(await primaryChat.locator("details[open]").count(), 0);
+        assert.ok(await primaryChat.getByRole("textbox").isVisible());
+        assert.doesNotMatch(
+          await primaryChat
+            .getByRole("textbox")
+            .evaluate((el) => getComputedStyle(el).fontFamily),
+          /monospace/i,
+        );
+        await primaryChat.screenshot({
+          path: artifactPath("logs", `chat-long-${view.name}-${theme}.png`),
+        });
+      }
+    }
+    await page.unroute(detailRoute);
+    pass(
+      "Réponse longue : références internes masquées, sources repliées et police lisible dans quatre vues",
+    );
     await page
       .getByRole("button", { name: "Transcription", exact: true })
       .click();

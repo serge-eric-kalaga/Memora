@@ -27,7 +27,7 @@ try {
   const entry = join(temp, "entry.tsx");
   await writeFile(
     entry,
-    `import React,{useState}from'react';import{createRoot}from'react-dom/client';import{MeetingChat}from ${JSON.stringify(join(root, "src/features/memora/meeting-chat.tsx"))};function App(){const[id,setId]=useState('a');const[v,setV]=useState(1);const[scope,setScope]=useState('transcript');window.__scope=setScope;const[history,setHistory]=useState([]);window.__history=setHistory;window.__version=setV;window.__meeting=setId;return <MeetingChat id={id} access={{}} contextScope={scope} currentVersion={v} segments={[{id:'s1',start:65,end:70,text:'Source synthétique vérifiable',speaker:'Intervenant 1'}]} history={history} seek={(start,version)=>window.__seek={start,version}}/>;}createRoot(document.getElementById('root')).render(<App/>);`,
+    `import React,{useState}from'react';import{createRoot}from'react-dom/client';import{MeetingChat}from ${JSON.stringify(join(root, "src/features/memora/meeting-chat.tsx"))};function App(){const[id,setId]=useState('a');const[v,setV]=useState(1);const[scope,setScope]=useState('transcript');window.__scope=setScope;const[history,setHistory]=useState([]);window.__history=setHistory;window.__version=setV;window.__meeting=setId;return <MeetingChat id={id} access={{}} contextScope={scope} currentVersion={v} segments={Array.from({length:30},(_,i)=>({id:'s'+(i+1),start:65+i*5,end:70+i*5,text:'Source synthétique vérifiable '+(i+1),speaker:'Intervenant 1'}))} history={history} seek={(start,version)=>window.__seek={start,version}}/>;}createRoot(document.getElementById('root')).render(<App/>);`,
   );
   await new Promise((done, fail) => {
     const compiler = webpack({
@@ -128,6 +128,7 @@ try {
     .waitFor();
   assert.equal(requests.length, 1);
   assert.equal(await page.locator("script").count(), 1);
+  await page.getByText("Voir les sources", { exact: false }).click();
   await page
     .getByRole("button", { name: "Écouter la source 01:05", exact: true })
     .click();
@@ -228,6 +229,78 @@ try {
   await page.screenshot({
     path: resolve(root, "../agents/logs/meeting-chat-mobile.png"),
   });
+  await page.evaluate(() => {
+    window.__scope("transcript");
+    window.__history([
+      {
+        version: 3,
+        question: "Résume les points essentiels de cette longue réunion.",
+        answer:
+          "## Sécurité\n\n" +
+          Array.from(
+            { length: 15 },
+            (_, i) =>
+              `Point synthétique ${i + 1} : contrôlez les accès et préservez les documents (u3, u7).`,
+          ).join("\n\n") +
+          "\n\n- **Caméras** : vérifier les participants (u9).\n- Salle d’attente disponible (u28, u29).",
+        sources: [...Array.from({ length: 30 }, (_, i) => "s" + (i + 1)), "s1"],
+      },
+    ]);
+  });
+  await page.getByRole("heading", { name: "Sécurité", exact: true }).waitFor();
+  assert.equal(await page.getByText(/\(u3, u7\)/).count(), 0);
+  const sourceToggle = page
+    .locator("details")
+    .filter({ hasText: "Voir les sources" });
+  assert.equal(await sourceToggle.getAttribute("open"), null);
+  assert.match(await sourceToggle.locator("summary").innerText(), /\(30\)/);
+  assert.ok(
+    await page
+      .getByText("Résume les points essentiels de cette longue réunion.", {
+        exact: false,
+      })
+      .isVisible(),
+  );
+  assert.ok(await input.isVisible());
+  const questionBounds = await page
+    .getByText("Résume les points essentiels de cette longue réunion.", {
+      exact: false,
+    })
+    .boundingBox();
+  const threadBounds = await page
+    .getByRole("region", { name: "Historique de la conversation" })
+    .boundingBox();
+  assert.ok(
+    questionBounds.y >= threadBounds.y &&
+      questionBounds.y + questionBounds.height <=
+        threadBounds.y + threadBounds.height,
+    "New long exchange begins with its question inside the viewport",
+  );
+  const font = await input.evaluate((el) => getComputedStyle(el).fontFamily);
+  assert.doesNotMatch(font, /monospace/i);
+  await sourceToggle.locator("summary").click();
+  assert.equal(await sourceToggle.getByRole("button").count(), 30);
+  const sourcesBounds = await sourceToggle.locator("div").first().boundingBox();
+  assert.ok(
+    sourcesBounds.height <= 241,
+    "Thirty sources remain within a bounded scroll list",
+  );
+  await sourceToggle.getByRole("button").first().click();
+  assert.deepEqual(await page.evaluate(() => window.__seek), {
+    start: 65,
+    version: 3,
+  });
+  await sourceToggle.locator("summary").click();
+  await page.screenshot({
+    path: resolve(root, "../agents/logs/chat-long-mobile.png"),
+  });
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.screenshot({
+    path: resolve(root, "../agents/logs/chat-long-desktop.png"),
+  });
+  console.log(
+    "PASS Long answer: readable structure, no internal IDs, collapsed deduplicated sources, question visible, inherited font and source seek",
+  );
   assert.deepEqual(errors, []);
   console.log("PASS Responsive mobile composer and no browser exceptions");
 } finally {

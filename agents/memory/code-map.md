@@ -60,3 +60,5 @@ Sources de vérité des résultats : testing.md + handoffs/*.md ; les logs volum
 - Tests nouveaux : test_memora_human_review.py, test_memora_diarization.py, test_memora_worker_diarization.py ; frontend/tests/memora-microphone-*.mjs/memora-playback.test.mjs ; recettes API/navigateurétendues.
 
 Capture persistante : app/layout.tsx→CaptureProvider (capture-session.tsx)→CaptureRuntime ; app.tsx→CaptureSlot ; capture-runtime.tsx possède médias/queue/IndexedDB/continuité, audio-language.tsx fournit le sélecteur. MeetingChat dans meeting-chat.tsx, styles dédiés ; API conversation routes.py→ai.answer(history), autorisation répétée après inférence.
+
+meeting-chat.tsx→chat-answer.ts (nettoyage présentation/copie groupesuN) ; AnswerBody JSX échappé, sourcesdetails bornées et questionAnchorsticky. Tests memora-chat-answer.test.mjs et memora-meeting-chat-browser.mjs incluent réponseslongues/30sources ; memora-ui-audit.mjs inclut4vues longuesproduction.

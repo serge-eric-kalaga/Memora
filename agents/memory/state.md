@@ -1,6 +1,12 @@
 # Memora — état de reprise
 
-Mis à jour 2026-10-25 13:26 UTC, Africa/Ouagadougou. Livraison locale V1 et jalon supplémentaire de précision intégrés. Commits locaux autorisés par l’utilisateur après livraison ; aucun push, achat, déploiement public ou email réel. Lire AGENTS.md → agents/README.md → ce fichier, puis uniquement les preuves utiles. Les notes/fichiers actuels priment sur les anciens points de reprise.
+Mis à jour 2026-10-25 13:42 UTC, Africa/Ouagadougou. Livraison locale V1 et jalon supplémentaire de précision intégrés. Commits locaux autorisés par l’utilisateur après livraison ; aucun push, achat, déploiement public ou email réel. Lire AGENTS.md → agents/README.md → ce fichier, puis uniquement les preuves utiles. Les notes/fichiers actuels priment sur les anciens points de reprise.
+
+## Chat long et sources — correctifs livrés localement
+
+Affichage des réponses existantes/nouvelles nettoyé des groupes de citations internes (u3,u7), sans modifier réponses stockées ni faits. Copies nettoyées aussi. Formatage JSX sûr paragraphes/titres/listes/gras, aucun HTML exécuté ni dépendance ajoutée. Sources dédupliquées et repliées sous Voir les sources, compteur réel, liste1colonne bornée240px défilante ; droits/anciennesversions inchangés. Défilement nouvel échange au niveau question, repère questionsticky avec fond opaque, composerpolice héritée.
+
+Preuves :1testnormalisationPASS (préserve faits/paragraphes/identifiants métier),8contrôles Chromium composantPASS dont réponse15paragraphes/30sources distinctes+doublon, sourceaudio/clavier/erreurs/versions/droits ; API simulée, pasnouvellepreuveIA. Lint/types/buildPASS. Recette application optimisée isolée15UI PASS22,35s, zéroexceptionJS,4vues longdesktop/mobile clair/sombre, fixturelongue injectéeHTTP pour rendu ; préparation ASR/rapport synthétiques réels. Exempledesktopdark inspectéROOT. Activationgarde0jobs/0capture/aucun audio récent,4HTTP200 et empreintesdomaine inchangées/intégritéOK. Preuve privée .memora/chat-long-activation.json. Actualiser avant capture ; anciens textesaffichés corrigés sans régénérer leur réponse.
 
 ## Bandeaux et libellés intervenants — livrés localement
 

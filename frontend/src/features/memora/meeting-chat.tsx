@@ -5,6 +5,7 @@ import { ArrowUp, Check, Copy, MessageSquare, Sparkles } from "lucide-react";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import { api, clock, type Access, type Segment } from "./api";
 import s from "./meeting-chat.module.css";
+import { readableChatAnswer } from "./chat-answer";
 
 type Message = {
   id?: string;
@@ -78,7 +79,17 @@ function Conversation({
   );
   useEffect(() => {
     const element = scroll.current;
-    if (element) element.scrollTop = element.scrollHeight;
+    if (element) {
+      const exchanges = element.querySelectorAll<HTMLElement>(
+        "[data-chat-exchange]",
+      );
+      const latest = exchanges[exchanges.length - 1];
+      if (latest)
+        element.scrollTop +=
+          latest.getBoundingClientRect().top -
+          element.getBoundingClientRect().top -
+          20;
+    }
   }, [messages.length, pending, error]);
   async function send() {
     const text = question.trim();
@@ -208,10 +219,13 @@ function Conversation({
           <article
             key={message.id || `${index}:${message.version}`}
             className={s.exchange}
+            data-chat-exchange
           >
-            <div className={s.question}>
-              <span className={s.sr}>{t("Vous :", "You:")}</span>
-              {message.question}
+            <div className={s.questionAnchor}>
+              <div className={s.question}>
+                <span className={s.sr}>{t("Vous :", "You:")}</span>
+                {message.question}
+              </div>
             </div>
             <div className={s.answer}>
               <div className={s.answerHeader}>
@@ -224,7 +238,7 @@ function Conversation({
                     : ""}
                 </span>
               </div>
-              <p>{message.answer}</p>
+              <AnswerBody answer={readableChatAnswer(message.answer)} />
               {message.created !== undefined &&
                 (() => {
                   const date = new Date(
@@ -253,42 +267,65 @@ function Conversation({
                   )}
                 </p>
               )}
-              {message.version === currentVersion ? (
-                <div className={s.sources}>
-                  {message.sources.map((source) => {
-                    const segment = segments.find((item) => item.id === source);
-                    return segment && canSeek ? (
-                      <button
-                        type="button"
-                        key={source}
-                        onClick={() => seek(segment.start, message.version)}
-                        aria-label={`${t("Écouter la source", "Listen to source")} ${clock(segment.start)}`}
-                      >
-                        <span>{clock(segment.start)}</span>
-                        <span>{segment.text}</span>
-                      </button>
-                    ) : segment ? (
-                      <div className={s.source} key={source}>
-                        <span>{clock(segment.start)}</span>
-                        <span>{segment.text}</span>
-                      </div>
-                    ) : null;
-                  })}
-                </div>
-              ) : (
+              {message.version === currentVersion &&
+              message.sources.some((source) =>
+                segments.some((item) => item.id === source),
+              ) ? (
+                <details className={s.sourceDetails}>
+                  <summary>
+                    {t("Voir les sources", "View sources")}{" "}
+                    <span>
+                      (
+                      {
+                        new Set(
+                          message.sources.filter((source) =>
+                            segments.some((item) => item.id === source),
+                          ),
+                        ).size
+                      }
+                      )
+                    </span>
+                  </summary>
+                  <div className={s.sources}>
+                    {[...new Set(message.sources)].map((source) => {
+                      const segment = segments.find(
+                        (item) => item.id === source,
+                      );
+                      return segment && canSeek ? (
+                        <button
+                          type="button"
+                          key={source}
+                          onClick={() => seek(segment.start, message.version)}
+                          aria-label={`${t("Écouter la source", "Listen to source")} ${clock(segment.start)}`}
+                        >
+                          <span>{clock(segment.start)}</span>
+                          <span>{segment.text}</span>
+                        </button>
+                      ) : segment ? (
+                        <div className={s.source} key={source}>
+                          <span>{clock(segment.start)}</span>
+                          <span>{segment.text}</span>
+                        </div>
+                      ) : null;
+                    })}
+                  </div>
+                </details>
+              ) : message.version !== currentVersion ? (
                 <p className={s.notice}>
                   {t(
                     "Réponse conservée dans son contexte original ; citations désactivées après correction de la transcription.",
                     "Answer kept in its original context; citations disabled after transcript corrections.",
                   )}
                 </p>
-              )}
+              ) : null}
               <button
                 className={s.copy}
                 type="button"
                 onClick={async () => {
                   try {
-                    await navigator.clipboard.writeText(message.answer);
+                    await navigator.clipboard.writeText(
+                      readableChatAnswer(message.answer),
+                    );
                     setCopied(index);
                   } catch {
                     setError(
@@ -308,8 +345,10 @@ function Conversation({
           </article>
         ))}
         {pending && (
-          <div className={s.exchange}>
-            <div className={s.question}>{pending}</div>
+          <div className={s.exchange} data-chat-exchange>
+            <div className={s.questionAnchor}>
+              <div className={s.question}>{pending}</div>
+            </div>
             <p className={s.waiting} role="status">
               <Sparkles size={16} />
               {t("Recherche dans la réunion…", "Searching the meeting…")}
@@ -376,5 +415,48 @@ function Conversation({
         </p>
       </form>
     </section>
+  );
+}
+
+/** Small safe formatter: no HTML interpretation, links or model-generated markup execution. */
+function AnswerBody({ answer }: { answer: string }) {
+  const inline = (text: string) =>
+    text
+      .split(/(\*\*[^*]+\*\*)/g)
+      .map((part, i) =>
+        part.startsWith("**") && part.endsWith("**") ? (
+          <strong key={i}>{part.slice(2, -2)}</strong>
+        ) : (
+          part
+        ),
+      );
+  return (
+    <div className={s.answerBody}>
+      {answer
+        .split(/\n\s*\n/)
+        .filter(Boolean)
+        .map((block, i) => {
+          const lines = block.split("\n");
+          if (lines.every((line) => /^\s*[-*•]\s+/.test(line)))
+            return (
+              <ul key={i}>
+                {lines.map((line, j) => (
+                  <li key={j}>{inline(line.replace(/^\s*[-*•]\s+/, ""))}</li>
+                ))}
+              </ul>
+            );
+          if (lines.every((line) => /^\s*\d+[.)]\s+/.test(line)))
+            return (
+              <ol key={i}>
+                {lines.map((line, j) => (
+                  <li key={j}>{inline(line.replace(/^\s*\d+[.)]\s+/, ""))}</li>
+                ))}
+              </ol>
+            );
+          if (/^#{1,6}\s+[^\n]+$/.test(block))
+            return <h3 key={i}>{inline(block.replace(/^#{1,6}\s+/, ""))}</h3>;
+          return <p key={i}>{inline(block)}</p>;
+        })}
+    </div>
   );
 }
