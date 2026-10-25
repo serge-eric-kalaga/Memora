@@ -128,3 +128,7 @@ Validation finale navigation/chat : recette réelle22browser+13auditUI PASS120s,
 ## Cohérence des couleurs — demande utilisateur25/10
 
 Palette unique de la connexion/inscription aux réunions, profil et administration : `frontend/src/app/theme.css` et modules CSS consommateurs. Validation par `memora-theme-audit.mjs` intégré à l’audit UI isolé ; résultats et limites dans testing.md/state.md. Aucun changement de droits, données ou traitements IA.
+
+## Éviter les faux intervenants sur un monologue25/10
+
+ECAPA local pin/SHA +fenêtres3.2s etveto1.6s, source conservée ; Resemblyzerlegacyveto1.6/3.2. Modulesdiarization.py/diarization_ecapa.py, préparateurpoids etconfigurationexemple. Testsunitaires/intégrationbackend,comparaison48inférences+12holdout etrecetteapplicationréelle :voirtesting.md/state.md. Lecompte resteestimé, bruits/changementsdecanalpeuventencorefragmenter. Aucun échantillonpersonnelniidentifiant dansnotes/logs ; détailsautorisésprivés uniquement.memora/accuracy-private/. Anciennesréunionsinchangées, relancesvolontairesversionnées.

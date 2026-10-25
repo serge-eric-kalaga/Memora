@@ -71,7 +71,12 @@ async function automaticSpeakers() {
   assert.equal(meeting.automatic_diarization.state, "completed");
   assert.equal(meeting.version, 2);
   assert.equal(meeting.report_version, meeting.version);
-  assert.equal(meeting.diarization.engine, "resemblyzer-silero-ahc-v1");
+  assert.equal(
+    meeting.diarization.engine,
+    process.env.MEMORA_DIARIZATION_ENGINE === "ecapa-tdnn"
+      ? "ecapa-silero-ahc-v1"
+      : "resemblyzer-silero-ahc-v2",
+  );
   const labeled = meeting.segments.filter((segment) => segment.speaker_id);
   assert.ok(
     labeled.length > 0,

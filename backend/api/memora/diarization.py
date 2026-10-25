@@ -18,11 +18,16 @@ import numpy as np
 
 _RATE = 16000
 _WINDOW_SECONDS = 1.6
+_VALIDATION_WINDOW_SECONDS = 3.2
 _HOP_SECONDS = 0.4
 _CLUSTER_DISTANCE = 0.30
 _LOCK = threading.Lock()
 _UNKNOWN = "Intervenant non identifié"
 _MODEL_SHA256 = "39373b86598fa3da9fcddee6142382efe09777e8d37dc9c0561f41f0070f134e"
+
+
+def engine_name():
+    return os.environ.get("MEMORA_DIARIZATION_ENGINE", "resemblyzer")
 
 
 class DiarizationError(ValueError):
@@ -39,6 +44,15 @@ def model_dir():
 
 
 def availability():
+    if engine_name() == "ecapa-tdnn":
+        from . import diarization_ecapa
+
+        return diarization_ecapa.availability()
+    if engine_name() != "resemblyzer":
+        return {
+            "available": False,
+            "reason": "Le moteur de séparation configuré n’est pas reconnu.",
+        }
     if importlib.util.find_spec("resemblyzer") is None:
         return {
             "available": False,
@@ -72,6 +86,13 @@ def available():
 
 
 def _verified_weights():
+    if engine_name() == "ecapa-tdnn":
+        from . import diarization_ecapa
+
+        try:
+            return diarization_ecapa.verified_weights()
+        except ValueError as exc:
+            raise DiarizationError(str(exc)) from None
     state = availability()
     if not state["available"]:
         raise DiarizationError(state["reason"])
@@ -102,25 +123,26 @@ def _regions(audio):
     )
 
 
-def _cells(regions):
+def _cells(regions, window_seconds=None):
+    window_seconds = _WINDOW_SECONDS if window_seconds is None else window_seconds
     hop = int(_HOP_SECONDS * _RATE)
     for region in regions:
         for start in range(region["start"], region["end"], hop):
             end = min(start + hop, region["end"])
             center = (start + end) // 2
             context_start = max(
-                region["start"], center - int(_WINDOW_SECONDS * _RATE / 2)
+                region["start"], center - int(window_seconds * _RATE / 2)
             )
             context_end = min(
-                region["end"], context_start + int(_WINDOW_SECONDS * _RATE)
+                region["end"], context_start + int(window_seconds * _RATE)
             )
             context_start = max(
-                region["start"], context_end - int(_WINDOW_SECONDS * _RATE)
+                region["start"], context_end - int(window_seconds * _RATE)
             )
             yield start, end, context_start, context_end
 
 
-def _cluster(embeddings, num_speakers=None, max_speakers=8):
+def _cluster(embeddings, num_speakers=None, max_speakers=8, distance=None):
     """Bound quadratic clustering to600 evenly distributed anchors, then assign."""
     from scipy.cluster.hierarchy import cut_tree, fcluster, linkage
     from scipy.spatial.distance import pdist
@@ -137,7 +159,14 @@ def _cluster(embeddings, num_speakers=None, max_speakers=8):
         count = min(num_speakers, len(anchors))
         labels = cut_tree(tree, n_clusters=[count]).ravel()
     else:
-        labels = fcluster(tree, t=_CLUSTER_DISTANCE, criterion="distance") - 1
+        labels = (
+            fcluster(
+                tree,
+                t=_CLUSTER_DISTANCE if distance is None else distance,
+                criterion="distance",
+            )
+            - 1
+        )
     groups = sorted(set(labels))
     if len(groups) > max_speakers:
         raise DiarizationError(
@@ -154,6 +183,65 @@ def _cluster(embeddings, num_speakers=None, max_speakers=8):
     else:
         margin = np.ones(len(values))
     return assigned, similarity, margin, len(groups)
+
+
+def _embed_cells(encoder, audio, cells, cache):
+    """Reuse identical contexts without retaining audio beyond this call."""
+    embeddings, included = [], []
+    for cell in cells:
+        _, _, first, last = cell
+        if last - first < int(0.55 * _RATE):
+            continue
+        key = (first, last)
+        if key not in cache:
+            waveform = np.asarray(audio[first:last], dtype=np.float32)
+            if getattr(encoder, "normalize_volume", True):
+                from resemblyzer.audio import normalize_volume
+
+                waveform = normalize_volume(waveform, -30, increase_only=True)
+            cache[key] = encoder.embed_utterance(waveform)
+        vector = cache[key]
+        if np.isfinite(vector).all():
+            embeddings.append(vector)
+            included.append(cell)
+    return embeddings, included
+
+
+def _validate_automatic_count(
+    encoder,
+    audio,
+    regions,
+    count,
+    cache,
+    max_speakers=8,
+    *,
+    window_seconds=None,
+    distance=None,
+):
+    """Disagreement is insufficient evidence for numbered voices, never a merge.
+
+    Alternative contexts are a veto only: they cannot replace the primary
+    assignments or establish that a disputed recording contains one person.
+    """
+    if count <= 1:
+        return
+    embeddings, _ = _embed_cells(
+        encoder,
+        audio,
+        _cells(
+            regions,
+            _VALIDATION_WINDOW_SECONDS if window_seconds is None else window_seconds,
+        ),
+        cache,
+    )
+    if (
+        not embeddings
+        or _cluster(embeddings, max_speakers=max_speakers, distance=distance)[3]
+        != count
+    ):
+        raise DiarizationError(
+            "Le nombre d’intervenants est incertain : les comparaisons de voix se contredisent. Précisez le nombre connu pour reprendre la séparation."
+        )
 
 
 def assign_speakers(segments, turns, provenance):
@@ -237,20 +325,26 @@ def diarize(audio_path, segments, *, num_speakers=None, max_speakers=8):
         )
     with _LOCK:
         weights, digest = _verified_weights()
+        ecapa = engine_name() == "ecapa-tdnn"
+        window_seconds = 3.2 if ecapa else _WINDOW_SECONDS
+        validation_window = 1.6 if ecapa else _VALIDATION_WINDOW_SECONDS
+        distance = 0.55 if ecapa else _CLUSTER_DISTANCE
         audio = _decode(audio_path)
         if len(audio) > 2 * 3600 * _RATE:
             raise DiarizationError(
                 "La séparation locale des voix est limitée à deux heures par traitement."
             )
-        cells = list(_cells(_regions(audio)))
+        regions = _regions(audio)
+        cells = list(_cells(regions, window_seconds))
         metadata = {
-            "engine": "resemblyzer-silero-ahc-v1",
-            "package_version": "0.1.4",
+            "engine": "ecapa-silero-ahc-v1" if ecapa else "resemblyzer-silero-ahc-v2",
+            "package_version": "1.1.2" if ecapa else "0.1.4",
             "model_sha256": digest,
             "device": "cpu",
             "confidence_calibrated": False,
             "overlap_supported": False,
-            "window_seconds": _WINDOW_SECONDS,
+            "window_seconds": window_seconds,
+            "cluster_distance": distance,
             "hop_seconds": _HOP_SECONDS,
             "warnings": [
                 "Les étiquettes distinguent des groupes de voix, pas des identités. Les paroles simultanées ne sont pas séparées.",
@@ -267,25 +361,45 @@ def diarize(audio_path, segments, *, num_speakers=None, max_speakers=8):
                 "turns": [],
                 "metadata": metadata,
             }
-        from resemblyzer import VoiceEncoder
-        from resemblyzer.audio import normalize_volume
-
         with _cpu_threads() as thread_count:
             metadata["cpu_threads"] = thread_count
-            encoder = VoiceEncoder(device="cpu", verbose=False, weights_fpath=weights)
+            if ecapa:
+                from .diarization_ecapa import Encoder
+
+                encoder = Encoder(weights)
+            else:
+                from resemblyzer import VoiceEncoder
+
+                encoder = VoiceEncoder(
+                    device="cpu", verbose=False, weights_fpath=weights
+                )
             embeddings, included = [], []
             try:
-                for cell in cells:
-                    _, _, first, last = cell
-                    if last - first < int(0.55 * _RATE):
-                        continue
-                    waveform = np.asarray(audio[first:last], dtype=np.float32)
-                    waveform = normalize_volume(waveform, -30, increase_only=True)
-                    vector = encoder.embed_utterance(waveform)
-                    if not np.isfinite(vector).all():
-                        continue
-                    embeddings.append(vector)
-                    included.append(cell)
+                cache = {}
+                embeddings, included = _embed_cells(encoder, audio, cells, cache)
+                if embeddings:
+                    labels, similarities, margins, count = _cluster(
+                        embeddings, num_speakers, max_speakers, distance
+                    )
+                    if num_speakers is None:
+                        _validate_automatic_count(
+                            encoder,
+                            audio,
+                            regions,
+                            count,
+                            cache,
+                            max_speakers,
+                            window_seconds=validation_window,
+                            distance=distance,
+                        )
+                    metadata["count_policy"] = (
+                        "explicit" if num_speakers is not None else "multiscale-veto-v1"
+                    )
+                    metadata["count_validation_windows"] = (
+                        [window_seconds, validation_window]
+                        if num_speakers is None and count > 1
+                        else []
+                    )
             finally:
                 del encoder
                 gc.collect()
@@ -296,9 +410,6 @@ def diarize(audio_path, segments, *, num_speakers=None, max_speakers=8):
                 "turns": [],
                 "metadata": metadata,
             }
-        labels, similarities, margins, count = _cluster(
-            embeddings, num_speakers, max_speakers
-        )
         stable = {}
         turns = []
         for cell, label, similarity, margin in zip(

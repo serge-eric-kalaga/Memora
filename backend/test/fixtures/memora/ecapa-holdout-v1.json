@@ -1,0 +1,308 @@
+{
+  "version": 1,
+  "synthetic_only": true,
+  "frozen_before_inference": true,
+  "threshold_fixed_before_generation": 0.55,
+  "description": "Independent synthetic speaker-count holdout. Flo and three-channel-noise failures are retained; do not tune on this holdout.",
+  "voices": {
+    "F": "Flo (Français (France))",
+    "R": "Rocko (Français (France))",
+    "D": "Reed (Français (Canada))",
+    "T": "Tessa"
+  },
+  "utterances": {
+    "F": [
+      "La prochaine rencontre portera sur les accès. Nous conserverons les remarques avant de modifier la procédure.",
+      "Le dossier de validation comporte plusieurs tableaux. Aucune dépense supplémentaire ne doit être engagée cette semaine.",
+      "Je relirai les questions et les propositions avant vendredi. La responsable de chaque activité sera confirmée pendant notre échange."
+    ],
+    "R": [
+      "Notre équipe prépare la vérification des données. Nous devons comparer les documents avant de donner notre accord.",
+      "Le calendrier est provisoire. Nous attendons les observations avant de fixer une date définitive pour la démonstration.",
+      "Les remarques des participants seront conservées dans le dossier. La version précédente restera disponible pour la comparaison."
+    ],
+    "D": [
+      "Les informations relatives au projet ne sont pas encore complètes. Il faudra revoir les droits de consultation avant le prochain entretien.",
+      "Nous allons préparer un tableau des étapes importantes. Les engagements seront confirmés lorsque les responsables auront donné leur réponse.",
+      "Il reste une question concernant la conservation des fichiers. Nous pourrons la traiter après la vérification des documents."
+    ],
+    "T": [
+      "We should review the proposed schedule before confirming the next session. The previous version remains available for comparison.",
+      "No additional payment has been approved. We will collect the missing observations before making any commitment."
+    ]
+  },
+  "cases": [
+    {
+      "id": "holdout-mono-flo",
+      "entries": [
+        {
+          "speaker": "F",
+          "utterance": 0
+        },
+        {
+          "speaker": "F",
+          "utterance": 1
+        },
+        {
+          "speaker": "F",
+          "utterance": 2
+        }
+      ],
+      "condition": "clean"
+    },
+    {
+      "id": "holdout-mono-rocko",
+      "entries": [
+        {
+          "speaker": "R",
+          "utterance": 0
+        },
+        {
+          "speaker": "R",
+          "utterance": 1
+        },
+        {
+          "speaker": "R",
+          "utterance": 2
+        }
+      ],
+      "condition": "clean"
+    },
+    {
+      "id": "holdout-mono-reed",
+      "entries": [
+        {
+          "speaker": "D",
+          "utterance": 0
+        },
+        {
+          "speaker": "D",
+          "utterance": 1
+        },
+        {
+          "speaker": "D",
+          "utterance": 2
+        }
+      ],
+      "condition": "clean"
+    },
+    {
+      "id": "holdout-mono-flo-channel-noise",
+      "entries": [
+        {
+          "speaker": "F",
+          "utterance": 0
+        },
+        {
+          "speaker": "F",
+          "utterance": 1
+        },
+        {
+          "speaker": "F",
+          "utterance": 2
+        }
+      ],
+      "condition": "channel"
+    },
+    {
+      "id": "holdout-mono-rocko-channel-noise",
+      "entries": [
+        {
+          "speaker": "R",
+          "utterance": 0
+        },
+        {
+          "speaker": "R",
+          "utterance": 1
+        },
+        {
+          "speaker": "R",
+          "utterance": 2
+        }
+      ],
+      "condition": "channel"
+    },
+    {
+      "id": "holdout-mono-reed-interrupted",
+      "entries": [
+        {
+          "speaker": "D",
+          "utterance": 0
+        },
+        {
+          "speaker": "D",
+          "utterance": 1
+        },
+        {
+          "speaker": "D",
+          "utterance": 2
+        }
+      ],
+      "condition": "interrupted"
+    },
+    {
+      "id": "holdout-two-male",
+      "entries": [
+        {
+          "speaker": "R",
+          "utterance": 0
+        },
+        {
+          "speaker": "D",
+          "utterance": 0
+        },
+        {
+          "speaker": "R",
+          "utterance": 1
+        },
+        {
+          "speaker": "D",
+          "utterance": 1
+        },
+        {
+          "speaker": "R",
+          "utterance": 2
+        },
+        {
+          "speaker": "D",
+          "utterance": 2
+        }
+      ],
+      "condition": "clean"
+    },
+    {
+      "id": "holdout-two-mixed",
+      "entries": [
+        {
+          "speaker": "F",
+          "utterance": 0
+        },
+        {
+          "speaker": "R",
+          "utterance": 0
+        },
+        {
+          "speaker": "F",
+          "utterance": 1
+        },
+        {
+          "speaker": "R",
+          "utterance": 1
+        }
+      ],
+      "condition": "clean"
+    },
+    {
+      "id": "holdout-three-fr",
+      "entries": [
+        {
+          "speaker": "F",
+          "utterance": 0
+        },
+        {
+          "speaker": "R",
+          "utterance": 0
+        },
+        {
+          "speaker": "D",
+          "utterance": 0
+        },
+        {
+          "speaker": "F",
+          "utterance": 1
+        },
+        {
+          "speaker": "R",
+          "utterance": 1
+        },
+        {
+          "speaker": "D",
+          "utterance": 1
+        }
+      ],
+      "condition": "clean"
+    },
+    {
+      "id": "holdout-fr-en",
+      "entries": [
+        {
+          "speaker": "F",
+          "utterance": 0
+        },
+        {
+          "speaker": "T",
+          "utterance": 0
+        },
+        {
+          "speaker": "F",
+          "utterance": 1
+        },
+        {
+          "speaker": "T",
+          "utterance": 1
+        }
+      ],
+      "condition": "clean"
+    },
+    {
+      "id": "holdout-two-male-short",
+      "entries": [
+        {
+          "speaker": "R",
+          "utterance": 0
+        },
+        {
+          "speaker": "D",
+          "utterance": 0
+        },
+        {
+          "speaker": "R",
+          "utterance": 1
+        },
+        {
+          "speaker": "D",
+          "utterance": 1
+        },
+        {
+          "speaker": "R",
+          "utterance": 2
+        },
+        {
+          "speaker": "D",
+          "utterance": 2
+        }
+      ],
+      "condition": "short"
+    },
+    {
+      "id": "holdout-three-channel-noise",
+      "entries": [
+        {
+          "speaker": "F",
+          "utterance": 0
+        },
+        {
+          "speaker": "R",
+          "utterance": 0
+        },
+        {
+          "speaker": "T",
+          "utterance": 0
+        },
+        {
+          "speaker": "F",
+          "utterance": 1
+        },
+        {
+          "speaker": "R",
+          "utterance": 1
+        },
+        {
+          "speaker": "T",
+          "utterance": 1
+        }
+      ],
+      "condition": "channel"
+    }
+  ]
+}

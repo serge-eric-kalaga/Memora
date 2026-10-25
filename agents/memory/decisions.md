@@ -89,3 +89,7 @@ Reprisevoix par/analyze : seulement automatic_diarization.failed liéàsourcecou
 ## Couleurs partagées25/10
 
 Le violet Memora devient la couleur principale commune à toutes les pages. Une seule palette sémantique (`src/app/theme.css`) pour clair/sombre ; les noms historiques `--green` restent des alias afin de limiter la migration. Les couleurs de succès, erreur et avertissement gardent leur sens ; la coloration syntaxique de la documentation conserve ses catégories. Aucun changement fonctionnel ou de données.
+
+## Fiabilité des groupes de voix — ECAPA25/10
+
+Resemblyzer peut fragmenter une seule voix ; augmenter globalement son seuil fusionne de vraies voix. ECAPA-TDNN officiel SpeechBrain Apache2,83,3Mo,1.1.2/torchaudio2.11.0 avecTorch2.14.1 conservé retenu après comparaisons synthétiques et validation locale autorisée privée. Fenêtreprimaire3.2s/.55 ; veto1.6s seulement quandplusieursgroupesestimés, pas fusion automatique. Le choixduseuil précède validationréserve ; le choixfenêtre a été comparé sur32cas puis évalué sur12nouveauxcas sansajustementaprès. Architecturestaticlocale égaleembeddingEncoderClassifierofficiel (allclose1e-5), torchweights_only etSHA vérifiés, pasYAMLexécuté, paschargementréseau pendantjob. Resemblyzerpréservéchoixexplicite ; aucune substitution silencieuse. Uncasmonobruitconcordant restefauxdansnouveauholdout : pasgarantiedecomptageuniversel. Voirtesting.mdpourrésultatsactuels.

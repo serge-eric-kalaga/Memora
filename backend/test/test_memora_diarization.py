@@ -149,3 +149,131 @@ def test_cpu_thread_configuration_bounds(monkeypatch, value):
     with pytest.raises(d.DiarizationError):
         with d._cpu_threads():
             pytest.fail("Invalid thread setting must not run model")
+
+
+def test_disputed_automatic_count_abstains_instead_of_merging(monkeypatch):
+    # Short contexts suggest four groups; long contexts suggest only two.
+    # Neither estimate justifies asserting four people, or forcing one.
+    monkeypatch.setattr(d, "_embed_cells", lambda *args: ([1], []))
+    monkeypatch.setattr(d, "_cluster", lambda *args, **kwargs: ([], [], [], 2))
+    with pytest.raises(d.DiarizationError, match="se contredisent"):
+        d._validate_automatic_count(None, None, [], 4, {})
+
+
+def test_consistent_automatic_count_is_only_a_veto_not_a_replacement(monkeypatch):
+    seen = []
+    monkeypatch.setattr(d, "_embed_cells", lambda *args: ([1], []))
+
+    def cluster(values, **kwargs):
+        seen.append(kwargs["max_speakers"])
+        return [], [], [], 2
+
+    monkeypatch.setattr(d, "_cluster", cluster)
+    assert d._validate_automatic_count(None, None, [], 2, {}, 16) is None
+    assert seen == [16]
+
+
+def test_single_group_does_not_run_additional_inference(monkeypatch):
+    def unexpected(*args):
+        pytest.fail("Single-group output must not run a second neural pass")
+
+    monkeypatch.setattr(d, "_embed_cells", unexpected)
+    d._validate_automatic_count(None, None, [], 1, {})
+
+
+def test_long_context_preserves_cells_and_does_not_cross_silence():
+    regions = [dict(start=16000, end=80000), dict(start=100000, end=130000)]
+    short, long = list(d._cells(regions)), list(d._cells(regions, 3.2))
+    assert [(a, b) for a, b, _, _ in short] == [(a, b) for a, b, _, _ in long]
+    for _, _, start, end in long:
+        assert any(r["start"] <= start < end <= r["end"] for r in regions)
+
+
+def test_known_one_does_not_invent_multiple_groups_for_diverse_vectors():
+    vectors = np.eye(4)
+    assert d._cluster(vectors)[3] == 4
+    labels, _, _, count = d._cluster(vectors, num_speakers=1)
+    assert count == 1 and set(labels) == {0}
+
+
+def test_explicit_one_bypasses_automatic_veto_preserving_source(monkeypatch):
+    import resemblyzer
+
+    monkeypatch.setattr(d, "_verified_weights", lambda: (Path("/unused"), "a" * 64))
+    monkeypatch.setattr(d, "_decode", lambda path: np.ones(32000, dtype=np.float32))
+    monkeypatch.setattr(d, "_regions", lambda audio: [dict(start=0, end=32000)])
+    monkeypatch.setattr(resemblyzer, "VoiceEncoder", lambda **kwargs: object())
+    cells = list(d._cells([dict(start=0, end=32000)]))
+    monkeypatch.setattr(
+        d, "_embed_cells", lambda *args: ([np.array([1.0, 0.0])] * len(cells), cells)
+    )
+
+    def unexpected(*args):
+        pytest.fail("Explicit reviewer count must bypass automatic inference veto")
+
+    monkeypatch.setattr(d, "_validate_automatic_count", unexpected)
+    original = segment()
+    result = d.diarize(Path("/synthetic"), [original], num_speakers=1)
+    assert result["metadata"]["count_policy"] == "explicit"
+    assert result["metadata"]["speaker_count"] == 1
+    assert result["segments"][0]["speaker"] == "Intervenant 1"
+    assert all(
+        result["segments"][0][k] == original[k] for k in ("id", "text", "start", "end")
+    )
+
+
+def test_unknown_engine_is_unavailable_without_fallback(monkeypatch):
+    monkeypatch.setenv("MEMORA_DIARIZATION_ENGINE", "unconfigured")
+    assert not d.available()
+    assert "reconnu" in d.availability()["reason"]
+
+
+def test_ecapa_assets_reject_wrong_revision_or_modified_weights(tmp_path, monkeypatch):
+    from api.memora import diarization_ecapa as e
+
+    payload = b"synthetic weights only"
+    digest = hashlib.sha256(payload).hexdigest()
+    (tmp_path / "embedding_model.ckpt").write_bytes(payload)
+    manifest = {"revision": e.REVISION, "sha256": digest, "license": "Apache-2.0"}
+    (tmp_path / "manifest.json").write_text(json.dumps(manifest))
+    monkeypatch.setattr(e, "model_dir", lambda: tmp_path)
+    monkeypatch.setattr(e, "SHA256", digest)
+    monkeypatch.setattr(e, "BYTES", len(payload))
+    monkeypatch.setattr(e.importlib.util, "find_spec", lambda name: object())
+    monkeypatch.setattr(e.importlib.metadata, "version", lambda name: "1.1.2")
+    assert e.availability()["available"]
+    assert e.verified_weights() == (tmp_path / "embedding_model.ckpt", digest)
+    (tmp_path / "embedding_model.ckpt").write_bytes(b"x" * len(payload))
+    with pytest.raises(ValueError, match="intégrité"):
+        e.verified_weights()
+    manifest["revision"] = "different"
+    (tmp_path / "manifest.json").write_text(json.dumps(manifest))
+    assert not e.availability()["available"]
+    (tmp_path / "manifest.json").write_text("[]")
+    assert not e.availability()["available"]
+
+
+def test_ecapa_source_frames_retain_primary_long_context_and_explicit_policy(
+    monkeypatch,
+):
+    from api.memora import diarization_ecapa as e
+
+    monkeypatch.setenv("MEMORA_DIARIZATION_ENGINE", "ecapa-tdnn")
+    monkeypatch.setattr(d, "_verified_weights", lambda: (Path("/unused"), "a" * 64))
+    monkeypatch.setattr(d, "_decode", lambda path: np.ones(64000, dtype=np.float32))
+    monkeypatch.setattr(d, "_regions", lambda audio: [dict(start=0, end=64000)])
+    monkeypatch.setattr(e, "Encoder", lambda weights: object())
+    seen = []
+
+    def embed(encoder, audio, cells, cache):
+        cells = list(cells)
+        seen.extend(cells)
+        return [np.array([1.0, 0.0])] * len(cells), cells
+
+    monkeypatch.setattr(d, "_embed_cells", embed)
+    result = d.diarize(Path("/synthetic"), [segment(0, 4)], num_speakers=1)
+    assert max(end - start for _, _, start, end in seen) == int(3.2 * 16000)
+    assert result["metadata"]["engine"] == "ecapa-silero-ahc-v1"
+    assert result["metadata"]["cluster_distance"] == 0.55
+    assert result["metadata"]["count_policy"] == "explicit"
+    assert result["segments"][0]["speaker"] == "Intervenant 1"

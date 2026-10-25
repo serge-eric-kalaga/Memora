@@ -64,3 +64,14 @@ esac
 if backend/.venv/bin/python -c 'import importlib.util,sys; sys.exit(0 if importlib.util.find_spec("resemblyzer") else 1)'; then
   backend/.venv/bin/python scripts/memora-prepare-diarization.py
 fi
+
+# ECAPA is optional and explicitly selected; there is no silent provider fallback.
+memora_speaker_engine=$(backend/.venv/bin/python -c 'from dotenv import dotenv_values; print(dotenv_values(".memora/backend.env").get("MEMORA_DIARIZATION_ENGINE", "resemblyzer"))')
+case "$memora_speaker_engine" in
+  ecapa-tdnn)
+    memora_ecapa_path=$(backend/.venv/bin/python -c 'from pathlib import Path; from dotenv import dotenv_values; print(dotenv_values(".memora/backend.env").get("MEMORA_ECAPA_MODEL_DIR") or Path(".memora/models/ecapa-voxceleb").resolve())')
+    MEMORA_ECAPA_MODEL_DIR="$memora_ecapa_path" backend/.venv/bin/python scripts/memora-prepare-ecapa.py
+    ;;
+  resemblyzer) ;;
+  *) echo "Moteur de séparation inconnu ; aucune substitution automatique." >&2; exit 1 ;;
+esac

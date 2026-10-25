@@ -70,3 +70,7 @@ ReportAnalysisRequest.num_speakers1..8 →routes.analyze détecte écheccourant 
 ## Palette commune
 
 `frontend/src/app/theme.css` définit les couleurs sémantiques clair/sombre et les alias historiques `--green`/`--green-dark` vers le violet. `globals.css` importe cette source. Compte et administration héritent de ces couleurs ; les variables `--a-*` ne sont que des alias. `frontend/tests/memora-theme-audit.mjs`, appelé par l’audit UI isolé, vérifie les routes publiques et connectées dans quatre vues.
+
+## Moteurs locaux de voix
+
+`backend/api/memora/diarization.py` choisit MEMORA_DIARIZATION_ENGINE, gardeSilero/cellules0.4s/versionnement et applique un veto de cohérence au compte automatique. `diarization_ecapa.py` : disponibilité, SHA et architecture localeSpeechBrain ; aucunréseau/YAML. `scripts/memora-prepare-ecapa.py` : poids officiels épinglés/reprise copie vérifiée. `scripts/memora-qa-speaker-consistency.py --engine ecapa-tdnn --include-holdout` : comptes/abstentions/erreurs réelles distinctes. Fixtureecapa-holdout-v1.json etgénérateurprepare-speaker-holdout.py :12cassynthétiques figés. Configurationdans.env.memora.example,env.py/install.sh ; sélectionmodèleautoriséeparrunnerisolé ettestprovenancenavigateur.

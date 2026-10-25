@@ -1,6 +1,16 @@
 # Memora — état de reprise
 
-Mis à jour 2026-10-25 14:40 UTC, Africa/Ouagadougou. Livraison locale V1 et jalon supplémentaire de précision intégrés. Commits locaux autorisés par l’utilisateur après livraison ; aucun push, achat, déploiement public ou email réel. Lire AGENTS.md → agents/README.md → ce fichier, puis uniquement les preuves utiles. Les notes/fichiers actuels priment sur les anciens points de reprise.
+Mis à jour 2026-10-25 15:44 UTC, Africa/Ouagadougou. Livraison locale V1 et jalon supplémentaire de précision intégrés. Commits locaux autorisés par l’utilisateur après livraison ; aucun push, achat, déploiement public ou email réel. Lire AGENTS.md → agents/README.md → ce fichier, puis uniquement les preuves utiles. Les notes/fichiers actuels priment sur les anciens points de reprise.
+
+## Sur-segmentation des intervenants — correction intégrée localement
+
+Autorisation explicite reçue pour la copie locale du seul test désigné. Diagnostic et résultats exclusivement .memora/accuracy-private/ ; original audio SHA inchangé et réunion non modifiée. Aucune donnée privée, identifiant ou contenu dans ces notes/logs. Validation du moteur intégré sur la copie effectuée ; détails restent privés.
+
+Moteur retenu : ECAPA-TDNN officiel SpeechBrain Apache-2.0, poids83,3Mo révision épinglée/SHA vérifié ; architecture locale statique sans YAML, torchweights_only=True. MEMORA_DIARIZATION_ENGINE=ecapa-tdnn actif sur cette installation et défaut nouvelles installations AppleSilicon ; anciens env ne sont pas réécrits par le générateur. Resemblyzer/poids conservés, choixlegacy explicite. Dépendances nouvelles verrouillées, Torch conservé. ECAPA fenêtre3.2s/seuil.55, comparaison1.6s veto si plusieurs groupes et estimations contradictoires ; nombre connu explicite prioritaire. Pas de fusion arbitraire ni réécriture automatique des réunions historiques.
+
+Preuves :333backend PASS/3SKIP/3warnings23,81s ;24tests module après durcissementmanifest PASS ;5tests env PASS ;Ruff/lint/shellchecksyntax PASS.60inférences intégrées synthétiques38,35s :16baseline correctes,16monos altérés corrects,16connus1 corrects ;12holdout=10corrects/1abstention/1erreur restante surmono fortementaltéré. Pas de précision universelle promise. Recette réelle isolée ECAPA22browser+19UI PASS126,93s, zéro exceptionJS, capture/import/live→rapport/versions/provenance/renommage/séparation réels. Aucun microphone physique utilisé.
+
+Activation après garde0capture/0tâche/aucun audio récent :4HTTP200, empreintes toutes tables domaine inchangées, intégritéOK. Preuve privée .memora/ecapa-activation.json ; envancien sauvegardé privé. Pour un ancien résultat : actualiser horscapture, Gérer les intervenants→Séparation locale→nombrevide automatique, puis régénérer le rapport ; nombre connu1 peut être fourni si nécessaire. Limites et reproduction dans docs/MEMORA.md/testing.md. Commit local sans coauteur ni push.
 
 ## Harmonisation des couleurs — livrée localement
 

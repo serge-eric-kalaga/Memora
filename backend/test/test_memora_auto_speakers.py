@@ -128,7 +128,7 @@ def test_existing_snapshot_or_retranscribe_never_automatically_separates(
 
 
 @pytest.mark.parametrize(
-    "failure", ["unavailable", "provider", "mutation", "malformed"]
+    "failure", ["unavailable", "provider", "mutation", "malformed", "disputed"]
 )
 def test_optional_speaker_failure_preserves_asr_and_warns_report(
     tmp_path, monkeypatch, failure
@@ -136,6 +136,14 @@ def test_optional_speaker_failure_preserves_asr_and_warns_report(
     mid, job, calls = setup(tmp_path, monkeypatch)
     if failure == "unavailable":
         monkeypatch.setattr(diarization, "available", lambda: False)
+    elif failure == "disputed":
+        monkeypatch.setattr(
+            diarization,
+            "diarize",
+            lambda *a, **kw: (_ for _ in ()).throw(
+                diarization.DiarizationError("Les comparaisons se contredisent")
+            ),
+        )
     elif failure == "provider":
         monkeypatch.setattr(
             diarization,

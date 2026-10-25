@@ -1,6 +1,6 @@
 # Audit UI ciblé
 
-2026-10-25T14:52:26.159Z
+2026-10-25T15:43:18.032Z
 
 - VALIDÉ : Palette commune sur six pages publiques, quatre vues chacune et contrastes vérifiés
 - VALIDÉ : Dashboard desktop sans débordement

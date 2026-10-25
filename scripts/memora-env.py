@@ -32,6 +32,8 @@ if not env.exists():
         "MEMORA_MODEL_DIR": str(data / "models"),
         "MEMORA_OLLAMA_URL": "http://127.0.0.1:11434",
         "MEMORA_MODEL": "gemma4:e4b",
+        "MEMORA_DIARIZATION_ENGINE": "ecapa-tdnn" if native_mlx else "resemblyzer",
+        "MEMORA_ECAPA_MODEL_DIR": str(data / "models/ecapa-voxceleb"),
         "MEMORA_ASR_MODEL": "base",
         "MEMORA_ASR_ENGINE": asr_engine,
         "MEMORA_LIVE_ASR_ENGINE": asr_engine,
