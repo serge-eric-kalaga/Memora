@@ -1,6 +1,6 @@
 # Audit UI ciblé
 
-2026-10-25T13:41:28.759Z
+2026-10-25T14:12:34.967Z
 
 - VALIDÉ : Dashboard desktop sans débordement
 - VALIDÉ : Dialogue clavier : focus initial, boucle Tab/Shift+Tab, Escape et restauration
@@ -14,6 +14,7 @@
 - VALIDÉ : Chat principal accessible desktop/mobile clair/sombre, composer visible sans rapport concurrent
 - VALIDÉ : Réponse longue : références internes masquées, sources repliées et police lisible dans quatre vues
 - VALIDÉ : Formulaires de validation, lecteur de transcription et intervenants mobile sans débordement
+- VALIDÉ : Échec de séparation explicite et relance accessible avec nombre connu, sans renommer toutes les voix
 - VALIDÉ : Message utilisateur clair et conseils repliés accessibles sans ouvrir le microphone
 - VALIDÉ : Contrôle microphone mobile visible sans activation automatique ni débordement
 - VALIDÉ : Aucune exception JavaScript non gérée

@@ -221,3 +221,9 @@ Activationmain : guard0jobs/0capture/aucun audio récent, restart scriptsmemora 
 `node --test tests/memora-chat-answer.test.mjs` :1PASS ; `node tests/memora-meeting-chat-browser.mjs` avec Chromium1248 :8PASS. Exemple15paragraphes,30sourcesdistinctes+doublon, sourcesfermées puis ouvertesliste≤240px etseekaudio, questiondansviewport, fontsansmonospace, renduHTMLnonexécuté, versions/permissions/abort/retry conservés. APIcomposant simulée. Logs chat-long-{unit,browser}.log ; captureschat-long-{mobile,desktop}.png.
 
 Lint/types/buildfinalPASS et linttestsPASS. Recette `--ui-audit-only --asr-engine mlx-whisper --french-asr-engine mlx-whisper --timeout600` :15UI PASS22,35s ;4capturesisolated-chat-long-{desktop,mobile}-{light,dark}.png, réponse longuefixtureHTTPisolée, donnéespersistéesinchangées. Préparationaudio/rapport réelle synthétique ; aucun testnouveau dequalitéIA. ExempledesktopdarkinspectéROOT ; zéroexceptionJS. Activation0jobs/0capture/aucun audio récent,4HTTP200 et empreintesdomaineinchangées ; .memora/chat-long-activation.json0600.
+
+## Reprise séparation après échec25/10
+
+`scripts/memora-qa-auto-speakers.py --cpu-only` sur réserve synthétique :PASS ; pas nouveau benchmarkseuils. Lint/types/buildPASS. Recette --ui-audit-only avecmoteursmlx etChromium1248 :16UI PASS21,91s,zéroexceptionJS. ScénarioHTTPisolé automaticfailed sourcecourante : messageclair,boutonouvre/focalisechampnombre,2accepté,actionactivée ;aucune nouvelle modificationbase par cecontrôle. PréparationASR/rapport réelle synthétique. Logspeaker-recovery-ui.log/captureisolated-speaker-failure-recovery-mobile.png.
+
+Exception utilisateur pourcopie audio désignée : résultats etdiagnostics strictement .memora/accuracy-private/, pasdansceslogs/notes ; originalinchangé. Aucunrésultat qualitatifpersonnel généralisé.

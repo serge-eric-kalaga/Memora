@@ -2,6 +2,14 @@
 
 Mis à jour 2026-10-25 13:42 UTC, Africa/Ouagadougou. Livraison locale V1 et jalon supplémentaire de précision intégrés. Commits locaux autorisés par l’utilisateur après livraison ; aucun push, achat, déploiement public ou email réel. Lire AGENTS.md → agents/README.md → ce fichier, puis uniquement les preuves utiles. Les notes/fichiers actuels priment sur les anciens points de reprise.
 
+## Séparation des intervenants — reprise après échec
+
+Diagnostic borné autorisé25/10 : métadonnées d’un test désigné puis, sur nouvelle autorisation explicite, traitement d’une copie locale uniquement. Aucun original ni réunion modifiés ; audio/résultats/détails exclusivement .memora/accuracy-private/. Aucun scorepersonnel ni compte renducontenu dansnotes/logs. Le moteur automatique peut refuser un résultat tropfragmenté ; renseigner le nombre connu aide la reprise, sans garantir chaque attribution.
+
+UI : expose automatic_diarization.state=failed seulement pour la source courante ; message distingue échec et absence de plusieurs voix. Bouton Distinguerlesintervenants ouvre le panneau et focalise le nombre connu ; traitement réel déclenché seulement par action/confirmation utilisateur existantes. Pas de seuil/model/backend changé ni regroupement arbitraire.
+
+Preuves :baseline synthétique CPU2voixPASS ; lint/types/buildPASS ;16contrôles UI isolésPASS21,91s, dont fixtureHTTPfailed etaccèsnombre2 sans déclencher modification, zéroexceptionJS. Préparation ASR/rapport synthétiques réelle. Activationlocale aprèsgarde0jobs/0capture/aucun audio récent,4HTTP200 et empreintesdomaineinchangées/intégritéOK. Preuveprivée .memora/speaker-recovery-activation.json.
+
 ## Chat long et sources — correctifs livrés localement
 
 Affichage des réponses existantes/nouvelles nettoyé des groupes de citations internes (u3,u7), sans modifier réponses stockées ni faits. Copies nettoyées aussi. Formatage JSX sûr paragraphes/titres/listes/gras, aucun HTML exécuté ni dépendance ajoutée. Sources dédupliquées et repliées sous Voir les sources, compteur réel, liste1colonne bornée240px défilante ; droits/anciennesversions inchangés. Défilement nouvel échange au niveau question, repère questionsticky avec fond opaque, composerpolice héritée.

@@ -544,6 +544,52 @@ try {
     pass(
       "Formulaires de validation, lecteur de transcription et intervenants mobile sans débordement",
     );
+    await page.route(detailRoute, async (route) => {
+      const response = await route.fetch();
+      const body = await response.json();
+      const value = body.data || body;
+      value.automatic_diarization = {
+        state: "failed",
+        source_version: value.version,
+      };
+      await route.fulfill({ response, json: body });
+    });
+    await page.goto(base + "/reunions/" + meeting.id);
+    await page
+      .getByRole("button", { name: "Transcription", exact: true })
+      .click();
+    await page
+      .getByText(
+        "Les intervenants n’ont pas pu être distingués automatiquement",
+        { exact: true },
+      )
+      .waitFor();
+    await page
+      .getByRole("button", { name: "Distinguer les intervenants", exact: true })
+      .click();
+    const knownCount = page.getByRole("spinbutton", {
+      name: "Nombre d’intervenants connu (facultatif)",
+      exact: true,
+    });
+    await knownCount.fill("2");
+    assert.equal(await knownCount.inputValue(), "2");
+    assert.ok(await knownCount.evaluate((el) => el === document.activeElement));
+    assert.ok(
+      await page
+        .getByRole("button", {
+          name: "Séparer les intervenants localement",
+          exact: true,
+        })
+        .isEnabled(),
+    );
+    await page.screenshot({
+      path: artifactPath("logs", "speaker-failure-recovery-mobile.png"),
+      fullPage: true,
+    });
+    await page.unroute(detailRoute);
+    pass(
+      "Échec de séparation explicite et relance accessible avec nombre connu, sans renommer toutes les voix",
+    );
     const created = await page.request.post(base + "/mapi/meetings", {
       headers: { Origin: base },
       data: {

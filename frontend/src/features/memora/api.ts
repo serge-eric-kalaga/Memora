@@ -91,6 +91,7 @@ export type Meeting = {
     warnings?: string[];
     overlap_supported?: boolean;
   };
+  automatic_diarization?: { state?: string; source_version?: number };
   error?: string;
   permissions?: Record<string, boolean>;
   chunks?: { seq: number; bytes: number }[];

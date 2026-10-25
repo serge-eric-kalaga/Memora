@@ -1169,6 +1169,11 @@ function MeetingContent({
                       guest={!!access.token}
                       english={language === "en"}
                       canSeparate={!!canAudio}
+                      separationFailed={
+                        meeting.automatic_diarization?.state === "failed" &&
+                        meeting.automatic_diarization.source_version ===
+                          meeting.version
+                      }
                       busy={
                         busy ||
                         ["queued", "transcribing", "analyzing"].includes(

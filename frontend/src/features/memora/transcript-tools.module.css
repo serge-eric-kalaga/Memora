@@ -7,6 +7,19 @@
   margin-block: 12px;
   min-width: 0;
 }
+.recovery {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  background: var(--soft);
+  font-size: 13px;
+  line-height: 1.6;
+  margin-block: 12px;
+}
+.recovery p {
+  color: var(--muted);
+  margin: 6px 0 12px;
+}
 .summary {
   padding: 14px 16px;
   font-size: 13px;
