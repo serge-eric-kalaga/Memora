@@ -1,12 +1,20 @@
 # Memora — état de reprise
 
-Mis à jour 2026-10-25 12:20 UTC, Africa/Ouagadougou. Livraison locale V1 et jalon supplémentaire de précision intégrés. Commits locaux autorisés par l’utilisateur après livraison ; aucun push, achat, déploiement public ou email réel. Lire AGENTS.md → agents/README.md → ce fichier, puis uniquement les preuves utiles. Les notes/fichiers actuels priment sur les anciens points de reprise.
+Mis à jour 2026-10-25 12:53 UTC, Africa/Ouagadougou. Livraison locale V1 et jalon supplémentaire de précision intégrés. Commits locaux autorisés par l’utilisateur après livraison ; aucun push, achat, déploiement public ou email réel. Lire AGENTS.md → agents/README.md → ce fichier, puis uniquement les preuves utiles. Les notes/fichiers actuels priment sur les anciens points de reprise.
+
+## Intervenants automatiques — livrés localement
+
+Nouvelles créations : snapshotflag auto_diarization_new_meetings depuis MEMORA_AUTO_DIARIZATION (défaut1), anciennes sansflag exclues. Worker durable ASRv1→phase diarize_initial→labels v2→rapport source2 ; échec conserveASRv1 et avertissement versionné. Pas live ni retraitement existant automatique. SpeakerLabel affiche numéros réellement attribués, noms humains conservés et anciens placeholders→Voix à vérifier (jamais faux numéro1). Suffixe du rapport ne prétend plus que les voix sont indisponibles.
+
+Preuves :306backendPASS/3RedisSKIP/1warning21,15s ;57tests ciblés/reprises/races/pannes ;1test complémentaire politique env/snapshotPASS ;2tests libellésfrontendPASS. Ruff/OpenAPIcheck/lint/types/buildPASS. Pipeline réel synthétique isolé40,17s/2voix/6prises→labels1/2/2/1/1/2, ASRv1 inchangée, rapportv2ready18,036s sansmock. Recette finale21browser+12UI PASS environ108s : mixte/FR, provenance+SHA réels, versions/renommage/séparation manuelle. Stockages et services temporaires nettoyés, GPU libre. Handoffs automatic-initial-speakers.md, automatic-speakers-real.md et auto-speakers-browser.md.
+
+Activation main après garde0jobs/0capture/aucun audio récent :4HTTP200, empreintes de toutes tables domaine inchangées, intégritéOK,0jobs. Preuve privée .memora/auto-speakers-activation.json. Aucun audio personnel retraité. Créer une NOUVELLE réunion après actualisation pour l’automatique ; anciennes : Gérer les intervenants→Séparer localement, puis régénérer le rapport. Les identités humaines ne sont pas déduites et les passages ambigus restent à vérifier ; qualité naturelle/chevauchements/2h non garantie, limiteinitiale8groupes moteur. Commit local sans coauteur, aucun push.
 
 ## Texte de l’enregistreur — ajustement utilisateur
 
 Les paragraphes techniques permanents sont remplacés par un court message utilisateur adapté à l’état (prêt, capture, pause, sauvegarde, import, interruption, transmis pour analyse), en FR/EN. Conseils d’enregistrement/import repliés par défaut : limites pertinentes et précautions toujours accessibles. Les alertes réelles restent visibles ; hook continuité conservé sans afficher ses détails. app.tsx et CSS seulement, aucune logique capture/backend modifiée.
 
-Recette UI isolée12contrôles PASS20,97s, dont message prêt/conseils fermés→ouverts→fermés et absence de microphone ouvert ; langues/thèmes/mobile et autres formulaires vérifiés. Première tentative sans chemin Chromium, relancée avec exécutable existant sans téléchargement. Lint/types/build final PASS après correction unité EN MB. Frontend seul actualisé après garde aucune capture/écriture audio récente,4HTTP200 ; backend/Ollama inchangés. Nouvelle demande en cours : séparation automatique des voix pour nouveaux enregistrements, worker en audit/implémentation par qa_local ; ne pas confondre avec simple renommage des voix inconnues ni retraiter des réunions existantes automatiquement.
+Recette UI isolée12contrôles PASS20,97s, dont message prêt/conseils fermés→ouverts→fermés et absence de microphone ouvert ; langues/thèmes/mobile et autres formulaires vérifiés. Première tentative sans chemin Chromium, relancée avec exécutable existant sans téléchargement. Lint/types/build final PASS après correction unité EN MB. Frontend seul actualisé après garde aucune capture/écriture audio récente,4HTTP200 ; backend/Ollama inchangés. La séparation automatique des nouvelles réunions a ensuite été livrée : voir jalon ci-dessus, sans retraitement des anciennes.
 
 ## Onde défilante et continuité de capture — livrées localement
 

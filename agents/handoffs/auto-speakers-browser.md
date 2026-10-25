@@ -1,0 +1,9 @@
+# Intervenants automatiques — recette navigateur
+
+25 octobre 2026. `scripts/memora-verify-isolated.py --browser-only --asr-engine mlx-whisper --french-asr-engine mlx-whisper --timeout 2400`, Chromium1248 explicitement configuré : **21 jalons navigateur +12 contrôles UI PASS, 5 stages, 108.58s nettoyage compris**, exit0. Données et services synthétiques isolés ; Ollama local partagé. Aucun service principal ni donnée démo/personnelle modifié. Ports18080/13000/11025/18025 fermés après recette.
+
+Modification test seulement : frontend/tests/memora-e2e.mjs. Après les imports mixte et français, vérification du snapshot auto=true, automatic_diarization completed, transcription v2 et report_version2, moteur Resemblyzer local, au moins un vrai groupe speaker_id avec label numéroté, provenance engine/hash64 et speaker_uncertainfalse. Consultation de la v1 ASR conservée, sans speaker_id, mêmes id/texte/timestamps. Vérification du label numéroté rendu. Renommage puis séparation manuelle vérifient les versions courante+1 au lieu de valeurs fixes3/4. Lint ciblé PASS. UIaudit sans attente de version fixe, inchangé.
+
+Logs locaux exclus Git : auto-speakers-isolated-browser.log, isolated-browser.log, isolated-ui-audit.log, isolated-summary.json passed/demo_data_touchedfalse, auto-speakers-browser-test-lint.log. Zéro exception navigateur. La capture finale existante montre la transcription après correction/séparation manuelle ; aucune capture automatique avant correction ajoutée pendant le processus déjà lancé et aucun rejeu inutile effectué. La preuve multivoix indépendante de api_tests complète ces imports courts (pas garantie d’identification naturelle, ni attribution de vrais noms).
+
+Aucune source produit modifiée par cet agent. ROOT gère activation et commit. Scripts et handoff pérennes ; logs/captures locaux. Sources tests gelées après livraison.

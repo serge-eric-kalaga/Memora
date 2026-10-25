@@ -972,12 +972,10 @@ def report(segments, language):
         combined = reconcile(partial_reports, segments, language, Report)
         combined["limitations"] = source_limitations + combined.get("limitations", "")
     combined["limitations"] += (
-        (
-            "Automatic voice attribution is unavailable: speakers are unidentified. Check uncertain passages."
-        )
+        ("Check speaker labels against the audio before relying on an attribution.")
         if language == "en"
         else (
-            "Attribution automatique des voix non disponible : intervenants non identifiés. Vérifiez les passages incertains."
+            "Vérifiez les étiquettes des intervenants avec l’audio avant de vous fier à une attribution."
         )
     )
     return combined

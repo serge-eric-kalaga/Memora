@@ -98,3 +98,13 @@ Actions/décisions : cartes regroupant texte, sources et pied de validation ; re
 | Changement d’onglet/arrière-plan | use-recording-continuity.ts : aucune pause/stop liée à visibilité, flush fragments, retour surveillé | 7contrôles hook Chromium à vrais onglets PASS ; vraie recette finale19browser+11UI PASS ; aucun micro physique. |
 | Protection veille automatique locale | capture_awake.py, route propriétaire/loopback et heartbeat30s, caffeinate-i-t120, cleanup |40tests ciblés, suite complète294PASS/3skip/1warning ; assertion native réelle vérifiée puis libérée. |
 | Vraie veille forcée/capot fermé | Limite OS/navigateur documentée, arrêt imprévu signalé et sauvegardes conservées | Impossible à garantir pendant suspension matérielle ; aucune promesse de continuité ni essai de sommeil réel de la machine. |
+
+
+## Intervenants numérotés automatiquement
+
+| Demande | Code | Validation |
+|---|---|---|
+| Détecter les voix puis Intervenant1/2… | routes création snapshot MEMORA_AUTO_DIARIZATION, worker._initial_speaker_labels, module diarization existant | Pipeline réel isolé2voix/6prises labels1/2/2/1/1/2 ;21browser+12UI PASS mixte/FR et provenanceSHA. |
+| Préserver sources/historique/concurrence | checkpoints ASRv1→labels v2→rapport, source_version et active_job gates |57tests ciblés/reprises/races/échecs,306backendPASS ; aucun texte/ID/temps changé v1/v2. |
+| Pas de numéros inventés pour ambiguïtés | speaker-label.ts, app/citations/SpeakerTools/ReportReview |2tests libellés, rendus navigateur réels ; noms humains préservés, Voix à vérifier si non attribuable. |
+| Pas de traitement implicite des anciennes | snapshot absent=pasauto ; env règle prochaines créations seulement | Test API0→1 conserve snapshot antérieur ; activationempreintes domaine inchangées, aucune réunion personnelle retraitée. |

@@ -7,6 +7,7 @@ import { SpeakerTools } from "./speaker-tools";
 import { MicrophoneCheck } from "./microphone-check";
 import { useRecordingContinuity } from "./use-recording-continuity";
 import { RecordingSignal } from "./recording-signal";
+import { speakerLabel } from "./speaker-label";
 import { segmentAt } from "./playback";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import {
@@ -1313,9 +1314,9 @@ function MeetingContent({
                           {clock(seg.start)} → {clock(seg.end)}
                         </button>
                         <strong>
-                          {seg.speaker || tr("Intervenant non identifié")}
+                          {speakerLabel(seg.speaker, language === "en")}
                         </strong>
-                        {seg.speaker_uncertain && (
+                        {seg.speaker_uncertain && seg.speaker_id && (
                           <span className={s.badge}>
                             {language === "en"
                               ? "Speaker to verify"
@@ -1715,6 +1716,7 @@ function Citations({
   seek: (start: number, sourceVersion?: number) => void;
 }) {
   const tr = useMemoraText();
+  const { language } = useI18n();
   if (!ids.some((id) => segments.some((segment) => segment.id === id)))
     return null;
   const links = (
@@ -1730,7 +1732,8 @@ function Citations({
               historical ? "Repère audio — source historique" : segment.text
             }
           >
-            {clock(segment.start)} · {segment.speaker || "Source"}
+            {clock(segment.start)} ·{" "}
+            {speakerLabel(segment.speaker, language === "en")}
           </button>
         ) : null;
       })}

@@ -67,7 +67,8 @@ def test_english_missing_answer_and_report_warnings_are_in_english(monkeypatch):
     monkeypatch.setattr(ai, "generate", lambda *_: generated)
     result = ai.report([{"id": "s1", "text": "Prepare", "uncertain": True}], "en")
     assert "flagged as uncertain" in result["limitations"]
-    assert "speakers are unidentified" in result["limitations"]
+    assert "Check speaker labels" in result["limitations"]
+    assert "attribution is unavailable" not in result["limitations"]
     assert result["actions"][0]["owner"] == "Not specified"
     assert result["actions"][0]["deadline"] == "Not specified"
 

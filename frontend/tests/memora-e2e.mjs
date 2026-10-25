@@ -47,6 +47,49 @@ async function ready() {
     .getByRole("heading", { name: "Résumé", exact: true })
     .waitFor({ timeout: 180000 });
 }
+async function meetingData() {
+  const id = new URL(page.url()).pathname.split("/").filter(Boolean).at(-1);
+  const response = await owner.request.get(`${base}/mapi/meetings/${id}`);
+  assert.equal(response.status(), 200);
+  return response.json();
+}
+async function automaticSpeakers() {
+  if (process.env.MEMORA_TEST_ISOLATED !== "1") return;
+  const meeting = await meetingData();
+  assert.equal(meeting.settings.auto_diarization_new_meetings, true);
+  assert.equal(meeting.automatic_diarization.state, "completed");
+  assert.equal(meeting.version, 2);
+  assert.equal(meeting.report_version, meeting.version);
+  assert.equal(meeting.diarization.engine, "resemblyzer-silero-ahc-v1");
+  const labeled = meeting.segments.filter((segment) => segment.speaker_id);
+  assert.ok(
+    labeled.length > 0,
+    "Real synthetic audio must produce a speaker group",
+  );
+  for (const segment of labeled) {
+    assert.match(segment.speaker, /^Intervenant [1-9][0-9]*$/);
+    assert.equal(segment.speaker_uncertain, false);
+    assert.equal(segment.speaker_provenance.engine, meeting.diarization.engine);
+    assert.match(segment.speaker_provenance.model_sha256, /^[a-f0-9]{64}$/);
+  }
+  const id = meeting.id;
+  const response = await owner.request.get(
+    `${base}/mapi/meetings/${id}/transcript?version=1`,
+  );
+  assert.equal(response.status(), 200);
+  const original = await response.json();
+  assert.equal(original.segments.length, meeting.segments.length);
+  for (let index = 0; index < original.segments.length; index++) {
+    const before = original.segments[index];
+    const after = meeting.segments[index];
+    assert.ok(!before.speaker_id, "ASR source must not invent a speaker group");
+    for (const key of ["id", "start", "end", "text"])
+      assert.deepEqual(after[key], before[key]);
+  }
+  pass(
+    "Intervenants automatiques réels : provenance locale, source ASR v1 conservée et rapport v2",
+  );
+}
 async function create(title, mode, language = "auto") {
   await page.goto(base + "/");
   await page
@@ -81,6 +124,7 @@ try {
   await page.locator("input[type=file]").setInputFiles(fixture);
   await ready();
   pass("Import navigateur → Whisper → Ollama → rapport persisté");
+  await automaticSpeakers();
   const humanReview = page.locator('[data-testid^="human-review-"]').first();
   await humanReview
     .getByRole("button", { name: "Valider cet élément", exact: true })
@@ -128,6 +172,14 @@ try {
     exact: true,
   });
   await tools.waitFor();
+  if (process.env.MEMORA_TEST_ISOLATED === "1") {
+    assert.ok(
+      await page
+        .locator("strong")
+        .filter({ hasText: /^Intervenant [1-9][0-9]*$/ })
+        .count(),
+    );
+  }
   await page
     .locator("audio")
     .first()
@@ -404,6 +456,7 @@ try {
       .locator("input[type=file]")
       .setInputFiles(resolve(root, "backend/test/fixtures/memora/french.wav"));
     await ready();
+    await automaticSpeakers();
     await page
       .getByRole("button", { name: "Transcription", exact: true })
       .click();
@@ -442,6 +495,7 @@ try {
     pass(
       "Import français réel, langue non inventée et correction persistée dans le navigateur",
     );
+    const versionBeforeRename = (await meetingData()).version;
     await page.getByText("Gérer les intervenants", { exact: true }).click();
     await page
       .getByRole("combobox", { name: "Étiquette actuelle", exact: true })
@@ -471,8 +525,10 @@ try {
         name: "Version de la transcription",
         exact: true,
       })
-      .selectOption("3");
+      .selectOption(String(versionBeforeRename + 1));
+    assert.equal((await meetingData()).version, versionBeforeRename + 1);
     pass("Renommage global persisté et ancienne transcription consultable");
+    const versionBeforeSeparation = (await meetingData()).version;
     await page.getByText("Gérer les intervenants", { exact: true }).click();
     await page
       .getByRole("spinbutton", {
@@ -488,12 +544,12 @@ try {
       })
       .click();
     await page.waitForFunction(
-      () =>
+      (expectedVersion) =>
         document.querySelector("select") &&
         Array.from(document.querySelectorAll("select")).some(
-          (select) => select.value === "4",
+          (select) => select.value === String(expectedVersion),
         ),
-      null,
+      versionBeforeSeparation + 1,
       { timeout: 120000 },
     );
     await page

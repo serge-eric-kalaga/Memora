@@ -7,6 +7,7 @@ import {
   type Item,
   type Segment,
 } from "./api";
+import { speakerLabel } from "./speaker-label";
 import s from "./report-review.module.css";
 
 export function ReportReview({
@@ -208,7 +209,9 @@ export function ReportReview({
             const source = segments.find((segment) => segment.id === id);
             return source ? (
               <blockquote key={id}>
-                {source.speaker ? `${source.speaker} : ` : ""}
+                {source.speaker
+                  ? `${speakerLabel(source.speaker, english)} : `
+                  : ""}
                 {source.text}
               </blockquote>
             ) : null;

@@ -4,6 +4,7 @@ import hashlib
 import html
 import ipaddress
 import json
+import os
 import secrets
 import shutil
 import time
@@ -288,7 +289,13 @@ def create_meeting(body: CreateMeeting, user=AUTH_USER):
             "version": 0,
             "report_version": None,
             "report_id": None,
-            "settings": s.config(c),
+            "settings": {
+                **s.config(c),
+                "auto_diarization_new_meetings": os.environ.get(
+                    "MEMORA_AUTO_DIARIZATION", "1"
+                ).lower()
+                in ("1", "true", "yes"),
+            },
             "duration": 0,
             "error": None,
             "email": user.email,

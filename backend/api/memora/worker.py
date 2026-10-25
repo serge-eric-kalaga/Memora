@@ -100,14 +100,18 @@ def process(job):
             expected = job["version"]
         if job["kind"] in ("pipeline", "retranscribe") and expected != version:
             return
-        resume_report = job.get("phase") == "report"
+        resume_report = job.get("phase") in ("report", "diarize_initial")
         segments = (
             []
             if job["kind"] == "retranscribe" and not resume_report
             else s.transcript(c, mid, version)
         )
         job["source_version"] = version
-        if segments and job["kind"] in ("pipeline", "retranscribe"):
+        if (
+            segments
+            and job["kind"] in ("pipeline", "retranscribe")
+            and job.get("phase") != "diarize_initial"
+        ):
             c.execute(
                 "UPDATE jobs SET phase='report',source_version=? WHERE id=?",
                 (version, job["id"]),
@@ -171,17 +175,41 @@ def process(job):
             )
             m.update(version=version, state="analyzing")
             s.save(c, m)
-            # Publish transcript and its continuation point atomically. A restart
-            # must resume the report phase, including for retranscribe jobs.
-            c.execute(
-                "UPDATE jobs SET phase='report',source_version=? WHERE id=?",
-                (version, job["id"]),
+            # New-meeting speaker separation follows a durable ASR checkpoint.
+            # Old settings snapshots, existing revisions, live and retranscribe
+            # requests never opt into this automatic initial step.
+            initial_speakers = (
+                bool(segments)
+                and job["kind"] == "pipeline"
+                and version == 1
+                and m.get("settings", {}).get("auto_diarization_new_meetings") is True
             )
+            phase = "diarize_initial" if initial_speakers else "report"
+            job["phase"] = phase
+            c.execute(
+                "UPDATE jobs SET phase=?,source_version=? WHERE id=?",
+                (phase, version, job["id"]),
+            )
+    automatic_labels = m.get("automatic_diarization", {})
+    diarization_warning = (
+        automatic_labels.get("warning", "")
+        if automatic_labels.get("source_version") == version
+        else ""
+    )
+    if job.get("phase") == "diarize_initial":
+        separated = _initial_speaker_labels(job, segments, version)
+        if separated is None:
+            return
+        segments, version, diarization_warning = separated
     if not segments:
         raise ai.ProcessingError(
             "Aucune parole reconnue. Vérifiez le son avant de réessayer."
         )
     result = ai.report(segments, m["settings"]["report_language"])
+    if diarization_warning:
+        result["limitations"] = (
+            result.get("limitations", "") + "\n" + diarization_warning
+        ).strip()
     with s.db() as c:
         current = s.meeting(c, mid)
         if not current or s.owner_deleted(c, current.get("owner_uid")):
@@ -233,6 +261,105 @@ def process(job):
                 f'<p>Votre rapport est prêt.</p><a href="{html.escape(url)}">Consulter la réunion</a>',
                 owner_uid=current.get("owner_uid"),
             )
+
+
+def _initial_speaker_labels(job, segments, version):
+    """Optional first-final-pass labels; ASR is already committed and survives failure."""
+    from . import diarization
+
+    mid = job["meeting"]
+    snapshot = s.ROOT / mid / f"snapshot-{job['id']}-speakers.bin"
+    with s.db() as c:
+        current = s.meeting(c, mid)
+        if (
+            not current
+            or s.owner_deleted(c, current.get("owner_uid"))
+            or current["version"] != version
+            or current.get("active_job_id") != job["id"]
+        ):
+            return None
+    result = None
+    warning = ""
+    try:
+        if not diarization.available():
+            raise diarization.DiarizationError("Unavailable local speaker engine")
+        snapshot.write_bytes((s.ROOT / mid / "audio.bin").read_bytes())
+        with ai._lock:
+            result = diarization.diarize(snapshot, json.loads(json.dumps(segments)))
+        if not isinstance(result, dict) or not isinstance(result.get("metadata"), dict):
+            raise ai.ProcessingError("Invalid speaker provider metadata")
+        updated = result["segments"]
+        if len(updated) != len(segments) or any(
+            any(
+                before.get(key) != after.get(key)
+                for key in ("id", "start", "end", "text")
+            )
+            for before, after in zip(segments, updated, strict=True)
+        ):
+            raise ai.ProcessingError("Speaker result changed immutable source")
+    except Exception:  # noqa: BLE001 - optional labels cannot discard committed ASR
+        result = None
+        warning = "Identification automatique des intervenants indisponible ou non vérifiable. La transcription est conservée ; vous pouvez relancer la séparation ou corriger les noms."
+    finally:
+        try:
+            snapshot.unlink(missing_ok=True)
+        except OSError:
+            warning = (
+                warning
+                or "Le nettoyage du fichier temporaire audio n’a pas pu être terminé. La transcription est conservée ; vérifiez le stockage local."
+            )
+    with s.db() as c:
+        c.execute("BEGIN IMMEDIATE")
+        current = s.meeting(c, mid)
+        if (
+            not current
+            or s.owner_deleted(c, current.get("owner_uid"))
+            or current["version"] != version
+            or current.get("active_job_id") != job["id"]
+        ):
+            return None
+        if result is not None:
+            previous = version
+            version += 1
+            segments = result["segments"]
+            c.execute(
+                "INSERT INTO transcripts VALUES(?,?,?,?,?)",
+                (
+                    mid,
+                    version,
+                    json.dumps(segments),
+                    "Intervenants automatiques locaux",
+                    time.time(),
+                ),
+            )
+            c.execute(
+                "INSERT INTO transcript_edits VALUES(?,?,?,?,?,?,?)",
+                (
+                    mid,
+                    version,
+                    "automatic_speaker_separation",
+                    "ASR local",
+                    None,
+                    time.time(),
+                    json.dumps(
+                        {"previous_version": previous, "metadata": result["metadata"]}
+                    ),
+                ),
+            )
+            current.update(version=version, diarization=result["metadata"])
+        current["automatic_diarization"] = {
+            "state": "completed" if result else "failed",
+            "warning": warning,
+            "source_version": version,
+        }
+        current.update(state="analyzing")
+        s.save(c, current)
+        c.execute(
+            "UPDATE jobs SET phase='report',source_version=? WHERE id=?",
+            (version, job["id"]),
+        )
+        job.update(phase="report", source_version=version)
+    return segments, version, warning
 
 
 def process_diarization(job):

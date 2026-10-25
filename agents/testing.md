@@ -184,3 +184,12 @@ Activation capture-continuité :4HTTP200 après garde0jobs/aucun audio récent ;
 Messages courts par état FR/EN et conseils repliés par défaut. Recette UI isolée12PASS/4stages20,97s (`recorder-copy-ui-audit.log`) : message prêt, conseils fermés par défaut puis ouverture/fermeture, aucun micro physique ni acquisition automatique ; autres vérifications langues/thème/mobile maintenues. Première tentative arrêtée faute de chemin Chromium explicite, relance avec l’exécutable existant réussie. Vérifications lint/types/build du texte dans recorder-copy-*.log ; aucun changement de capture ni backend. Unité EN MB corrigée après recette, vérifiée par compilation finale.
 
 Textes enregistreur activés localement : lint/types/buildPASS, frontend seul redémarré après garde capture,4HTTP200 ; aucun changement backend ni microphone ouvert.
+
+
+## Intervenants automatiques — nouvelles réunions
+
+306backendPASS/3RedisSKIP/1warning21,15s, après adaptation d’une assertion ancienne affirmant à tort que les voix étaient toujours indisponibles.57tests ciblés couvrent checkpoint ASRv1, labels v2, échec/indisponibilité/mutation fournisseur, reprise sans doublon, correction concurrente et avertissement versionné.1test API complémentaire valide MEMORA_AUTO_DIARIZATION0/1 et conservation du snapshot antérieur (0,54s).2tests frontend prouvent absence de fauxnuméro pour inconnus et préservation des noms humains.
+
+Ruff, lint/types/build et contrat OpenAPIcheck PASS. Vrai pipeline synthétique isolé : WhisperTurbo→Resemblyzer→Gemma,40,17s audio2voix/6prisesnonalternées,18,036s pipeline ; mêmes texte/IDs/temps v1/v2, labels1/2/2/1/1/2 et rapport uniquev2. Corpus connu, pas nouvelle réserve ni garantie naturelle. Handoff automatic-speakers-real.md ; reproduction scripts/memora-qa-auto-speakers.py après préparation réserve.
+
+Recette finale réelle21browser+12UI PASS environ108s : nouveaux imports mixte/FR avec labels/provenanceSHA, v1ASR conservée, rapportv2, corrections/renommage/séparation manuelle, aucunJSerror. Logs auto-speakers-isolated-browser.log et handoffs/auto-speakers-browser.md. Main activé après gardes0jobs/0capture/aucun audio récent,4HTTP200 et empreintes de toutes tables domaine inchangées/intégritéOK. Aucun retraitement personnel.

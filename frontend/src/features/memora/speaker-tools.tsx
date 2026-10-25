@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import type { Segment } from "./api";
+import { speakerLabel } from "./speaker-label";
 import s from "./transcript-tools.module.css";
 
 export function SpeakerTools({
@@ -90,10 +91,7 @@ export function SpeakerTools({
               >
                 {names.map((value) => (
                   <option key={value} value={value}>
-                    {value ||
-                      (english
-                        ? "Unidentified speaker"
-                        : "Intervenant non identifié")}
+                    {speakerLabel(value, english)}
                   </option>
                 ))}
               </select>
