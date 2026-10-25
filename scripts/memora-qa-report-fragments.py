@@ -217,7 +217,7 @@ def run():
                 "Unrelated date incorrectly attributed"
             )
         print("PASS", name, flush=True)
-    (ROOT / "agents/logs/report-fragments.json").write_text(
+    (ROOT / ".agents/logs/report-fragments.json").write_text(
         json.dumps(results, ensure_ascii=False, indent=2)
     )
 

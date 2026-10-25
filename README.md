@@ -21,8 +21,6 @@ Docker Compose exécute PostgreSQL16, FastAPI, Next.js optimisé et Mailpit. Les
 La première installation et l’import SQLite → PostgreSQL sont décrits dans le [guide Memora](docs/MEMORA.md). Le lancement refuse une installation dont l’import n’a pas été validé. Ne pas supprimer les volumes Docker ni les fichiers privés `.memora/`.
 
 - [Guide, modèles, configuration et limites](docs/MEMORA.md)
-- [Tests et preuves](agents/testing.md)
-- [Traçabilité des exigences](agents/requirements.md)
-- [Mémoire de reprise](agents/README.md)
+- [Scripts de démarrage, installation et vérification](scripts/README.md)
 
 Les secrets et identifiants de démonstration restent dans `.memora/`, exclus de Git. Le fonctionnement local vérifié ne constitue pas une qualification pour la production.

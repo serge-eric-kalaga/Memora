@@ -170,7 +170,7 @@ def run(args):
         "language_limit": "MLX auto detects a dominant language independently within each Silero VAD speech region; scope/confidence metadata recorded. Language changes within continuous speech or very short regions remain uncertain. Mixed corpus must be inspected for omissions or translation. No automatic superiority claim from these fixtures.",
         "results": [],
     }
-    destination = ROOT / "agents/logs/benchmark-mlx.json"
+    destination = ROOT / ".agents/logs/benchmark-mlx.json"
     destination.parent.mkdir(parents=True, exist_ok=True)
     engines = ("baseline", "mlx") if args.engine == "both" else (args.engine,)
     for engine in engines:
@@ -295,7 +295,7 @@ def run(args):
         if engine == "baseline":
             adapter._model = None
             gc.collect()
-    print("Benchmark terminé : agents/logs/benchmark-mlx.json", flush=True)
+    print("Benchmark terminé : .agents/logs/benchmark-mlx.json", flush=True)
 
 
 if __name__ == "__main__":

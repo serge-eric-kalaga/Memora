@@ -20,7 +20,7 @@ def main():
     parser.add_argument("--model", default="gemma4:e4b")
     parser.add_argument("--active-only", action="store_true")
     parser.add_argument(
-        "--output", type=Path, default=ROOT / "agents/logs/analysis-plan-v6.json"
+        "--output", type=Path, default=ROOT / ".agents/logs/analysis-plan-v6.json"
     )
     args = parser.parse_args()
     os.environ.update(MEMORA_MODEL=args.model, MEMORA_OLLAMA_KEEP_ALIVE="0")
@@ -56,7 +56,7 @@ def main():
         ai._report_candidates = active_candidates
         ai._chronological_payload = active_payload
     corpus_path = ROOT / "backend/test/fixtures/memora/analysis/cross-batch-v1.json"
-    baseline_path = ROOT / "agents/logs/analysis-cross-batch-v1.json"
+    baseline_path = ROOT / ".agents/logs/analysis-cross-batch-v1.json"
     corpus = json.loads(corpus_path.read_text())
     baseline = json.loads(baseline_path.read_text())
     output = {

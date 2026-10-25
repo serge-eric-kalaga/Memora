@@ -17,13 +17,14 @@ from dotenv import dotenv_values
 
 ROOT = Path(__file__).resolve().parents[1]
 PYTHON = ROOT / "backend/.venv/bin/python"
-LOGS = ROOT / "agents/logs"
+LOGS = ROOT / ".agents/logs"
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--ui-audit-only", action="store_true")
     args = parser.parse_args()
+    LOGS.mkdir(parents=True, exist_ok=True)
     for port in (13000, 18080, 18025, 15433, 18091):
         with socket.socket() as probe:
             probe.bind(("127.0.0.1", port))

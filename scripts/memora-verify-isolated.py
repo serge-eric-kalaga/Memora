@@ -153,7 +153,7 @@ def main():
     node = shutil.which("node")
     if not node or not PYTHON.is_file():
         raise RuntimeError("Existing Node runtime and backend venv are required")
-    logs = ROOT / "agents/logs"
+    logs = ROOT / ".agents/logs"
     logs.mkdir(parents=True, exist_ok=True)
     children, handles = [], []
     deadline = time.monotonic() + args.timeout
@@ -201,7 +201,7 @@ def main():
             raise RuntimeError(f"{label} exceeded the bounded test duration") from None
         if code:
             raise RuntimeError(
-                f"{label} failed; inspect agents/logs/isolated-{label}.log"
+                f"{label} failed; inspect .agents/logs/isolated-{label}.log"
             )
         stages.append(label)
         print("PASS", label, flush=True)
@@ -291,7 +291,7 @@ def main():
             MEMORA_TEST_ARTIFACT_PREFIX="isolated-",
             MEMORA_TEST_ISOLATED="1",
             MEMORA_TEST_ISOLATION_MARKER=str(isolation_marker),
-            MEMORA_TEST_HANDOFF_DIR=str(ROOT / "agents/handoffs"),
+            MEMORA_TEST_HANDOFF_DIR=str(ROOT / ".agents/handoffs"),
             MEMORA_TEST_LOG_DIR=str(logs),
             MEMORA_LOCAL="1",
             NEXT_TELEMETRY_DISABLED="1",

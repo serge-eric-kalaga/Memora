@@ -124,7 +124,7 @@ def main():
         "--engines", nargs="*", default=["parakeet", "turbo-fr", "full-fr"]
     )
     parser.add_argument(
-        "--output", type=Path, default=ROOT / "agents/logs/asr-language-drift-v1.json"
+        "--output", type=Path, default=ROOT / ".agents/logs/asr-language-drift-v1.json"
     )
     args = parser.parse_args()
     if args.prepare:

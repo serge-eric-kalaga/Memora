@@ -28,4 +28,4 @@ npm run build:memora
 
 Le contrat OpenAPI est maintenu dans `../backend/openapi.json`. Après un changement du contrat, exécuter `npm run api:generate`, puis `npm run api:check` et la vérification TypeScript. Ne pas éditer manuellement `src/lib/api/generated/`.
 
-Les tests HTTP (`test:api`, `test:passwords`, `test:generated-api`) créent et modifient des comptes : utiliser exclusivement des services et une base de test isolés. Les recettes navigateur Memora et les prérequis des modèles locaux sont documentés dans le guide du projet et `../agents/testing.md`. Les tests d’interface simulés ne prouvent pas la qualité de la transcription ou de l’analyse IA.
+Les tests HTTP (`test:api`, `test:passwords`, `test:generated-api`) créent et modifient des comptes : utiliser exclusivement des services et une base de test isolés. Les recettes navigateur Memora et les prérequis des modèles locaux sont documentés dans le guide du projet et l’index `../scripts/README.md`. Les tests d’interface simulés ne prouvent pas la qualité de la transcription ou de l’analyse IA.

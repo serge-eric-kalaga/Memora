@@ -177,7 +177,7 @@ def main():
     parser.add_argument(
         "--output",
         type=Path,
-        default=ROOT / "agents/logs/speaker-consistency-real.json",
+        default=ROOT / ".agents/logs/speaker-consistency-real.json",
     )
     parser.add_argument(
         "--engine", choices=["resemblyzer", "ecapa-tdnn"], default="resemblyzer"

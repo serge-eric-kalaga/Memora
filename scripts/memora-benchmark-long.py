@@ -175,7 +175,7 @@ def infer(metadata, language):
         "segments_synthetic": segments,
         "limitations": "Markers/timestamps are coverage diagnostics, not proof every repeated word is correct. A repeated synthetic meeting does not validate a natural two-hour meeting. RTF includes decode, VAD, model load and cleanup; auto language is dominant within each VAD speech region, not per-word confidence. Full-file decoding has memory costs growing with duration.",
     }
-    path = ROOT / "agents/logs/benchmark-long.json"
+    path = ROOT / ".agents/logs/benchmark-long.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(output, ensure_ascii=False, indent=2))
     print(

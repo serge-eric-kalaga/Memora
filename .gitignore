@@ -52,8 +52,6 @@ Thumbs.db
 
 
 # Memora local execution artifacts
-agents/logs/*
-!agents/logs/.gitkeep
 .memora/
 
 # Version the Memora guide despite a global docs/ ignore rule
@@ -64,3 +62,16 @@ agents/logs/*
 # Anciennes données locales conservées après retrait des services du template.
 /monitoring/
 /mysql/
+
+# Local coding-assistant instructions, memory, plans and tool settings.
+**/AGENTS.md
+**/CLAUDE.md
+**/GEMINI.md
+**/.agents/
+**/.aagent/
+**/.codex/
+**/.claude/
+**/.cursor/
+**/.cursorrules
+**/.windsurfrules
+**/copilot-instructions.md

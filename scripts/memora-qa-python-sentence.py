@@ -75,6 +75,6 @@ if path.exists():
     }
     results.append(row)
     print(json.dumps(row, ensure_ascii=False), flush=True)
-(ROOT / "agents/logs/python-sentence-qa.json").write_text(
+(ROOT / ".agents/logs/python-sentence-qa.json").write_text(
     json.dumps(results, ensure_ascii=False, indent=2)
 )

@@ -69,7 +69,7 @@ metadata["results"]["chat"] = {
     "result": answer,
 }
 print("PASS final fact and citation in chat", flush=True)
-(ROOT / "agents/logs/long-context.json").write_text(
+(ROOT / ".agents/logs/long-context.json").write_text(
     json.dumps(metadata, ensure_ascii=False, indent=2) + "\n"
 )
 print(

@@ -70,7 +70,7 @@ CASES = {
 
 def main():
     results = {}
-    output = ROOT / "agents/logs/speaker-context-qa.json"
+    output = ROOT / ".agents/logs/speaker-context-qa.json"
     original_generate = ai.generate
     generated = []
 
@@ -79,7 +79,7 @@ def main():
         generated.append(
             {"schema": schema.__name__, "allowed": allowed, "synthetic_result": value}
         )
-        (ROOT / "agents/logs/speaker-context-generations.json").write_text(
+        (ROOT / ".agents/logs/speaker-context-generations.json").write_text(
             json.dumps(generated, ensure_ascii=False, indent=2)
         )
         return value

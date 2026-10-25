@@ -34,6 +34,6 @@ let browser;
  fs.mkdirSync(path.join(root,'.memora/capture-qa'),{recursive:true});
  fs.writeFileSync(path.join(root,'.memora/capture-qa/browser-pause-resume.webm'),Buffer.from(result.encoded,'base64'));
  delete result.encoded;
- fs.writeFileSync(path.join(root,'agents/logs/capture-browser.json'),JSON.stringify(result,null,2));
+ fs.writeFileSync(path.join(root,'.agents/logs/capture-browser.json'),JSON.stringify(result,null,2));
  console.log(JSON.stringify(result));await browser.close();
 })().catch(async error=>{console.error(error.message);if(browser)await browser.close();process.exitCode=1});

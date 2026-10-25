@@ -20,7 +20,7 @@ CREDENTIALS = Path(
 )
 MAIL_DIR = Path(os.environ.get("MEMORA_TEST_MAIL_DIR", str(ROOT / ".memora/mail")))
 HANDOFF = Path(
-    os.environ.get("MEMORA_TEST_HANDOFF_DIR", str(ROOT / "agents/handoffs"))
+    os.environ.get("MEMORA_TEST_HANDOFF_DIR", str(ROOT / ".agents/handoffs"))
 ) / (os.environ.get("MEMORA_TEST_ARTIFACT_PREFIX", "") + "e2e-api.md")
 HANDOFF.parent.mkdir(parents=True, exist_ok=True)
 checks = []

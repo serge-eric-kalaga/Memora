@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 cd "$(dirname "$0")/.."
-mkdir -p .memora
+mkdir -p .memora .agents/logs .agents/handoffs
 if command -v uv >/dev/null 2>&1; then
   memora_uv=uv
 else

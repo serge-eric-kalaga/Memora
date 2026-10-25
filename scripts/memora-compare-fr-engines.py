@@ -8,7 +8,7 @@ names = {
     "parakeet": "accuracy-routed-fr-parakeet-reserve-v3.json",
     "full": "accuracy-full-fr-reserve-v3.json",
 }
-data = {n: json.loads((root / "agents/logs" / p).read_text()) for n, p in names.items()}
+data = {n: json.loads((root / ".agents/logs" / p).read_text()) for n, p in names.items()}
 keys = {r["id"] for r in data["full"]["results"]}
 rows = {
     n: {r["id"]: r for r in d["results"] if r["id"] in keys} for n, d in data.items()
@@ -27,7 +27,7 @@ output = {
         n: {
             "path": names[n],
             "sha256": hashlib.sha256(
-                (root / "agents/logs" / names[n]).read_bytes()
+                (root / ".agents/logs" / names[n]).read_bytes()
             ).hexdigest(),
         }
         for n in names
@@ -92,6 +92,6 @@ for ident in sorted(keys):
             },
         }
     )
-(root / "agents/logs/accuracy-full-fr-reserve-v3-comparison.json").write_text(
+(root / ".agents/logs/accuracy-full-fr-reserve-v3-comparison.json").write_text(
     json.dumps(output, ensure_ascii=False, indent=2)
 )

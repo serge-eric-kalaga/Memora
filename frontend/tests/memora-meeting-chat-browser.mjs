@@ -227,7 +227,7 @@ try {
   );
   assert.ok(await page.locator("textarea").isVisible());
   await page.screenshot({
-    path: resolve(root, "../agents/logs/meeting-chat-mobile.png"),
+    path: resolve(root, "../.agents/logs/meeting-chat-mobile.png"),
   });
   await page.evaluate(() => {
     window.__scope("transcript");
@@ -292,11 +292,11 @@ try {
   });
   await sourceToggle.locator("summary").click();
   await page.screenshot({
-    path: resolve(root, "../agents/logs/chat-long-mobile.png"),
+    path: resolve(root, "../.agents/logs/chat-long-mobile.png"),
   });
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.screenshot({
-    path: resolve(root, "../agents/logs/chat-long-desktop.png"),
+    path: resolve(root, "../.agents/logs/chat-long-desktop.png"),
   });
   console.log(
     "PASS Long answer: readable structure, no internal IDs, collapsed deduplicated sources, question visible, inherited font and source seek",

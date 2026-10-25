@@ -19,7 +19,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PYTHON = ROOT / "backend/.venv/bin/python"
-LOGS = ROOT / "agents/logs"
+LOGS = ROOT / ".agents/logs"
 
 
 def child():

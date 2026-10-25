@@ -10,7 +10,7 @@ const artifactPrefix = process.env.MEMORA_TEST_ARTIFACT_PREFIX || "";
 if (!/^[A-Za-z0-9_-]*$/.test(artifactPrefix))
   throw new Error("Invalid test artifact prefix");
 const artifactPath = (folder, name) =>
-  resolve(root, "agents", folder, artifactPrefix + name);
+  resolve(root, ".agents", folder, artifactPrefix + name);
 const account = JSON.parse(
   await readFile(
     resolve(root, process.env.MEMORA_TEST_CREDENTIALS || ".memora/demo.json"),
@@ -771,14 +771,14 @@ try {
   }
   assert.deepEqual(errors, []);
   pass("Aucune exception JavaScript non gérée");
-  await mkdir(resolve(root, "agents/handoffs"), { recursive: true });
+  await mkdir(resolve(root, ".agents/handoffs"), { recursive: true });
   await writeFile(
     artifactPath("handoffs", "browser.md"),
     "# Recette navigateur réelle\n\n" +
       new Date().toISOString() +
       "\n\n" +
       reports.map((x) => "- VALIDÉ : " + x).join("\n") +
-      "\n\nChromium headless ordinateur 1440×1000 et mobile 390×844. Microphone exclusivement synthétique ; pas de validation appareil physique, veille réelle ou Safari/iOS. Aucun token/password conservé dans ce rapport. Captures locales dans agents/logs, ignorées de Git.\n",
+      "\n\nChromium headless ordinateur 1440×1000 et mobile 390×844. Microphone exclusivement synthétique ; pas de validation appareil physique, veille réelle ou Safari/iOS. Aucun token/password conservé dans ce rapport. Captures locales dans .agents/logs, ignorées de Git.\n",
   );
 } catch (error) {
   const safeUrl = new URL(page.url());
@@ -790,7 +790,7 @@ try {
   safeUrl.hash = "";
   console.error("Échec sur la page", safeUrl.toString());
   try {
-    await mkdir(resolve(root, "agents/logs"), { recursive: true });
+    await mkdir(resolve(root, ".agents/logs"), { recursive: true });
     await page.screenshot({
       path: artifactPath("logs", "browser-failure.png"),
       fullPage: true,
@@ -800,7 +800,7 @@ try {
       ],
     });
     console.error(
-      `Capture locale masquée : agents/logs/${artifactPrefix}browser-failure.png`,
+      `Capture locale masquée : .agents/logs/${artifactPrefix}browser-failure.png`,
     );
   } catch {
     console.error("Capture de diagnostic indisponible.");

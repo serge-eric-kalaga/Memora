@@ -70,7 +70,7 @@ try {
     assert.equal(await page.locator('main').count(),1);assert.equal(await page.locator('h1').count(),1);
     const measured=await page.evaluate(()=>{const block=document.querySelector('details');const g=document.querySelector('.renameGrid');return {background:getComputedStyle(block).backgroundColor,color:getComputedStyle(block).color,columns:getComputedStyle(g).gridTemplateColumns,overflow:document.documentElement.scrollWidth>innerWidth};});
     assert.equal(measured.overflow,false);assert.equal(measured.background,theme==='dark'?'rgb(33, 31, 48)':'rgb(255, 255, 255)');assert.equal(measured.columns.split(' ').length,width===390?1:2);
-    await page.screenshot({path:join(root,'../agents/logs',`transcript-tools-workspace-${width}-${theme}.png`),fullPage:true});results.push({width,theme,...measured});
+    await page.screenshot({path:join(root,'../.agents/logs',`transcript-tools-workspace-${width}-${theme}.png`),fullPage:true});results.push({width,theme,...measured});
   }
   assert.deepEqual(errors,[]);console.log(JSON.stringify({checks:4,results,browserErrors:errors},null,2));
 }finally{if(browser)await browser.close();await rm(folder,{recursive:true,force:true});}

@@ -16,7 +16,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--run", action="store_true")
     parser.add_argument(
-        "--output", type=Path, default=ROOT / "agents/logs/analysis-cross-batch-v1.json"
+        "--output", type=Path, default=ROOT / ".agents/logs/analysis-cross-batch-v1.json"
     )
     args = parser.parse_args()
     corpus = json.loads(CORPUS.read_text())

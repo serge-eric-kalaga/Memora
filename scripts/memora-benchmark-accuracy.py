@@ -746,7 +746,7 @@ def main():
         "memory_before": memory_snapshot(),
         "results": [],
     }
-    dest = ROOT / "agents/logs" / ("accuracy-" + args.label + ".json")
+    dest = ROOT / ".agents/logs" / ("accuracy-" + args.label + ".json")
     for row in selected:
         language = row["language"] if args.language == "native" else args.language
         selected_model = (

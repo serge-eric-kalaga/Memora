@@ -124,7 +124,7 @@ def main():
                 }
                 results.append(result)
                 print(json.dumps(result, ensure_ascii=False), flush=True)
-    (ROOT / "agents/logs/capture-qa.json").write_text(
+    (ROOT / ".agents/logs/capture-qa.json").write_text(
         json.dumps(
             {
                 "normalization": "Unicode NFC lower case, punctuation to spaces, collapse whitespace; digits and accents preserved. Strict WER includes numeric-formatting differences.",

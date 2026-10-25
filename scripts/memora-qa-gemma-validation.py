@@ -11,7 +11,7 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-LOGS = ROOT / "agents/logs"
+LOGS = ROOT / ".agents/logs"
 os.environ.update(MEMORA_MODEL="gemma4:e4b", MEMORA_OLLAMA_KEEP_ALIVE="0")
 
 

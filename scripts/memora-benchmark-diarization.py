@@ -240,7 +240,7 @@ def main():
     parser.add_argument(
         "--output",
         type=Path,
-        default=ROOT / "agents/logs/diarization-benchmark-v1.json",
+        default=ROOT / ".agents/logs/diarization-benchmark-v1.json",
     )
     parser.add_argument("--cases", nargs="*")
     parser.add_argument("--num-speakers", type=int)

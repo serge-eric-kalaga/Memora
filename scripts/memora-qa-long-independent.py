@@ -21,7 +21,7 @@ def main():
     parser.add_argument(
         "--output",
         type=Path,
-        default=ROOT / "agents/logs/analysis-long-independent-v10.json",
+        default=ROOT / ".agents/logs/analysis-long-independent-v10.json",
     )
     args = parser.parse_args()
     corpus_sha = hashlib.sha256(CORPUS.read_bytes()).hexdigest()

@@ -15,7 +15,7 @@ const artifactPrefix = process.env.MEMORA_TEST_ARTIFACT_PREFIX || "";
 if (!/^[A-Za-z0-9_-]*$/.test(artifactPrefix))
   throw new Error("Invalid test artifact prefix");
 const artifactPath = (folder, name) =>
-  resolve(root, "agents", folder, artifactPrefix + name);
+  resolve(root, ".agents", folder, artifactPrefix + name);
 const account = JSON.parse(
   await readFile(
     resolve(root, process.env.MEMORA_TEST_CREDENTIALS || ".memora/demo.json"),
@@ -809,14 +809,14 @@ try {
   }
   assert.deepEqual(errors, []);
   pass("Aucune exception JavaScript non gérée");
-  await mkdir(resolve(root, "agents/handoffs"), { recursive: true });
+  await mkdir(resolve(root, ".agents/handoffs"), { recursive: true });
   await writeFile(
     artifactPath("handoffs", "ui-audit.md"),
     "# Audit UI ciblé\n\n" +
       new Date().toISOString() +
       "\n\n" +
       results.map((x) => "- VALIDÉ : " + x).join("\n") +
-      "\n\nDonnées synthétiques uniquement. Aucun paramètre sauvegardé. Une fixture audio synthétique peut être importée uniquement sur instance isolée pour l’audit autonome. Captures dans agents/logs (locales, ignorées).\n",
+      "\n\nDonnées synthétiques uniquement. Aucun paramètre sauvegardé. Une fixture audio synthétique peut être importée uniquement sur instance isolée pour l’audit autonome. Captures dans .agents/logs (locales, ignorées).\n",
   );
 } catch (e) {
   console.error(

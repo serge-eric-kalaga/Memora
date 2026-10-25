@@ -15,17 +15,17 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run", action="store_true")
     parser.add_argument(
-        "--output", type=Path, default=ROOT / "agents/logs/analysis-veto-plans-v11.json"
+        "--output", type=Path, default=ROOT / ".agents/logs/analysis-veto-plans-v11.json"
     )
     args = parser.parse_args()
     pairs = [
         (
             "backend/test/fixtures/memora/analysis-long-cases.v1.json",
-            "agents/logs/analysis-long-independent-v10.json",
+            ".agents/logs/analysis-long-independent-v10.json",
         ),
         (
             "backend/test/fixtures/memora/analysis/cross-batch-v1.json",
-            "agents/logs/analysis-cross-batch-v10.json",
+            ".agents/logs/analysis-cross-batch-v10.json",
         ),
     ]
     if not args.run:

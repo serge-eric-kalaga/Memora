@@ -17,7 +17,7 @@ qa = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(qa)
 ai = qa.ai
 os.environ["MEMORA_OLLAMA_KEEP_ALIVE"] = "0"
-source = json.loads((ROOT / "agents/logs/benchmark-mlx-final-auto.json").read_text())
+source = json.loads((ROOT / ".agents/logs/benchmark-mlx-final-auto.json").read_text())
 mixed = next(
     r["segments_synthetic"]
     for r in source["results"]
@@ -75,7 +75,7 @@ for model in os.environ.get("MEMORA_QA_MODELS", "qwen3.5:4b,gemma4:e4b").split("
             "report": report,
         }
         output.append(row)
-        (ROOT / "agents/logs/modality-models.json").write_text(
+        (ROOT / ".agents/logs/modality-models.json").write_text(
             json.dumps(output, ensure_ascii=False, indent=2)
         )
         print(json.dumps(row, ensure_ascii=False), flush=True)

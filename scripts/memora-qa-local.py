@@ -61,6 +61,6 @@ for name, call in [
     results[name] = {"seconds": round(time.monotonic() - started, 2), "result": call()}
     results[name]["seconds"] = round(time.monotonic() - started, 2)
     print(name, json.dumps(results[name], ensure_ascii=False), flush=True)
-(ROOT / "agents/logs/qa-local-results.json").write_text(
+(ROOT / ".agents/logs/qa-local-results.json").write_text(
     json.dumps(results, ensure_ascii=False, indent=2)
 )

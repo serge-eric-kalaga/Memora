@@ -12,7 +12,7 @@ import { chromium } from "@playwright/test";
 const require = createRequire(import.meta.url);
 const { webpack } = require("next/dist/compiled/webpack/webpack");
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const output = resolve(root, "../agents/logs");
+const output = resolve(root, "../.agents/logs");
 const temporary = await mkdtemp(join(tmpdir(), "memora-continuity-test-"));
 const hookPath = join(root, "src/features/memora/use-recording-continuity.ts");
 const hookSource = await readFile(hookPath, "utf8");

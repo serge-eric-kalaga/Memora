@@ -172,7 +172,7 @@ def main():
         "--score", type=Path, help="Completed semantic review JSON; no inference"
     )
     parser.add_argument(
-        "--output", type=Path, default=ROOT / "agents/logs/analysis-benchmark-v1.json"
+        "--output", type=Path, default=ROOT / ".agents/logs/analysis-benchmark-v1.json"
     )
     args = parser.parse_args()
     corpus = load(args.corpus)

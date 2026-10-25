@@ -100,7 +100,7 @@ def main():
             raw_synthetic_generations=trace,
             application_default_unchanged=True,
         )
-        (ROOT / "agents/logs/gemma-report-comparison.json").write_text(
+        (ROOT / ".agents/logs/gemma-report-comparison.json").write_text(
             json.dumps(output, ensure_ascii=False, indent=2)
         )
         print(json.dumps(output, ensure_ascii=False), flush=True)
