@@ -1,6 +1,6 @@
 # Audit UI ciblé
 
-2026-10-25T11:11:46.794Z
+2026-10-25T11:59:11.133Z
 
 - VALIDÉ : Dashboard desktop sans débordement
 - VALIDÉ : Dialogue clavier : focus initial, boucle Tab/Shift+Tab, Escape et restauration
@@ -8,6 +8,8 @@
 - VALIDÉ : Thème sombre appliqué
 - VALIDÉ : Bornes administratives invalides détectées sans requête PUT ; can_administer=true
 - VALIDÉ : Dashboard et paramètres mobile sans débordement
+- VALIDÉ : Carte action : validation réelle confirmée, métadonnées et historique accessibles
+- VALIDÉ : Cartes actions et formulaire : desktop/mobile clair/sombre sans débordement
 - VALIDÉ : Formulaires de validation, lecteur de transcription et intervenants mobile sans débordement
 - VALIDÉ : Contrôle microphone mobile visible sans activation automatique ni débordement
 - VALIDÉ : Aucune exception JavaScript non gérée

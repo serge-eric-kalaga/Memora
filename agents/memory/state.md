@@ -2,6 +2,14 @@
 
 Mis à jour 2026-10-25 11:13 UTC, Africa/Ouagadougou. Livraison locale V1 et jalon supplémentaire de précision intégrés. Commits locaux autorisés par l’utilisateur après livraison ; aucun push, achat, déploiement public ou email réel. Lire AGENTS.md → agents/README.md → ce fichier, puis uniquement les preuves utiles. Les notes/fichiers actuels priment sur les anciens points de reprise.
 
+## Présentation du rapport — livrée localement
+
+Demande Actions à suivre/validation humaine : cartes actions/décisions regroupant texte, sources, responsable/échéance et pied de validation ; badge discret, formulaire responsive, compteurs de sections, état vide et bloc Points à vérifier. `report-review.tsx` et CSS dédié gardent API, permissions, original IA et historique séparé inchangés.
+
+Lint/types/build PASS. Recette UI isolée élargie :11contrôles PASS,21,81s ; confirmation et historique réels,8captures cartes/formulaire desktop/mobile clair/sombre, aucun débordement/exceptionJS. Première tentative stoppée par sélecteur getByLabel exact textarea non vide, reproduit minimalement et remplacé par rôle/nom accessible exact sans changement produit. Échec conservé dans logs.
+
+Frontend seul actualisé après garde0jobs/absence audio récent ; backend/Ollama inchangés,4HTTP200. Rendu réel et ouverture/fermeture formulaire vérifiés dans IAB sur réunion synthétique sans modifier données. Capture locale report-design-main-browser.png. Prochaine action utilisateur : consulter le rapport ouvert ; commit local sans coauteur, aucun push. Limites plateforme identiques aux précédentes.
+
 ## Correctifs après V1.1 — livrés localement
 
 Transcription bornée avec défilement interne et titre/correction fixes ; résumé/sujets avec Sources repliées, citations directes pour décisions/actions/questions ; forme d’onde/niveau/crête et états audio pendant capture ; outils intervenants/lecture refondus en surfaces neutres et disposition compacte responsive. Aucun nouveau getUserMedia dans le visualiseur ; il ne stoppe pas les pistes du Recorder.

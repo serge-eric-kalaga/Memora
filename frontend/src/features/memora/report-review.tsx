@@ -7,7 +7,7 @@ import {
   type Item,
   type Segment,
 } from "./api";
-import s from "./memora.module.css";
+import s from "./report-review.module.css";
 
 export function ReportReview({
   meetingId,
@@ -118,23 +118,52 @@ export function ReportReview({
     }
   }
   return (
-    <div className={s.notice} data-testid={`human-review-${category}-${index}`}>
-      <strong>{english ? "Human review" : "Validation humaine"}</strong>
-      {" · "}
-      <span>
-        {review ? labels[review.status] : english ? "Not reviewed" : "Non relu"}
-      </span>
-      {review && (
-        <>
-          <small>
-            {" "}
-            ·{" "}
+    <div className={s.review} data-testid={`human-review-${category}-${index}`}>
+      <div className={s.footer}>
+        <span className={s.caption}>
+          {english ? "Human review" : "Validation humaine"}
+        </span>
+        <span className={s.badge} data-status={review?.status || "unreviewed"}>
+          {review
+            ? labels[review.status]
+            : english
+              ? "Not reviewed"
+              : "Non relu"}
+        </span>
+        {review && (
+          <time className={s.date} dateTime={review.created}>
             {new Date(review.created).toLocaleString(
               english ? "en-GB" : "fr-FR",
             )}
-          </small>
+          </time>
+        )}
+        <div className={s.controls}>
+          {review && (
+            <button className={s.button} onClick={() => void showHistory()}>
+              {english ? "Review history" : "Historique des validations"}
+            </button>
+          )}
+          {editable && !stale && (
+            <button
+              className={s.button}
+              aria-expanded={open}
+              onClick={() => setOpen(!open)}
+            >
+              {open
+                ? english
+                  ? "Close review"
+                  : "Fermer la validation"
+                : english
+                  ? "Review this item"
+                  : "Valider cet élément"}
+            </button>
+          )}
+        </div>
+      </div>
+      {review && (
+        <div className={s.corrections}>
           {stale && (
-            <p>
+            <p className={s.warning}>
               {english
                 ? "Review refers to an earlier transcript. Recheck the source."
                 : "Cette validation porte sur une ancienne transcription. Vérifiez à nouveau la source."}
@@ -143,46 +172,34 @@ export function ReportReview({
           {review.corrections.text !== undefined && (
             <p>{review.corrections.text}</p>
           )}
-          {review.corrections.owner !== undefined && (
-            <p>
-              {english ? "Reviewed owner: " : "Responsable corrigé : "}
-              {review.corrections.owner || "—"}
-            </p>
+          {(review.corrections.owner !== undefined ||
+            review.corrections.deadline !== undefined) && (
+            <dl className={s.metadata}>
+              {review.corrections.owner !== undefined && (
+                <div>
+                  <dt>{english ? "Reviewed owner" : "Responsable corrigé"}</dt>
+                  <dd>{review.corrections.owner || "—"}</dd>
+                </div>
+              )}
+              {review.corrections.deadline !== undefined && (
+                <div>
+                  <dt>{english ? "Reviewed deadline" : "Échéance corrigée"}</dt>
+                  <dd>{review.corrections.deadline || "—"}</dd>
+                </div>
+              )}
+            </dl>
           )}
-          {review.corrections.deadline !== undefined && (
-            <p>
-              {english ? "Reviewed deadline: " : "Échéance corrigée : "}
-              {review.corrections.deadline || "—"}
-            </p>
-          )}
-          <button className={s.button} onClick={() => void showHistory()}>
-            {english ? "Review history" : "Historique des validations"}
-          </button>
-        </>
-      )}
-      {editable && !stale && (
-        <button
-          className={s.button}
-          aria-expanded={open}
-          onClick={() => setOpen(!open)}
-        >
-          {open
-            ? english
-              ? "Close review"
-              : "Fermer la validation"
-            : english
-              ? "Review this item"
-              : "Valider cet élément"}
-        </button>
+        </div>
       )}
       {open && editable && !stale && (
         <form
+          className={s.form}
           onSubmit={(event) => {
             event.preventDefault();
             void save();
           }}
         >
-          <p>
+          <p className={s.help}>
             {english
               ? "The original AI result stays above. This review is recorded separately."
               : "Le résultat IA original reste affiché au-dessus. Cette validation est enregistrée séparément."}
@@ -224,7 +241,7 @@ export function ReportReview({
             />
           </label>
           {category === "actions" && (
-            <>
+            <div className={s.formGrid}>
               <label className={s.field}>
                 {english ? "Owner" : "Responsable"}
                 <input
@@ -245,7 +262,7 @@ export function ReportReview({
                   onChange={(event) => setDeadline(event.target.value)}
                 />
               </label>
-            </>
+            </div>
           )}
           {access.token && (
             <label className={s.field}>
@@ -272,7 +289,7 @@ export function ReportReview({
         </form>
       )}
       {history && (
-        <ol>
+        <ol className={s.history}>
           {history.map((entry) => (
             <li key={entry.id}>
               {labels[entry.status]} ·{" "}

@@ -83,3 +83,8 @@ Les seuils universels90% (toutes voix, noms, bruit, analyse) ne sont pas acquis 
 | Français sélectionné transmis au décodeur final | memora-env.py, install.sh, configuration locale ; adaptateur MLX existant |22 tests routage/adaptateur,17 préparation PASS. Whisper Turbo fr/transcribe retenu ; dérive personnelle non reproduite, aucune garantie absolue. Handoffs diagnostic/comparaison. |
 | Niveau et état de l’audio pendant capture | RecordingSignal + Recorder |22 helpers frontend dont signal PASS ;8 tests montés WebAudio/MediaRecorder synthétiques PASS. Recette intégrée19contrôles navigateur +9auditUI PASS ; micro physique non testé. |
 | Refonte bloc intervenants et lecture | speaker-tools.tsx, playback-tools.tsx, transcript-tools.module.css | Lint/types/build PASS ;4 vues composant synthétique clair/sombre desktop/mobile, contrôles sans débordement. Validation4vues avec CSS WorkspaceFrame réel PASS, aucun débordement. |
+
+
+## Présentation du rapport — ajustement utilisateur
+
+Actions/décisions : cartes regroupant texte, sources et pied de validation ; responsable/échéance réunis en métadonnées, valeurs absentes explicites. Sections avec compteur, état vide sobre et limitations dans « Points à vérifier ». `app.tsx`, `memora.module.css`, `report-review.tsx` et module CSS dédié. Aucun changement IA/API/permissions ; validation et corrections restent séparées de l’original IA. Lint/types/build PASS, preuve IAB obtenue sur une réunion synthétique ; recette UI isolée élargie11contrôles PASS, confirmation/historique réels,8captures desktop/mobile clair/sombre sans débordement.

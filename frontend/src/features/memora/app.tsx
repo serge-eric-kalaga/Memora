@@ -1587,30 +1587,48 @@ function ReportView({
           [tr("Questions ouvertes"), data.open_questions],
         ] as [string, (Item | string)[]][]
       ).map(([title, items], sectionIndex) => (
-        <section key={title}>
-          <h3>{title}</h3>
+        <section key={title} className={s.reportSection}>
+          <div className={s.reportSectionTitle}>
+            <h3>{title}</h3>
+            <span className={s.reportCount}>{items?.length || 0}</span>
+          </div>
           {items?.length ? (
-            <ul>
+            <ul
+              className={
+                sectionIndex === 1 || sectionIndex === 2
+                  ? s.reportItems
+                  : undefined
+              }
+            >
               {items.map((item, i) => (
-                <li key={i}>
+                <li
+                  key={i}
+                  className={
+                    sectionIndex === 1 || sectionIndex === 2
+                      ? s.reportItem
+                      : undefined
+                  }
+                >
                   {typeof item === "string" ? (
                     item
                   ) : (
                     <>
-                      {sectionIndex === 0
-                        ? reportNarrative(item.text)
-                        : item.text}
-                      {sectionIndex === 2 && item.owner && (
-                        <div className={s.muted}>
-                          {tr("Responsable :")}
-                          {item.owner}
-                        </div>
-                      )}
-                      {sectionIndex === 2 && item.deadline && (
-                        <div className={s.muted}>
-                          {tr("Échéance :")}
-                          {item.deadline}
-                        </div>
+                      <p className={s.reportItemText}>
+                        {sectionIndex === 0
+                          ? reportNarrative(item.text)
+                          : item.text}
+                      </p>
+                      {sectionIndex === 2 && (
+                        <dl className={s.actionMetadata}>
+                          <div>
+                            <dt>{tr("Responsable :")}</dt>
+                            <dd>{item.owner || tr("Non précisé")}</dd>
+                          </div>
+                          <div>
+                            <dt>{tr("Échéance :")}</dt>
+                            <dd>{item.deadline || tr("Non précisée")}</dd>
+                          </div>
+                        </dl>
                       )}
                       <Citations
                         collapsed={sectionIndex === 0}
@@ -1652,17 +1670,22 @@ function ReportView({
               ))}
             </ul>
           ) : (
-            <p className={s.muted}>
+            <p className={s.reportEmpty}>
               {tr("Aucun élément établi dans la transcription.")}
             </p>
           )}
         </section>
       ))}
       {data.limitations && (
-        <div className={s.notice}>
-          {Array.isArray(data.limitations)
-            ? data.limitations.join(" · ")
-            : data.limitations}
+        <div className={s.reportLimitations}>
+          <strong>
+            {language === "en" ? "Points to check" : "Points à vérifier"}
+          </strong>
+          <p>
+            {Array.isArray(data.limitations)
+              ? data.limitations.join(" · ")
+              : data.limitations}
+          </p>
         </div>
       )}
     </>

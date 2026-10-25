@@ -156,3 +156,12 @@ Complément codec microphone : `frontend/tests/memora-microphone-browser.mjs --r
 - Première tentative recette navigateur interrompue par assertion trop précoce sur le niveau après acquisition du faux périphérique. Attente bornée du vrai niveau ajoutée, assertion >0 conservée ; aucune logique applicative affaiblie.
 
 Activation locale : seule clé moteur français changée après sauvegarde privée et garde0jobs/absence audio récent. Après redémarrage :4HTTP200, toutes empreintes de tables domaine inchangées, intégritéOK,0jobs. Pas migration ni retraitement imposé ; preuve privée .memora/ui-language-activation.json.
+
+
+## Refonte actions/validation du rapport
+
+`app.tsx`, `memora.module.css`, `report-review.tsx` et son module CSS : cartes actions/décisions, métadonnées groupées, badge de relecture et formulaire compact ; questions vides/limitations harmonisées. Aucun changement API/IA/données/permissions.
+
+Lint/types/build PASS (`report-design-{lint,types,build}.log`). Frontend seul actualisé après garde0jobs/absence audio récent ; backend/Ollama inchangés et4HTTP200. Contrôle IAB sur réunion synthétique : rendu cartes réel, ouverture/fermeture formulaire sans enregistrement, capture `report-design-main-browser.png`.
+
+Première recette UI : confirmation et historique réels PASS, puis sélecteur `getByLabel` exact d’un textarea non vide introuvable malgré formulaire ouvert ; reproduit en HTML minimal, remplacé par rôle textbox/nom accessible exact. Source applicative inchangée. Échec conservé (`report-design-first-failure.log`). Recette corrigée PASS :11contrôles UI,4stages/21,81s ;8captures cartes/formulaires desktop/mobile clair/sombre, aucun débordement/exceptionJS. Log distinct `report-design-ui-audit.log`.

@@ -265,6 +265,123 @@ try {
     assert.ok(meeting, "Réunion synthétique dédiée présente pour audit mobile");
     await page.goto(base + "/reunions/" + meeting.id);
     await page.getByRole("heading", { name: "Résumé", exact: true }).waitFor();
+    const actionSection = page
+      .locator("section")
+      .filter({
+        has: page.getByRole("heading", {
+          name: "Actions à suivre",
+          exact: true,
+        }),
+      })
+      .last();
+    const firstAction = actionSection
+      .locator('li[class*="reportItem"]')
+      .first();
+    await firstAction.waitFor();
+    const firstReview = firstAction
+      .locator('[data-testid^="human-review-actions-"]')
+      .first();
+    await firstReview
+      .getByRole("button", { name: "Valider cet élément", exact: true })
+      .click();
+    await firstReview
+      .getByLabel("Statut", { exact: true })
+      .selectOption("confirmed");
+    await firstReview
+      .getByRole("button", {
+        name: "Enregistrer la validation humaine",
+        exact: true,
+      })
+      .click();
+    await firstReview.locator('[data-status="confirmed"]').waitFor();
+    await firstReview
+      .getByRole("button", { name: "Historique des validations", exact: true })
+      .click();
+    await firstReview.locator("ol li").first().waitFor();
+    assert.match(await firstReview.locator("ol").innerText(), /Confirmé/);
+    pass(
+      "Carte action : validation réelle confirmée, métadonnées et historique accessibles",
+    );
+    for (const viewport of [
+      { name: "desktop", width: 1440, height: 1000 },
+      { name: "mobile", width: 390, height: 844 },
+    ]) {
+      await page.setViewportSize({
+        width: viewport.width,
+        height: viewport.height,
+      });
+      for (const theme of ["light", "dark"]) {
+        await page
+          .getByRole("combobox", { name: "Thème", exact: true })
+          .selectOption(theme);
+        await page.waitForFunction(
+          (value) =>
+            document.documentElement.getAttribute("data-theme") === value,
+          theme,
+        );
+        assert.ok(
+          await firstAction
+            .locator("dl dt")
+            .filter({ hasText: "Responsable" })
+            .count(),
+        );
+        assert.ok(
+          await firstAction
+            .locator("dl dt")
+            .filter({ hasText: "Échéance" })
+            .count(),
+        );
+        const style = await firstAction.evaluate((el) => ({
+          padding: parseFloat(getComputedStyle(el).paddingTop),
+          radius: parseFloat(getComputedStyle(el).borderRadius),
+        }));
+        assert.ok(style.padding >= 12 && style.radius >= 10);
+        assert.equal(
+          await page.evaluate(
+            () => document.documentElement.scrollWidth > innerWidth,
+          ),
+          false,
+        );
+        await actionSection.screenshot({
+          path: artifactPath(
+            "logs",
+            `report-design-actions-${viewport.name}-${theme}.png`,
+          ),
+        });
+        await firstReview
+          .getByRole("button", { name: "Valider cet élément", exact: true })
+          .click();
+        await firstReview
+          .getByRole("textbox", { name: "Texte après relecture", exact: true })
+          .waitFor();
+        await firstReview.getByLabel("Responsable", { exact: true }).waitFor();
+        await firstReview
+          .getByLabel("Échéance, telle qu’établie", { exact: true })
+          .waitFor();
+        assert.equal(
+          await page.evaluate(
+            () => document.documentElement.scrollWidth > innerWidth,
+          ),
+          false,
+        );
+        await firstAction.screenshot({
+          path: artifactPath(
+            "logs",
+            `report-design-review-${viewport.name}-${theme}.png`,
+          ),
+        });
+        await firstReview
+          .getByRole("button", { name: "Fermer la validation", exact: true })
+          .click();
+      }
+    }
+    pass(
+      "Cartes actions et formulaire : desktop/mobile clair/sombre sans débordement",
+    );
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page
+      .getByRole("combobox", { name: "Thème", exact: true })
+      .selectOption("light");
     await page
       .getByRole("button", { name: "Valider cet élément", exact: true })
       .first()

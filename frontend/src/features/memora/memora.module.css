@@ -1621,3 +1621,111 @@
 .citationDisclosure[open] > summary {
   margin-bottom: 8px;
 }
+
+/* Action and decision cards keep the claim, metadata and review together. */
+.meetingApp .report .reportSection {
+  margin-top: 26px;
+  padding-top: 0;
+}
+.reportSectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.meetingApp .report .reportSectionTitle h3 {
+  margin: 0;
+  font-size: 17px;
+}
+.reportCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 23px;
+  height: 23px;
+  padding: 0 6px;
+  border-radius: 7px;
+  background: var(--background);
+  color: var(--muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.meetingApp .report .reportItems {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+.meetingApp .report .reportItem {
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  min-width: 0;
+}
+.meetingApp .report .reportItemText {
+  margin: 0 0 10px;
+  font-size: 14px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.actionMetadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin: 0 0 12px;
+}
+.actionMetadata > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 5px;
+  font-size: 12px;
+}
+.actionMetadata dt {
+  color: var(--muted);
+}
+.actionMetadata dd {
+  margin: 0;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.meetingApp .report .reportEmpty {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  padding: 13px 15px;
+  margin: 0;
+}
+.reportLimitations {
+  border: 1px solid var(--line);
+  background: var(--background);
+  border-radius: 10px;
+  padding: 13px 15px;
+  margin-top: 24px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.reportLimitations strong {
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 600;
+}
+.meetingApp .report .reportLimitations p {
+  margin: 5px 0 0;
+  font-size: 12px;
+}
+@media (max-width: 600px) {
+  .meetingApp .report .reportItem {
+    padding: 13px;
+  }
+  .actionMetadata {
+    flex-direction: column;
+    gap: 5px;
+  }
+}
