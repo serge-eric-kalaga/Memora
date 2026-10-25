@@ -9,6 +9,11 @@ from pathlib import Path
 root = Path(__file__).resolve().parents[1]
 with tempfile.TemporaryDirectory(prefix="memora-test-") as folder:
     env = dict(os.environ)
+    # An active Docker environment must never redirect disposable SQLite tests
+    # to the application's PostgreSQL data or native inference bridge.
+    for key in tuple(env):
+        if key == "MEMORA_DATABASE_URL" or key.startswith("MEMORA_INFERENCE_"):
+            env.pop(key)
     env.update(
         APP_NAME="Memora test",
         ADMINS_EMAIL="test@example.org",

@@ -44,6 +44,10 @@ def model_dir():
 
 
 def availability():
+    from . import inference_bridge
+
+    if inference_bridge.configured():
+        return inference_bridge.availability()
     if engine_name() == "ecapa-tdnn":
         from . import diarization_ecapa
 
@@ -317,6 +321,15 @@ def diarize(audio_path, segments, *, num_speakers=None, max_speakers=8):
     Neutral labels are ordered by first acoustic occurrence in this file, not
     globally stable people IDs. ASR text/timestamps are never changed or split.
     """
+    from . import inference_bridge
+
+    if inference_bridge.configured():
+        try:
+            return inference_bridge.diarize(
+                audio_path, segments, num_speakers=num_speakers, max_speakers=max_speakers
+            )
+        except inference_bridge.BridgeError as exc:
+            raise DiarizationError(str(exc)) from None
     if not 1 <= max_speakers <= 32 or (
         num_speakers is not None and not 1 <= num_speakers <= max_speakers
     ):

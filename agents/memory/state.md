@@ -1,6 +1,16 @@
 # Memora — état de reprise
 
-Mis à jour 2026-10-25 15:44 UTC, Africa/Ouagadougou. Livraison locale V1 et jalon supplémentaire de précision intégrés. Commits locaux autorisés par l’utilisateur après livraison ; aucun push, achat, déploiement public ou email réel. Lire AGENTS.md → agents/README.md → ce fichier, puis uniquement les preuves utiles. Les notes/fichiers actuels priment sur les anciens points de reprise.
+Mis à jour 2026-10-25 17:02 UTC, Africa/Ouagadougou. Livraison locale V1 et jalon supplémentaire de précision intégrés. Commits locaux autorisés par l’utilisateur après livraison ; aucun push, achat, déploiement public ou email réel. Lire AGENTS.md → agents/README.md → ce fichier, puis uniquement les preuves utiles. Les notes/fichiers actuels priment sur les anciens points de reprise.
+
+## Docker + PostgreSQL — livrés localement
+
+Stackactive : postgres16/backendFastAPIworker/frontendstandalone/mailpit viaDockerCompose, quatreconteneurssains surports127.0.0.1. MLX/ECAPA GPUApple etOllama restentnatifspourpréserverqualité, ponttokenloopback8091 appelédepuisDocker. memora-{start,stop,status}.sh délèguentDocker ; guidesactualisés. Importofflineréel terminé :26tables/535lignes, empreintesexacteschaquetable(dontUID/hash/versions/corrections/liens/migrations) ; médias inchangés. SQLite etsnapshotprivé conservés, jamais utilisésparapplicationDocker. Preuve détaillée exclusivement .memora/docker/import-complete.json ; sauvegardes .memora/backups/postgres-*/. Aucun audio personnel traité pourcettebascule.
+
+Code : psycopg3.3.6 verrouillé, authschémapublic explicite/domainememora, compatSQLbornée+verrouadvisory, RowSQLitecompatible. Importciblevide transactionnel vérifié/séquencesavancées ; commentairePGliéàpreuveprivée vérifiéaulancementcontrelapertedevolume. CompanionIA : paths/temporaire-speakers bornés,auth/tailles/concurrence, veillelocaleconservée, gardeAPIcommuneASR/rapport/chat etdurée4hrespectée. CaptureSMTPauthlocalexplicitaucunTLS/login, refusSMTPexterne. 38fichierslegacytrackésretirés(ComposeMySQL/prod/monitoring/Caddy,initialiseursettestsassociés,lanceursnatifsinutilisés), donnéesignoréesanciennesmonitoringpréservées/excluesGit. BackendDockerdepscouchestable sansinstallationinutileprojetlocal.
+
+Preuvesfinales :387backendPASS/9SKIP/3warnings35,49s ;6PG réelsPASS1,49s sur2basesjetables(détruites) ;bridge6PASS0,60s ;Ruff/OpenAPI/SDK/shell/ComposePASS. ParcoursDocker22contrôlesnavigateur+20groupesUI PASS séparément, provenanceECAPA/sourceASRv1/rapportv2, livepause/navigation/réseau/reprise, français, voixrenommage/séparation ;9exports/historique/droits et4vues, emailréelcapturélocalement etpersistanceredémarrage. Voir testing.md pourcompteurs exacts/logs etlimites ;aucunmicrophysiqueniemailtiers, CI distante nonexécutée.
+
+Incidentsrésolus : lexerSQLcommentaires/UPSERTquotas ; Rowdictunpackbloquantfragments409 ; schémaORM "$user" ; refusbridge snapshot-speakers ; auditexportutilisaitrésumédelisteau lieu détail. Dockerreadonlyaprèssaturation : cachesdev/buildNext etancienasrlabpackagesseulement retirés, modèlesconservés, DesktopredémarréaprèsinventaireactifsMemora ; aucune purge d’autresprojets. Premièretransition PIDsnatifsdéjàabsents, importer a acquisverroustockage etvalidézérocapture/tâche. BasculecomplèteetHTTP vérifiés. Travailimplémentationclos, suite : essaiutilisateurdepuishttp://127.0.0.1:3000. Livraisonpréparéepourcommitlocal sanscoauteur/push.
 
 ## Exports transcription et rapport — livrés localement
 

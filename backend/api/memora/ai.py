@@ -1107,6 +1107,15 @@ def validate_audio(path: Path, max_seconds):
 
 
 def transcribe(path: Path, tail_seconds=None, language="auto"):
+    from . import inference_bridge
+
+    if inference_bridge.configured():
+        try:
+            # Keep the same API guard as report/chat generation on the shared GPU.
+            with _lock:
+                return inference_bridge.transcribe(path, tail_seconds, language)
+        except inference_bridge.BridgeError as exc:
+            raise ProcessingError(str(exc)) from None
     engine = os.environ.get(
         "MEMORA_LIVE_ASR_ENGINE" if tail_seconds else "MEMORA_ASR_ENGINE",
         os.environ.get("MEMORA_ASR_ENGINE", "faster-whisper"),

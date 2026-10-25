@@ -344,8 +344,17 @@ def capture_awake_lease(mid: str, body: CaptureAwake, request: Request, user=AUT
         ):
             error(409, "La protection nécessite une capture en cours ou en pause.")
     try:
+        address = ipaddress.ip_address(request.client.host) if request.client else None
         local = bool(
-            request.client and ipaddress.ip_address(request.client.host).is_loopback
+            address
+            and (
+                address.is_loopback
+                or (
+                    address.is_private
+                    and os.environ.get("MEMORA_DOCKER_LOCAL") == "1"
+                    and os.environ.get("MEMORA_INFERENCE_URL")
+                )
+            )
         )
     except ValueError:
         local = False

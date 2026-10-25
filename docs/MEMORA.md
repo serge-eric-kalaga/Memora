@@ -1,42 +1,42 @@
-# Memora V1 — fonctionnement local
+# Memora — guide local Docker et PostgreSQL
 
-Memora enregistre ou importe un audio, transcrit avec Whisper, analyse avec Ollama, conserve les versions et partage les contenus selon des permissions vérifiées par l’API. Cette livraison vise une utilisation locale sur cette machine, avec des données synthétiques de démonstration. Elle n’est pas qualifiée pour une exploitation en production.
-
-## Démarrer et arrêter
-
-Prérequis validés sur cette machine : macOS Apple Silicon natif arm64, Python pour installer uv (le projet utilise Python3.12), Node.js24 et npm. Prévoir environ8Go libres pour dépendances, build et modèle de transcription, puis l’espace nécessaire aux audios. Le chemin CPU Faster Whisper reste configurable sur les autres plateformes ; sa précision est inférieure sur le corpus français testé et il ne constitue pas la configuration de précision retenue ici. Ollama existant doit répondre sur `127.0.0.1:11434` avec `gemma4:e4b` installé. Aucun script ne réinstalle Ollama ni ne supprime ses modèles.
-
-Depuis la racine :
+## Démarrage quotidien
 
 ```sh
-./scripts/memora-install.sh
-# Si aucun modèle d’analyse adapté n’est présent : voir section IA avant téléchargement.
 ./scripts/memora-start.sh
-backend/.venv/bin/python scripts/memora-demo.py
 ./scripts/memora-status.sh
 ./scripts/memora-stop.sh
 ```
 
-`memora-demo.py` s’exécute après démarrage de l’API ; au premier lancement, démarrer les services avant de l’exécuter. Il crée uniquement le compte synthétique de démonstration et lui donne les droits administratifs dans la base locale isolée. Les identifiants sont dans `.memora/demo.json`, fichier privé non versionné. Un compte personnel peut aussi être créé dans l’interface ; il ne devient pas administrateur automatiquement.
+Ces commandes utilisent Docker Compose. L’application est à [127.0.0.1:3000](http://127.0.0.1:3000), l’API à [127.0.0.1:8080/docs](http://127.0.0.1:8080/docs) et les emails locaux à [127.0.0.1:8025](http://127.0.0.1:8025). PostgreSQL écoute uniquement sur127.0.0.1:5433 pour la maintenance locale ; son mot de passe est privé. L’arrêt conserve les volumes. **Ne pas utiliser `down -v` sur la stack Memora** : cela supprimerait les données PostgreSQL.
 
-Pour mettre à jour une installation existante, arrêter les services avant `memora-install.sh`. L’installation appelle `scripts/memora-migrate.py` : ce lanceur refuse une base différente des deux SQLite privées du projet et refuse de migrer pendant qu’un worker détient son verrou. Il sauvegarde les bases dans `.memora/backups/`, applique Alembic et les migrations du domaine, vérifie le schéma puis rattache les anciennes réunions à l’identité permanente du compte. Les sauvegardes privées sont exclues de Git et restent à conserver ou supprimer explicitement ; la rétention audio ne les purge pas.
+Architecture : conteneurs `postgres` (PostgreSQL16), `backend` (FastAPI et worker durable), `frontend` (Next.js standalone) et `mailpit` (capture SMTP). Les comptes sont dans le schéma PostgreSQL `public`, les réunions/versions/partages/tâches dans `memora`. Les audios restent dans `.memora/data/`, monté au même chemin absolu ; les photos de profil restent dans `backend/static/uploads/`. Changer l’emplacement du projet nécessite de régénérer la configuration et vérifier les chemins.
 
-La migration de sécurité `0007_account_uid` invalide les anciennes sessions : se reconnecter avec les mêmes identifiants. Un compte supprimé puis recréé reçoit une nouvelle identité même si SQLite réutilise son numéro. L’accès aux réunions, notifications et statuts email vérifie cette identité. Le rattachement des données anciennes refuse les comptes absents, les réunions antérieures au compte et les dates ambiguës dans sa seconde de création ; les compteurs de migration signalent ces cas sans accorder automatiquement un accès. `memora-bind-owners.py --dry-run` permet de revoir le bilan sans écriture.
+Sur macOS Apple Silicon, MLX/ECAPA utilisent les bibliothèques et modèles natifs existants, via un compagnon authentifié lié à127.0.0.1:8091 ; le script de démarrage le gère. Ce calcul reste sur le Mac car MLX/GPUApple n’est pas pris en charge dans les conteneurs Linux. Ollama reste indépendant et n’est jamais réinstallé ou arrêté. Les conteneurs appellent l’hôte avec `host.docker.internal` ; aucun fournisseur IA externe n’est utilisé.
 
-Adresses : application [localhost:3000](http://localhost:3000), documentation API [127.0.0.1:8080/docs](http://127.0.0.1:8080/docs), capture email [127.0.0.1:8025](http://127.0.0.1:8025). Tous les serveurs sont liés à l’interface locale, sans exposition publique.
+## Première installation ou migration depuis SQLite
 
-Le lanceur conserve les PIDs qu’il a démarrés et ne tue pas les processus occupant un port. Si un port est déjà occupé, il le signale. La commande d’arrêt vérifie le processus avant de lui envoyer SIGTERM. Ollama reste indépendant et n’est jamais arrêté par ces scripts.
+Prérequis : Docker Desktop actif, Node/npm et Python3.12/uv pour les outils natifs, Ollama existant, modèles locaux documentés plus bas. Prévoir de la place pour les images Docker, les modèles et les sauvegardes. Sur une installation déjà préparée, ne pas réinstaller les modèles.
 
-Pour utiliser le build optimisé :
+`./scripts/memora-install.sh` prépare les dépendances natives verrouillées, les modèles requis et les bases SQLite de bootstrap ; il n’est pas le lanceur quotidien. Après la migration, ne plus utiliser SQLite comme base applicative. Les fichiers `.memora/backend.env` restent la configuration du moteur natif et la source des clés applicatives existantes ; le générateur Docker les conserve afin de garder mots de passe, sessions et emails chiffrés compatibles.
+
+Pour migrer une installation existante, arrêter l’ancienne API et attendre la fin de tout enregistrement/traitement. L’importeur refuse un worker actif, une réunion en capture ou une tâche active. Puis :
 
 ```sh
-cd frontend
-npm run build:memora
-cd ..
-MEMORA_MODE=production ./scripts/memora-start.sh
+python3 scripts/memora-docker-env.py
+docker compose --env-file .memora/docker/compose.env build
+docker compose --env-file .memora/docker/compose.env up -d --wait postgres
+backend/.venv/bin/python scripts/memora-import-postgres.py --apply
+./scripts/memora-start.sh
 ```
 
-Le lanceur frontend copie les assets statiques dans le dossier standalone, puis démarre son serveur. Le mode par défaut est le développement avec Webpack. Turbopack a échoué sur un sous-processus CSS `EPERM` dans l’environnement d’exécution ; Webpack a réellement construit l’application. Le mode optimisé ne signifie pas que l’application est prête pour la production.
+Le générateur écrit des fichiers privés0600 dans `.memora/docker/`, sans secret dans le dépôt. L’importeur sauvegarde les deux SQLite avec leur API de sauvegarde, crée les schémas et migrations PostgreSQL, importe les données dans une transaction puis compare le contenu complet de chaque table. IDs, UID de compte, hashes de mots de passe, partages, versions, corrections, tâches et dates sont conservés ; les séquences sont avancées pour les futurs comptes. Une cible occupée est refusée, jamais écrasée. Les SQLite et leurs sauvegardes sont conservés comme point de retour explicite ; le lancement Docker n’y écrit pas. Les empreintes de tables et de médias restent exclusivement dans `.memora/docker/import-complete.json` privé. Une marque PostgreSQL est vérifiée au lancement pour refuser une base recréée après perte de volume.
+
+Pour reconstruire après changement du code : `docker compose --env-file .memora/docker/compose.env build`, puis `./scripts/memora-start.sh`. Ne pas redémarrer pendant une capture ; les tâches durables reprennent après interruption. Les nouvelles images doivent être reconstruites : aucun montage du code source n’est nécessaire au fonctionnement. Les outils natifs restent nécessaires pour l’inférence et les recettes ; leurs environnements ne sont jamais copiés dans les images.
+
+## Vérification Docker isolée
+
+`backend/.venv/bin/python scripts/memora-verify-docker.py` crée une stack indépendante avec comptes, PostgreSQL, stockage, SMTP et ports réservés aux tests, puis exécute le navigateur avec un microphone factice. Définir `PLAYWRIGHT_CHROMIUM_EXECUTABLE` si nécessaire. Il retire uniquement ses conteneurs/volumes temporaires et ne lit pas les enregistrements de l’application. Les poids locaux et Ollama sont partagés pour l’inférence. Voir `agents/testing.md` pour les preuves et limites réellement observées.
 
 ## Essayer le parcours
 
@@ -125,13 +125,13 @@ L’éditeur invité doit avoir un droit explicite, l’activation administrativ
 
 Les corps d’emails en file sont chiffrés avec Fernet, clé dérivée de `SECRET_KEY`, déchiffrés en mémoire puis effacés après remise SMTP. L’envoi conjoint du mot de passe est possible après choix explicite ; le message livré est une copie du destinataire qui ne peut pas être rappelée. Les destinataires reçoivent des messages séparés. Les emails déjà envoyés ne sont pas renvoyés par une reprise normale ; les échecs disposent d’une reprise ciblée. Un crash exactement entre acceptation SMTP et écriture de l’état peut néanmoins provoquer une redélivrance : SMTP ne fournit pas une transaction exactement-une-fois.
 
-Le serveur `memora-mail-capture.py` ne relaie aucun message ; il affiche le contenu HTML sous forme échappée pour inspection. La réception locale vérifie la composition, pas la délivrabilité en production ni la lecture par un destinataire.
+Mailpit capture les messages dans son volume local et permet leur inspection. Le serveur natif `memora-mail-capture.py` reste utilisé uniquement par les recettes SQLite isolées. La réception locale vérifie la composition, pas la délivrabilité en production ni la lecture par un destinataire.
 
 **Archive** change le classement et conserve les contenus et les liens actifs. **Supprimer définitivement** demande confirmation, retire l’accès, supprime versions/chat/liens/notifications et fichiers audio locaux ainsi que les emails encore en file. La purge de l’audio seul arrive à sa date de conservation ; transcription, rapports et chat sont conservés jusqu’à suppression explicite. Aucun backup automatique n’est annoncé. Des sauvegardes manuelles, emails reçus et téléchargements demeurent des copies indépendantes.
 
 La suppression d’un compte pose d’abord une barrière liée à son identité permanente. Les accès invités et les publications de traitements tardifs sont bloqués ; fichiers et données associés sont ensuite supprimés. En cas d’erreur de fichier, le compte reste présent pour permettre une nouvelle tentative, et la barrière continue de protéger ses réunions. Les anciennes sauvegardes et emails capturés restent des copies indépendantes.
 
-Le stockage audio/SQLite n’est pas chiffré intégralement par l’application ; il est protégé par les permissions locales et les contrôles d’accès applicatifs. TLS, sauvegardes/restauration d’exploitation, rétention légale, supervision multi-instance et qualification de sécurité nécessitent un travail avant production. Le worker local est mono-instance avec verrou POSIX ; il ne prétend pas remplacer une infrastructure de traitement distribuée.
+Le stockage audio/PostgreSQL n’est pas chiffré intégralement par l’application ; il est protégé par les permissions locales et les contrôles d’accès applicatifs. TLS, sauvegardes/restauration d’exploitation, rétention légale, supervision multi-instance et qualification de sécurité nécessitent un travail avant production. Le worker local est mono-instance avec verrou POSIX ; il ne prétend pas remplacer une infrastructure de traitement distribuée.
 
 ## Tests et preuves
 
@@ -144,8 +144,8 @@ npm run api:check
 npm run build:memora
 # Installer Chromium de Playwright si absent :
 npx playwright install chromium
-npm run test:memora
 cd ..
+backend/.venv/bin/python scripts/memora-verify-docker.py
 backend/.venv/bin/python scripts/memora-e2e-api.py
 backend/.venv/bin/python scripts/memora-resilience.py
 # Reprise après arrêt brutal : uniquement worker/base/audio synthétiques jetables
@@ -266,7 +266,7 @@ backend/.venv/bin/python scripts/memora-prepare-diarization.py --check-only
 
 Les essais synthétiques couvrent deux/trois voix, retours de parole, FR/EN, gain/bruit et silence. La réserve à nouvelles voix retrouve2/2/3groupes et attribue18/18segments ; DER7,57% et8,10% sur les cas propres,12,37% avec gain/bruit. Le DER mesure une erreur temporelle de séparation, pas un taux d’erreur de transcription ni une précision d’identification. Les références utilisent une grille20ms et l’énergie des pistes TTS ; aucune généralisation aux accents/voix naturelles. Les paroles simultanées ne sont pas séparées, les voix proches peuvent être fusionnées, le bruit et les voix faibles peuvent fragmenter les groupes. La limite technique de deux heures n’est pas une preuve de qualité sur une réunion naturelle de cette durée. [Protocole et limites](../agents/handoffs/diarization-local-v1.md).
 
-Migration domaine007 additive : tables `report_reviews` et `transcript_edits`. Elle ne réécrit ni transcription ni rapport existant. Utiliser le script de migration local après arrêt de l’API ; il vérifie la base ciblée et le verrou du worker avant migration et sauvegarde SQLite. Ne pas migrer une autre base par substitution improvisée de variables.
+Migration domaine007 additive : tables `report_reviews` et `transcript_edits`. Elle ne réécrit ni transcription ni rapport existant. L’import PostgreSQL conserve ces tables ; les migrations domaine additives sont vérifiées au démarrage du worker sous verrou. Les migrations des comptes restent Alembic. Pour le bootstrap SQLite seulement, le script de migration natif vérifie le stockage et sauvegarde les sources. Ne pas substituer une autre base par modification improvisée de variables.
 
 
 Validation V1.1 finale :284testsbackend/48préparation/16frontendunit réussis ; intégration en phases isolées41API+19navigateur+9auditUI, plus10contrôlesmicroAPIssynthétiques et2contrôles de codecChromium réel surentrée factice (échantillon lu, aucuneémission). Lint/types/build/OpenAPI/SDK etRuff conformes. Les trois interruptions de recettes et leurs correctifs sont conservés, voir agents/testing.md. Services locaux activés après migration007, empreintes sources préservées. Ces résultats ne prouvent pas microphysique/Safari/iOS/conversationnaturelle ni production.

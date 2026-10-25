@@ -54,3 +54,11 @@ Clôture : activation locale effectuée après garde0jobs/aucun audio récent ; 
 ## Reprisevoix dans analyse — livrée
 
 Analyse reprendcheckpointvoix écheccourant accessibleavantnouveaurapport ; nombreconnuoptionnel, versionshumaines/anciennesprotégées.8testsrégression,323backendet17UIfinalPASS ; routeauthstub/moteurslocauxsynthétiquesvalidés21,699s,22browserréelsavantultimesajustementsUI/éligibilité. ContratOpenAPI/SDKàjour, activationlocalepréserveempreintesdomaine. Voirstate/testing pourphasesdepreuve.
+
+## Docker/PostgreSQL et purification — livrélocalement25/10
+
+1. AuditCompose/MySQL etstockages effectifs : terminé.
+2. PGauth+domaine/transactions etpontnatifGPUApple : intégré,vérifié.
+3. RecettesynthétiquePG/import, Dockerapplicationnavigateur/exports/SMTP : terminées, preuves testing.md.
+4. Importlocalofflinesauvegardé26tables535lignes/hashesidentiques/médiasinchangés : terminé.
+5. BasculeDocker4conteneurssains, suppression38fichierslegacy/documentation/mémoire : terminé ; commitlocal sanspush/coauteur.

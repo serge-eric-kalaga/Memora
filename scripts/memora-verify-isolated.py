@@ -255,6 +255,8 @@ def main():
             )
             if key in os.environ
         }
+        # Database/inference-service connection secrets are intentionally absent
+        # from this allowlist: this verifier owns SQLite stores and native ASR.
         env.update(local_models())
         apply_asr_policy(env, args.asr_engine, args.french_asr_engine)
         env.update(

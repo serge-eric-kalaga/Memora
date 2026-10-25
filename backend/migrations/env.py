@@ -35,9 +35,14 @@ def run_with_connection(connection):
 
 
 if context.is_offline_mode():
-    context.configure(url=database_url(), target_metadata=target_metadata,
-                      literal_binds=True, dialect_opts={"paramstyle": "named"},
-                      compare_type=True, compare_server_default=True)
+    context.configure(
+        url=database_url(),
+        target_metadata=target_metadata,
+        literal_binds=True,
+        dialect_opts={"paramstyle": "named"},
+        compare_type=True,
+        compare_server_default=True,
+    )
     with context.begin_transaction():
         context.run_migrations()
 else:
@@ -45,7 +50,14 @@ else:
     if connection is not None:
         run_with_connection(connection)
     else:
-        engine = create_engine(database_url(), poolclass=pool.NullPool)
+        url = database_url()
+        engine = create_engine(
+            url,
+            poolclass=pool.NullPool,
+            connect_args={"options": "-c search_path=public"}
+            if str(url).startswith(("postgresql", "postgres:"))
+            else {},
+        )
         try:
             with engine.connect() as connection:
                 run_with_connection(connection)

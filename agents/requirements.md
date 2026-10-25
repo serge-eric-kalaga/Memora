@@ -136,3 +136,7 @@ ECAPA local pin/SHA +fenêtres3.2s etveto1.6s, source conservée ; Resemblyzerle
 ## Export transcription et rapport — demande utilisateur25/10
 
 Transcription TXT/PDF/DOCX/SRT/VTT et rapport TXT/PDF/DOCX/Markdown : implémentés et vérifiés. Backend `exports.py` +route `/meetings/{mid}/export`, interface `export-button.tsx` dans chaque onglet. Version sélectionnée/historique, révisions humaines, sources limitées aux droits, invité sans compte selon partage. Tests `test_memora_exports.py` (30cas), `memora-exports-audit.mjs` intégré à la recette isolée, rendu visuel PDF/DOCX synthétique. État/preuves/limites dans testing.md ; usage dans docs/MEMORA.md. Aucune exigence de PDF traitée comme autorisation supplémentaire.
+
+## Docker/PostgreSQL et nettoyage — demande utilisateur25/10
+
+DockerCompose existantadapté àMemora, PostgreSQL pourcomptes+domaine, importdesdonnéeslocales etnettoyagesource : livrélocalement. `postgres.py`/store/ORMsearchpath, ComposeDockerfilesprod/lanceurs, `memora-import-postgres.py`, gardePG etbridgeIA AppleSilicon. Conservationexacte26tables535lignes vérifiéeavec sauvegardessources, médiasinchangés. Preuvesprivées ettests synthétiquesPG/importe/recetteDocker uniquement ; testsmicrophysique/prodnonfaits. 38fichierslegacyretirés sanspurgerdonnéesprivéesignorées ; SQLite utilebootstrap/tests/archivesconservé. Détailsstate/testing/docs.

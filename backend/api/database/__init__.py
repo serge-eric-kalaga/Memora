@@ -9,7 +9,14 @@ from sqlalchemy.orm import Session
 from sqlalchemy_utils import create_database, database_exists
 
 
-engine = create_engine(Setting.DATABASE_URL)
+# Domain tables use schema memora; auth must not follow PostgreSQL's "$user"
+# search_path when the database role is also named memora.
+engine = create_engine(
+    Setting.DATABASE_URL,
+    connect_args={"options": "-c search_path=public"}
+    if Setting.DATABASE_URL.startswith(("postgresql", "postgres:"))
+    else {},
+)
 
 
 redisDB: Redis | None = None

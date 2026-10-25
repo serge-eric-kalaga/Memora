@@ -1,237 +1,202 @@
-name: CI
-
-# Vérifier chaque PR à son ouverture, sa réouverture ou après de nouveaux commits.
-# workflow_dispatch permet également un lancement manuel depuis GitHub Actions.
+name: CI Memora
 on:
   pull_request:
   workflow_dispatch:
-
-# Le workflow lit le dépôt sans pouvoir publier ni modifier son contenu.
 permissions:
   contents: read
-
-# Une nouvelle exécution remplace celle devenue obsolète pour la même PR/branche.
 concurrency:
   group: ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
-
-# Valeurs jetables publiques, sans dépendre des .env locaux ou des secrets du dépôt.
+# Identités synthétiques réservées aux runners jetables, jamais de secret réel.
 env:
-  APP_NAME: Fullstack CI
-  ADMINS_EMAIL: ci@example.com
+  APP_NAME: Memora CI
+  ADMINS_EMAIL: ci@example.invalid
   SECRET_KEY: ci-only-secret-not-for-production
   JWT_SECRET: ci-only-jwt-not-for-production
   ALGORITHM: HS256
-  # Le cache réel est activé explicitement par les fixtures utilisant TEST_REDIS_URL.
   CACHE_ENABLED: 'false'
-  # Les tests HTTP couvrent l’inscription classique ; Pytest vérifie les deux modes.
   EMAIL_VERIFICATION_ENABLED: 'false'
-  # Aucun SMTP externe : les tests HTTP pointent vers un port local fermé.
-  # Dans Pytest, le transport SMTP est remplacé par des mocks.
+  MEMORA_DISABLE_WORKER: '1'
   EMAIL_HOST: 127.0.0.1
   EMAIL_PORT: '9'
-  EMAIL_DOMAIN: example.com
+  EMAIL_DOMAIN: example.invalid
   EMAIL_USERNAME: ci
   EMAIL_PASSWORD: ci-only
   NEXT_TELEMETRY_DISABLED: '1'
-
 jobs:
-  # Deux exécutions indépendantes pour couvrir les différences SQLite/MySQL.
   backend:
-    name: Backend (${{ matrix.database }})
+    name: Backend SQLite et contrats isolés
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    strategy:
-      # Conserver le diagnostic de chaque moteur même si l’autre échoue.
-      fail-fast: false
-      matrix:
-        database: [sqlite, mysql]
-    defaults:
-      run:
-        working-directory: backend
-    # Services jetables propres à chaque job ; GitHub attend leurs healthchecks.
-    # MySQL est lancé dans les deux variantes, mais seule la variante mysql l’utilise.
+    timeout-minutes: 20
     services:
-      mysql:
-        image: mysql:8.4
-        env:
-          MYSQL_ROOT_PASSWORD: ci-only-password
-          MYSQL_ROOT_HOST: '%'
-          MYSQL_DATABASE: template_tests
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -pci-only-password"
-          --health-interval=5s --health-timeout=5s --health-retries=30
       redis:
         image: redis:7.4-alpine
-        ports:
-          - 6379:6379
+        ports: ['6379:6379']
         options: >-
           --health-cmd="redis-cli ping"
           --health-interval=5s --health-timeout=5s --health-retries=10
     env:
-      DATABASE_URL: ${{ matrix.database == 'mysql' && 'mysql+pymysql://root:ci-only-password@127.0.0.1:3306/template_tests' || 'sqlite:////tmp/template-tests.db' }}
-      # La suite Pytest n’utilise jamais implicitement la connexion applicative.
-      TEST_DATABASE_URL: ${{ matrix.database == 'mysql' && 'mysql+pymysql://root:ci-only-password@127.0.0.1:3306/template_tests' || 'sqlite:////tmp/template-tests.db' }}
-      # Une URL MySQL permet aux tests de créer/supprimer leurs schémas temporaires.
-      # Une valeur vide sélectionne les fichiers SQLite temporaires.
-      TEST_MIGRATION_DATABASE_URL: ${{ matrix.database == 'mysql' && 'mysql+pymysql://root:ci-only-password@127.0.0.1:3306/template_tests' || '' }}
-      # Active les tests de cache sur un vrai Redis, distinct des données locales.
       TEST_REDIS_URL: redis://127.0.0.1:6379/0
       REDIS_URL: redis://127.0.0.1:6379/0
-      REDIS_PREFIX: fullstack:ci:backend
-    # Les actions sont figées par SHA ; le commentaire indique la version lisible.
+      REDIS_PREFIX: memora:ci:backend
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          # Ne pas laisser le jeton GitHub dans la configuration Git du checkout.
-          persist-credentials: false
+        with: {persist-credentials: false}
       - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
         with:
           version: '0.13.1'
           python-version: '3.14'
-          # Réutiliser les téléchargements uv ; les versions restent imposées par uv.lock.
           enable-cache: true
           cache-dependency-glob: backend/uv.lock
-      # --frozen refuse de recalculer le verrouillage ; le groupe dev inclut Ruff.
       - name: Installer les dépendances verrouillées
-        run: uv sync --frozen --group dev
-      # Cet export ne démarre aucun service et doit correspondre au contrat versionné.
-      - name: Vérifier le contrat OpenAPI
-        run: uv run --frozen python scripts/export_openapi.py --check
-      - name: Lint Python
-        run: uv run --frozen ruff check --config pyproject.toml . ../scripts ../monitoring/alertmanager/render.py
-      # La commande d’initialisation se teste sans Docker, base ni dépendance externe.
-      - name: Tests de l’initialisation du template
-        run: uv run --frozen python -m unittest discover -s ../scripts/tests -v
-      - name: Tests backend et intégration Redis
-        run: uv run --frozen pytest -q
-      # Partir du schéma de référence, appliquer les migrations et comparer aux modèles.
-      # Tester aussi downgrade/upgrade et la conservation des données existantes.
-      - name: Vérifier les migrations et les modèles
+        run: uv sync --frozen --project backend --group dev
+      - name: Vérifier contrat OpenAPI, lint et scripts Memora
+        run: |
+          cd backend
+          uv run --frozen python scripts/export_openapi.py --check
+          uv run --frozen ruff check --config pyproject.toml . ../scripts
+          uv run --frozen python -m unittest discover -s ../scripts/tests -v
+      - name: Tests backend sur stockage jetable et Redis isolé
+        run: python scripts/memora-test.py
+      - name: Vérifier les migrations des comptes sur SQLite jetable
+        working-directory: backend
+        env:
+          DATABASE_URL: sqlite:////tmp/memora-ci-migrations.db
+          INITIALISE_DATABASE: 'false'
         run: uv run --frozen python scripts/check_migrations.py
 
-  # Ce job tourne en parallèle du backend et teste sa propre API isolée.
-  frontend:
-    name: Frontend
+  postgres:
+    name: PostgreSQL16 et import synthétique
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: memora_ci
+          POSTGRES_PASSWORD: ci-only-password
+          POSTGRES_DB: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd="pg_isready -U memora_ci -d postgres"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: {persist-credentials: false}
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          version: '0.13.1'
+          python-version: '3.14'
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+      - name: Installer les dépendances verrouillées
+        run: uv sync --frozen --project backend --group dev
+      - name: Créer deux bases neuves à noms aléatoires réservés aux tests
+        run: |
+          backend/.venv/bin/python - <<'PY'
+          import os
+          import secrets
+          import psycopg
+          from psycopg import sql
+          prefix = 'postgresql://memora_ci:ci-only-password@127.0.0.1:5432/'
+          with psycopg.connect(prefix + 'postgres', autocommit=True) as connection:
+              with open(os.environ['GITHUB_ENV'], 'a') as environment:
+                  for variable in ('MEMORA_TEST_POSTGRES_URL', 'MEMORA_TEST_IMPORT_URL'):
+                      name = 'memora_test_' + secrets.token_hex(8)
+                      connection.execute(sql.SQL('CREATE DATABASE {}').format(sql.Identifier(name)))
+                      environment.write(variable + '=' + prefix + name + '\n')
+          PY
+      - name: Contrats PostgreSQL réels, isolation, concurrence et import exact
+        run: >-
+          python scripts/memora-test.py
+          test/test_memora_postgres_live.py
+          test/test_memora_postgres_import.py -q
+      # Le service PostgreSQL entier est jetable ; aucune base existante n’est utilisée.
+
+  frontend:
+    name: Frontend Memora
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: frontend
     env:
-      # Base réservée aux comptes et photos temporaires des tests HTTP.
-      DATABASE_URL: sqlite:////tmp/template-http-tests.db
+      MEMORA_LOCAL: '1'
+      NEXT_PUBLIC_APP_NAME: Memora
+      MEMORA_DATA_DIR: /tmp/memora-ci-http-data
+      DATABASE_URL: sqlite:////tmp/memora-ci-http-accounts.db
       BACKEND_URL: http://127.0.0.1:8080
       BACKEND_TEST_URL: http://127.0.0.1:8080
       FRONTEND_TEST_URL: http://127.0.0.1:3000
       FRONTEND_URL: http://127.0.0.1:3000
       APP_ORIGIN: http://127.0.0.1:3000
-      # HTTP sur boucle locale uniquement ; en production HTTPS, utiliser un cookie Secure.
       SESSION_COOKIE_SECURE: 'false'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          # Ne pas laisser le jeton GitHub dans la configuration Git du checkout.
-          persist-credentials: false
+        with: {persist-credentials: false}
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '24'
-          # Cache des téléchargements npm ; npm ci réinstalle selon package-lock.json.
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
         with:
           version: '0.13.1'
           python-version: '3.14'
-          # Réutiliser les téléchargements uv ; les versions restent imposées par uv.lock.
           enable-cache: true
           cache-dependency-glob: backend/uv.lock
       - name: Installer les dépendances verrouillées
         run: |
           npm ci
           uv sync --frozen --project ../backend
-      # Détecter tout oubli de régénération après une modification de route/schéma.
-      - name: Vérifier le contrat et le client généré
+      - name: Vérifier contrat et SDK généré
         run: |
           (cd ../backend && uv run --frozen python scripts/export_openapi.py --check)
           npm run api:check
-      - name: Lint et vérification TypeScript
+      - name: Lint, types et tests frontend isolés
         run: |
           npm run lint
           npm run typecheck
-      # Vérifier les clés FR/EN, les interpolations et le formatage des dates.
-      - name: Tests de traduction
-        run: npm run test:i18n
-      # Prévenir les rechargements de catalogues inutiles lors des attributions de droits.
-      - name: Tests du cache d’administration
-        run: npm run test:admin-cache
-      # Les tests HTTP suivants utiliseront ce build avec next start.
-      - name: Build de production
-        run: npm run build
-      - name: Parcours HTTP sur le build de production
+          npm run test:i18n
+          npm run test:admin-cache
+      - name: Construire Memora optimisé
+        run: npm run build:memora
+      - name: Parcours comptes HTTP sur services exclusivement jetables
         shell: bash
         run: |
-          # Arrêter la recette sur erreur, variable absente ou échec dans un pipeline.
           set -euo pipefail
-          backend_log="$RUNNER_TEMP/template-backend.log"
-          frontend_log="$RUNNER_TEMP/template-frontend.log"
+          backend_log="$RUNNER_TEMP/memora-backend.log"
+          frontend_log="$RUNNER_TEMP/memora-frontend.log"
           backend_pid=''
           frontend_pid=''
-          # Toujours arrêter les serveurs et conserver le code de sortie initial.
-          # Afficher leurs journaux uniquement si une commande a échoué.
           cleanup() {
             result=$?
             trap - EXIT
-            if [ "$result" -ne 0 ]; then
-              cat "$backend_log" "$frontend_log" || true
-            fi
+            if [ "$result" -ne 0 ]; then cat "$backend_log" "$frontend_log" || true; fi
             if [ -n "$frontend_pid" ]; then kill "$frontend_pid" 2>/dev/null || true; fi
             if [ -n "$backend_pid" ]; then kill "$backend_pid" 2>/dev/null || true; fi
             exit "$result"
           }
           trap cleanup EXIT
-          # Lancer l’API et Next.js en arrière-plan, sans rechargement de développement.
           (cd ../backend && exec uv run --frozen uvicorn run:app --host 127.0.0.1 --port 8080) >"$backend_log" 2>&1 &
           backend_pid=$!
           npm run start -- --hostname 127.0.0.1 >"$frontend_log" 2>&1 &
           frontend_pid=$!
-          # Attendre une réponse HTTP 200 des deux services avant de tester les parcours.
           python ../scripts/wait_for_http.py http://127.0.0.1:8080/api/healthcheck/ http://127.0.0.1:3000/api/auth/config
-          # Comptes temporaires : session, origine, profil, photo et changements d’identifiants.
           npm run test:api
           npm run test:passwords
           npm run test:generated-api
 
-  # Construire les vraies images de production et démarrer la chaîne interne.
-  # Aucun certificat public ni secret réel n’est nécessaire dans ce job jetable.
-  production:
-    name: Production et monitoring (Docker)
+  docker-config:
+    name: Configuration Docker locale
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Générer une configuration de production jetable
+        with: {persist-credentials: false}
+      - name: Préparer une configuration synthétique sans télécharger de modèle
         run: |
-          python3 scripts/init_production.py --name "Fullstack CI" --domain ci.example.com --admin-email ci@example.com
-          python3 scripts/init_monitoring.py --production
-      - name: Valider et construire les images
-        run: |
-          docker compose --env-file .env.prod --env-file .env.grafana.prod -f docker-compose.prod.yml -f docker-compose.monitoring.yml config --quiet
-          docker compose --env-file .env.prod --env-file .env.grafana.prod -f docker-compose.prod.yml -f docker-compose.monitoring.yml build
-      # promtool vérifie les configurations et simule les seuils/délais d’alerte.
-      - name: Vérifier les configurations et règles de monitoring
-        run: |
-          docker compose --env-file .env.prod --env-file .env.grafana.prod -f docker-compose.prod.yml -f docker-compose.monitoring.yml run --rm --no-deps --entrypoint promtool prometheus check config /etc/prometheus/prometheus.yml
-          docker run --rm --entrypoint promtool -v "$PWD/monitoring/prometheus:/etc/prometheus:ro" -w /etc/prometheus prom/prometheus:v3.13.4 test rules tests/rules.yml
-      - name: Vérifier les migrations et la disponibilité des applications
-        run: |
-          docker compose --env-file .env.prod --env-file .env.grafana.prod -f docker-compose.prod.yml -f docker-compose.monitoring.yml up -d --wait --wait-timeout 240 mysql redis backend frontend prometheus grafana alertmanager blackbox redis-exporter mysql-exporter loki alloy
-          docker compose --env-file .env.prod --env-file .env.grafana.prod -f docker-compose.prod.yml -f docker-compose.monitoring.yml exec -T frontend node -e "fetch('http://127.0.0.1:3000/api/auth/config').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
-      # Vérification fonctionnelle : les services doivent produire de vraies données.
-      - name: Vérifier métriques, dashboards, logs et réception des alertes
-        run: python3 scripts/check_monitoring.py --env-file .env.grafana.prod --timeout 180
-      - name: Nettoyer les ressources de test
-        if: always()
-        run: docker compose --env-file .env.prod --env-file .env.grafana.prod -f docker-compose.prod.yml -f docker-compose.monitoring.yml down --volumes --remove-orphans
+          python3 scripts/memora-env.py
+          python3 scripts/memora-docker-env.py
+          docker compose --env-file .memora/docker/compose.env -f docker-compose.yml config --quiet
+          sh -n scripts/memora-docker-start.sh scripts/memora-docker-stop.sh scripts/memora-docker-status.sh
+      # MLX/ECAPA natifs nécessitent le Mac local ; aucun faux test IA dans ce job Linux.

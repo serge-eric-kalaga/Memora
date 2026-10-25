@@ -276,6 +276,10 @@ try {
       }
     }
     assert.ok(meeting, "Réunion synthétique dédiée présente pour audit mobile");
+    const exportSource = await page.request.get(base + `/mapi/meetings/${meeting.id}`);
+    assert.equal(exportSource.status(), 200);
+    const fullMeeting = await exportSource.json();
+    meeting = fullMeeting.data || fullMeeting;
     await auditExports(page, browser, base, meeting, artifactPath);
     pass(
       "Exports réels transcription/rapport, neuf formats, historique, erreurs, quatre vues et droits invités protégés/révocation",

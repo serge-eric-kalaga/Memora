@@ -41,14 +41,7 @@ backend/logs/*
 !backend/logs/index.html
 backend/test/logs/
 backend/api/images/*
-/mysql/data/
 /data/
-monitoring/grafana/data/*
-!monitoring/grafana/data/test.txt
-monitoring/prometheus/data/*
-!monitoring/prometheus/data/test.txt
-monitoring/grafana/grafana_data/
-monitoring/prometheus/prometheus_data/
 
 # OS and local tools
 .DS_Store
@@ -57,8 +50,6 @@ Thumbs.db
 /backend/static/uploads/*
 !/backend/static/uploads/.gitkeep
 
-# Sauvegardes privées avant mise à jour du monitoring
-/monitoring/backups/
 
 # Memora local execution artifacts
 agents/logs/*
@@ -69,3 +60,7 @@ agents/logs/*
 !/docs/
 /docs/*
 !/docs/MEMORA.md
+
+# Anciennes données locales conservées après retrait des services du template.
+/monitoring/
+/mysql/

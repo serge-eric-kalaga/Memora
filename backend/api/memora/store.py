@@ -1,4 +1,4 @@
-"""Memora durable local domain store. All mutations use SQLite transactions."""
+"""Memora transactional domain store (PostgreSQL, SQLite for isolated tests)."""
 
 import json
 import os
@@ -27,9 +27,17 @@ def uid():
 @contextmanager
 def db():
     ROOT.mkdir(parents=True, exist_ok=True)
-    con = sqlite3.connect(ROOT / "memora.sqlite3", timeout=30)
-    con.row_factory = sqlite3.Row
-    con.execute("PRAGMA foreign_keys=ON")
+    url = os.environ.get("MEMORA_DATABASE_URL", "")
+    if url:
+        if not url.startswith(("postgresql://", "postgres://")):
+            raise ValueError("MEMORA_DATABASE_URL must be a PostgreSQL connection URL")
+        from .postgres import Connection
+
+        con = Connection(url)
+    else:
+        con = sqlite3.connect(ROOT / "memora.sqlite3", timeout=30)
+        con.row_factory = sqlite3.Row
+        con.execute("PRAGMA foreign_keys=ON")
     try:
         yield con
         con.commit()
@@ -42,41 +50,54 @@ def db():
 
 def init():
     with db() as c:
-        c.executescript(
-            (Path(__file__).parent / "migrations/001_initial.sql").read_text()
-        )
-        c.executescript(
-            (Path(__file__).parent / "migrations/002_config_history.sql").read_text()
-        )
-        c.executescript(
-            (Path(__file__).parent / "migrations/003_analysis_requests.sql").read_text()
-        )
-        # SQLite ADD COLUMN is additive; legacy mail remains inaccessible until
-        # an explicit reviewed owner binding associates it with a meeting UID.
-        if "owner_uid" not in {row[1] for row in c.execute("PRAGMA table_info(mail)")}:
-            c.execute("ALTER TABLE mail ADD COLUMN owner_uid TEXT")
-        c.executescript(
-            (Path(__file__).parent / "migrations/004_owner_incarnation.sql").read_text()
-        )
-        c.executescript(
-            (
-                Path(__file__).parent / "migrations/005_account_tombstones.sql"
-            ).read_text()
-        )
-        columns = {row[1] for row in c.execute("PRAGMA table_info(jobs)")}
-        for name, declaration in (
-            ("phase", "TEXT NOT NULL DEFAULT 'source'"),
-            ("source_version", "INTEGER"),
-            ("result_report_id", "TEXT"),
-        ):
-            if name not in columns:
-                c.execute(f"ALTER TABLE jobs ADD COLUMN {name} {declaration}")
-        c.executescript(
-            (Path(__file__).parent / "migrations/006_job_checkpoints.sql").read_text()
-        )
-        c.executescript(
-            (Path(__file__).parent / "migrations/007_human_review.sql").read_text()
-        )
+        if getattr(c, "dialect", None) == "postgresql":
+            c.initialize_schema(Path(__file__).parent / "migrations")
+        else:
+            c.executescript(
+                (Path(__file__).parent / "migrations/001_initial.sql").read_text()
+            )
+            c.executescript(
+                (
+                    Path(__file__).parent / "migrations/002_config_history.sql"
+                ).read_text()
+            )
+            c.executescript(
+                (
+                    Path(__file__).parent / "migrations/003_analysis_requests.sql"
+                ).read_text()
+            )
+            # SQLite ADD COLUMN is additive; legacy mail remains inaccessible until
+            # an explicit reviewed owner binding associates it with a meeting UID.
+            if "owner_uid" not in {
+                row[1] for row in c.execute("PRAGMA table_info(mail)")
+            }:
+                c.execute("ALTER TABLE mail ADD COLUMN owner_uid TEXT")
+            c.executescript(
+                (
+                    Path(__file__).parent / "migrations/004_owner_incarnation.sql"
+                ).read_text()
+            )
+            c.executescript(
+                (
+                    Path(__file__).parent / "migrations/005_account_tombstones.sql"
+                ).read_text()
+            )
+            columns = {row[1] for row in c.execute("PRAGMA table_info(jobs)")}
+            for name, declaration in (
+                ("phase", "TEXT NOT NULL DEFAULT 'source'"),
+                ("source_version", "INTEGER"),
+                ("result_report_id", "TEXT"),
+            ):
+                if name not in columns:
+                    c.execute(f"ALTER TABLE jobs ADD COLUMN {name} {declaration}")
+            c.executescript(
+                (
+                    Path(__file__).parent / "migrations/006_job_checkpoints.sql"
+                ).read_text()
+            )
+            c.executescript(
+                (Path(__file__).parent / "migrations/007_human_review.sql").read_text()
+            )
         c.execute("INSERT OR IGNORE INTO config VALUES(1,?)", (json.dumps(DEFAULTS),))
         c.commit()
         # Startup runs before the worker; take the writer lock for recovery and

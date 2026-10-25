@@ -4,3 +4,5 @@ out
 .git
 .env*
 npm-debug.log*
+tests/
+*.tsbuildinfo

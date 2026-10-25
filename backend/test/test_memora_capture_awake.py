@@ -163,3 +163,39 @@ def test_native_timeout_kills_only_owned_child(native):
     process.wait = wait
     awake.set_active("owner", "id", False)
     assert process.done and len(calls) == 2 and not awake._LEASES
+
+
+@pytest.mark.parametrize(
+    "address,flag,expected",
+    [
+        ("172.18.0.4", False, False),
+        ("172.18.0.4", True, True),
+        ("8.8.8.8", True, False),
+    ],
+)
+def test_docker_capture_lease_requires_explicit_local_stack(
+    client, monkeypatch, address, flag, expected
+):  # noqa: F811
+    mid = recording(client)
+    monkeypatch.setenv("MEMORA_INFERENCE_URL", "http://host.docker.internal:8091")
+    if flag:
+        monkeypatch.setenv("MEMORA_DOCKER_LOCAL", "1")
+    else:
+        monkeypatch.delenv("MEMORA_DOCKER_LOCAL", raising=False)
+    calls = []
+    monkeypatch.setattr(
+        awake,
+        "set_active",
+        lambda *args: calls.append(args) or dict(supported=True, active=True),
+    )
+    with TestClient(
+        client.app, headers={"Authorization": "Bearer 1"}, client=(address, 50000)
+    ) as docker:
+        result = docker.post(
+            PREFIX + f"/meetings/{mid}/capture-awake",
+            json={"active": True},
+            headers={"x-forwarded-for": "127.0.0.1"},
+        )
+    assert result.status_code == 200
+    assert result.json()["active"] is expected
+    assert bool(calls) is expected

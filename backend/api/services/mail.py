@@ -40,9 +40,21 @@ def send_email(receiver_email: str | list[str], message_text: str, object: str) 
     message.attach(MIMEText(str(message_text), "html", "utf-8"))
 
     try:
+        capture_only = os.environ.get("MEMORA_SMTP_CAPTURE_ONLY") == "1"
+        if capture_only and Setting.EMAIL_HOST not in (
+            "127.0.0.1",
+            "localhost",
+            "mailpit",
+        ):
+            # Explicitly refuse an external SMTP before opening a connection.
+            logSVC.logError("Serveur SMTP de capture local requis.")
+            return False
         with smtplib.SMTP(Setting.EMAIL_HOST, Setting.EMAIL_PORT, timeout=10) as server:
-            server.starttls()
-            server.login(user=Setting.EMAIL_USERNAME, password=Setting.EMAIL_PASSWORD)
+            if not capture_only:
+                server.starttls()
+                server.login(
+                    user=Setting.EMAIL_USERNAME, password=Setting.EMAIL_PASSWORD
+                )
             refused = server.sendmail(from_email, recipients, message.as_string())
         if refused:
             logSVC.logError(

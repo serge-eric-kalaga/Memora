@@ -43,6 +43,10 @@ def _expire():
 
 
 def set_active(owner, meeting, active):
+    from . import inference_bridge
+
+    if inference_bridge.configured():
+        return inference_bridge.capture_awake(owner, meeting, active)
     with _LOCK:
         _expire()
         lease = _LEASES.get(owner)

@@ -11,13 +11,23 @@ from dotenv import dotenv_values
 from sqlalchemy.orm import Session
 
 root = Path(__file__).resolve().parents[1]
-os.environ.update(
-    {
-        k: v
-        for k, v in dotenv_values(root / ".memora/backend.env").items()
-        if v is not None
-    }
+docker = root / ".memora/docker"
+source = (
+    docker / "backend.env"
+    if (docker / "import-complete.json").exists()
+    else root / ".memora/backend.env"
 )
+values = {k: v for k, v in dotenv_values(source).items() if v is not None}
+if source.parent == docker:
+    from sqlalchemy.engine import make_url
+
+    compose = dotenv_values(docker / "compose.env")
+    values["DATABASE_URL"] = (
+        make_url(values["DATABASE_URL"])
+        .set(host="127.0.0.1", port=int(compose.get("MEMORA_POSTGRES_PORT", "5433")))
+        .render_as_string(hide_password=False)
+    )
+os.environ.update(values)
 credentials = root / ".memora/demo.json"
 if not credentials.exists():
     credentials.write_text(
@@ -48,7 +58,7 @@ with httpx.Client(
     login.raise_for_status()
 # Admin is explicit only for the isolated demonstration identity.
 sys.path.insert(0, str(root / "backend"))
-from api.database import User, engine
+from api.database import User, engine  # noqa: E402 - configuration privée avant import
 
 with Session(engine) as db:
     user = User.get(db=db, username=account["username"])

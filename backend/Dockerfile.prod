@@ -6,15 +6,13 @@ WORKDIR /app
 RUN --mount=type=cache,id=fullstack-python,target=/root/.cache pip install --disable-pip-version-check uv==0.13.1
 COPY pyproject.toml uv.lock ./
 RUN --mount=type=cache,id=fullstack-python,target=/root/.cache uv sync --frozen --no-dev --no-install-project
-COPY . .
-RUN --mount=type=cache,id=fullstack-python,target=/root/.cache uv sync --frozen --no-dev
 
 FROM python:3.14-slim-bookworm
 ENV PATH="/opt/venv/bin:$PATH" PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
 WORKDIR /app
-RUN groupadd --gid 10001 application && useradd --uid 10001 --gid application --no-create-home application
+RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 && rm -rf /var/lib/apt/lists/* && groupadd --gid 10001 application && useradd --uid 10001 --gid application --no-create-home application
 COPY --from=builder /opt/venv /opt/venv
-COPY --from=builder --chown=application:application /app /app
+COPY --chown=application:application . /app
 RUN mkdir -p logs static/uploads && chown -R application:application logs static/uploads
 USER application
 EXPOSE 8000
