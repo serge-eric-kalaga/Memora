@@ -42,3 +42,11 @@ FinV1.1 : les cinq jalons ci-dessus sont intégrés/vérifiés ; détails testin
 5. Fin : recette isolée, garde traitements/capture avant redémarrage, activer config locale, vérifier intégrité/services et commit sans coauteur.
 
 Clôture : activation locale effectuée après garde0jobs/aucun audio récent ; empreintes domaine inchangées, intégritéOK et4HTTP200. Aucun audio personnel retraité. Commit local sans coauteur, aucun push.
+
+## Capture persistante et chat — clôturés localement
+
+1. Sessionmédia portée par layout, barre responsive et contrôle des changements de compte : terminé.
+2. Chat principal inspiréRead.ai, historique/sources/suivis et isolementbackend : terminé.
+3.315testsbackend,17contrôlescomposants montés et recette réelle22browser+13UI : PASS.
+4. Deux défautsproduit observés corrigés (modalcréation retenue, wrapperDOM/PPR), rerun complet sansexception.
+5. Activationlocale avec garde et empreintesdomaine inchangées, documentationmiseàjour, commitlocal autorisé sanscoauteur ; aucunpush.

@@ -58,3 +58,5 @@ Sources de vérité des résultats : testing.md + handoffs/*.md ; les logs volum
 - speaker-tools.tsx : renommage global et job volontairediarize, droits audio requis seulement pour séparation.
 - diarization.py : ResemblyzerCPU/Silero/AHC, poidsSHAofflinemode, abstentionmultivoix ; worker.process_diarization commitsatomiques/version+1/phasecomplete. scripts/memora-prepare-diarization.py et benchmark/reserve synthétiques.
 - Tests nouveaux : test_memora_human_review.py, test_memora_diarization.py, test_memora_worker_diarization.py ; frontend/tests/memora-microphone-*.mjs/memora-playback.test.mjs ; recettes API/navigateurétendues.
+
+Capture persistante : app/layout.tsx→CaptureProvider (capture-session.tsx)→CaptureRuntime ; app.tsx→CaptureSlot ; capture-runtime.tsx possède médias/queue/IndexedDB/continuité, audio-language.tsx fournit le sélecteur. MeetingChat dans meeting-chat.tsx, styles dédiés ; API conversation routes.py→ai.answer(history), autorisation répétée après inférence.

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense, type ReactNode } from "react";
 import "./globals.css";
+import { CaptureProvider } from "@/features/memora/capture-session";
 import { Providers } from "@/components/providers";
 import { Footer, SkipLink, PageTitle } from "@/components/layout/chrome";
 import { WorkspaceFrame } from "@/features/memora/workspace-frame";
@@ -16,21 +17,23 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html suppressHydrationWarning lang="fr" className="h-full antialiased">
       <body className="min-h-full">
         <Providers>
-          <Suspense fallback={<title>Memora</title>}>
-            <PageTitle />
-          </Suspense>
-          <SkipLink />
-          <Suspense fallback={<div />}>
-            <WorkspaceFrame>
-              <Suspense fallback={<header className="site-header" />}>
-                <Navbar />
-              </Suspense>
-              <div id="page-content" tabIndex={-1}>
-                {children}
-              </div>
-              <Footer />
-            </WorkspaceFrame>
-          </Suspense>
+          <CaptureProvider>
+            <Suspense fallback={<title>Memora</title>}>
+              <PageTitle />
+            </Suspense>
+            <SkipLink />
+            <Suspense fallback={<div />}>
+              <WorkspaceFrame>
+                <Suspense fallback={<header className="site-header" />}>
+                  <Navbar />
+                </Suspense>
+                <div id="page-content" tabIndex={-1}>
+                  {children}
+                </div>
+                <Footer />
+              </WorkspaceFrame>
+            </Suspense>
+          </CaptureProvider>
         </Providers>
       </body>
     </html>

@@ -1,12 +1,12 @@
 "use client";
+import { MeetingChat } from "./meeting-chat";
 import { useMemoraText } from "./i18n";
+import { CaptureSlot as Recorder } from "./capture-session";
+import { AudioLanguage } from "./audio-language";
 import { describeSegmentLanguage } from "./language";
 import { PlaybackTools } from "./playback-tools";
 import { ReportReview } from "./report-review";
 import { SpeakerTools } from "./speaker-tools";
-import { MicrophoneCheck } from "./microphone-check";
-import { useRecordingContinuity } from "./use-recording-continuity";
-import { RecordingSignal } from "./recording-signal";
 import { speakerLabel } from "./speaker-label";
 import { segmentAt } from "./playback";
 import { useI18n } from "@/lib/i18n/use-i18n";
@@ -14,7 +14,6 @@ import {
   useCallback,
   useEffect,
   useEffectEvent,
-  useId,
   useSyncExternalStore,
   useRef,
   useState,
@@ -32,9 +31,6 @@ import {
   Archive,
   Settings,
   Bell,
-  Play,
-  Pause,
-  Square,
   RefreshCw,
   Share2,
   Download,
@@ -42,7 +38,6 @@ import {
   X,
   Send,
   ShieldCheck,
-  Sparkles,
   CalendarDays,
   Clock3,
 } from "lucide-react";
@@ -60,7 +55,7 @@ import {
   type Item,
   type Share,
 } from "./api";
-import { saveChunk, pendingChunks, removeChunk } from "./storage";
+import { pendingChunks, removeChunk } from "./storage";
 import s from "./memora.module.css";
 const btn = s.button,
   primary = `${s.button} ${s.primary}`;
@@ -277,6 +272,8 @@ function DashboardContent() {
           transcription_language: transcriptionLanguage || language,
         }),
       });
+      setCreate(false);
+      setBusy(false);
       router.push(`/reunions/${m.id}`);
     } catch (e) {
       setError((e as Error).message);
@@ -1010,58 +1007,71 @@ function MeetingContent({
           </button>
         ))}
       </div>
-      <div className={s.two}>
+      <div className={`${s.two} ${currentTab === "chat" ? s.chatLayout : ""}`}>
         <div>
-          {(currentTab === "report" || currentTab === "chat") &&
-            (!access.token || permissions.report) && (
-              <section className={`${s.card} ${s.report}`}>
-                <div className={s.row}>
-                  <h2>{tr("Compte rendu")}</h2>
-                  {reports.length > 0 && (
-                    <select
-                      className={s.select}
-                      style={{ width: "auto" }}
-                      aria-label={tr("Version du rapport")}
-                      value={report?.id || ""}
-                      onChange={(e) => setSelectedReportId(e.target.value)}
-                    >
-                      {reports.map((r) => (
-                        <option key={r.id} value={r.id}>
-                          {tr("Version")}
-                          {r.revision || r.version} · source v{r.version}
-                          {r.id === meeting.report_id
-                            ? tr(" · Courante")
-                            : tr(" · Historique")}{" "}
-                          · {new Date(r.created).toLocaleDateString("fr-FR")}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-                </div>
-                {report ? (
-                  <ReportView
-                    report={report}
-                    meetingId={id}
-                    access={access}
-                    editable={!!canReview}
-                    refresh={load}
-                    currentVersion={meeting.version}
-                    segments={meeting.segments || []}
-                    seek={seek}
-                  />
-                ) : (
-                  <div className={s.empty}>
-                    <FileText size={36} />
-                    <h2>{tr("Votre compte rendu se prépare ici")}</h2>
-                    <p className={s.muted}>
-                      {tr(
-                        "Ajoutez un audio puis lancez l’analyse. Aucun résultat n’est inventé en attendant.",
-                      )}
-                    </p>
-                  </div>
+          {currentTab === "chat" && canChat && (
+            <div id="meeting-chat-panel" className={s.chatPrimary}>
+              <MeetingChat
+                id={id}
+                access={access}
+                segments={meeting.segments || []}
+                seek={seek}
+                canSeek={!!canAudio && !!canTranscript}
+                contextScope={`${canTranscript ? "transcript" : `report:${meeting.report_id}`}|audio:${!!canAudio}`}
+                history={meeting.chat || []}
+                currentVersion={meeting.version}
+              />
+            </div>
+          )}
+          {currentTab === "report" && (!access.token || permissions.report) && (
+            <section className={`${s.card} ${s.report}`}>
+              <div className={s.row}>
+                <h2>{tr("Compte rendu")}</h2>
+                {reports.length > 0 && (
+                  <select
+                    className={s.select}
+                    style={{ width: "auto" }}
+                    aria-label={tr("Version du rapport")}
+                    value={report?.id || ""}
+                    onChange={(e) => setSelectedReportId(e.target.value)}
+                  >
+                    {reports.map((r) => (
+                      <option key={r.id} value={r.id}>
+                        {tr("Version")}
+                        {r.revision || r.version} · source v{r.version}
+                        {r.id === meeting.report_id
+                          ? tr(" · Courante")
+                          : tr(" · Historique")}{" "}
+                        · {new Date(r.created).toLocaleDateString("fr-FR")}
+                      </option>
+                    ))}
+                  </select>
                 )}
-              </section>
-            )}
+              </div>
+              {report ? (
+                <ReportView
+                  report={report}
+                  meetingId={id}
+                  access={access}
+                  editable={!!canReview}
+                  refresh={load}
+                  currentVersion={meeting.version}
+                  segments={meeting.segments || []}
+                  seek={seek}
+                />
+              ) : (
+                <div className={s.empty}>
+                  <FileText size={36} />
+                  <h2>{tr("Votre compte rendu se prépare ici")}</h2>
+                  <p className={s.muted}>
+                    {tr(
+                      "Ajoutez un audio puis lancez l’analyse. Aucun résultat n’est inventé en attendant.",
+                    )}
+                  </p>
+                </div>
+              )}
+            </section>
+          )}
           {currentTab === "transcript" && (
             <section className={`${s.card} ${s.transcriptCard}`}>
               <div className={s.row}>
@@ -1496,22 +1506,6 @@ function MeetingContent({
               </>
             )}
           </section>
-          {canChat && (
-            <div
-              id="meeting-chat-panel"
-              className={`${s.chatPane} ${currentTab === "chat" ? s.showChat : ""}`}
-            >
-              <Chat
-                key={meeting.version}
-                history={meeting.chat || []}
-                currentVersion={meeting.version}
-                id={id}
-                access={access}
-                segments={meeting.segments || []}
-                seek={seek}
-              />
-            </div>
-          )}
         </aside>
       </div>
       {shareOpen && (
@@ -1746,811 +1740,6 @@ function Citations({
     </details>
   ) : (
     links
-  );
-}
-function Chat({
-  currentVersion,
-  history,
-  id,
-  access,
-  segments,
-  seek,
-}: {
-  currentVersion: number;
-  history?: {
-    version: number;
-    question: string;
-    answer: string;
-    sources: string[];
-  }[];
-  id: string;
-  access: Access;
-  segments: Segment[];
-  seek: (start: number, sourceVersion?: number) => void;
-}) {
-  const tr = useMemoraText();
-  const [question, setQuestion] = useState(""),
-    [messages, setMessages] = useState<
-      {
-        version: number;
-        question: string;
-        answer: string;
-        sources: string[];
-      }[]
-    >(history || []),
-    [busy, setBusy] = useState(false),
-    [error, setError] = useState("");
-  return (
-    <section className={`${s.card} ${s.chat}`}>
-      <div>
-        <h2>{tr("Interrogez votre réunion")}</h2>
-        <p className={s.muted}>
-          {tr(
-            "Des réponses fondées sur la transcription, avec accès aux passages sources.",
-          )}
-        </p>
-      </div>
-      {!messages.length && (
-        <div className={s.chatEmpty}>
-          <div className={s.chatSymbol}>
-            <Sparkles size={21} />
-          </div>
-          <p>
-            {tr(
-              "Retrouvez une décision, une action ou le passage qui vous manque.",
-            )}
-          </p>
-          <div className={s.chatExamples}>
-            {[
-              "Quelles décisions avons-nous prises ?",
-              "Quelles actions restent à faire ?",
-            ].map((prompt) => (
-              <button
-                type="button"
-                key={prompt}
-                onClick={() => setQuestion(tr(prompt))}
-              >
-                {tr(prompt)}{" "}
-                <ArrowUpRight
-                  size={11}
-                  style={{ display: "inline", marginLeft: 5 }}
-                />
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-      {messages.map((m, i) => (
-        <div key={i}>
-          <div className={`${s.bubble} ${s.question}`}>{m.question}</div>
-          <div className={s.bubble}>
-            <div className={s.badge}>
-              v{m.version}
-              {m.version !== currentVersion
-                ? ` · ${tr("Ancienne source")}`
-                : ""}
-            </div>
-            <p>{m.answer}</p>
-            {m.version === currentVersion ? (
-              <Citations ids={m.sources} segments={segments} seek={seek} />
-            ) : (
-              <p className={s.muted}>
-                {tr(
-                  "Réponse conservée dans son contexte original ; citations désactivées après correction de la transcription.",
-                )}
-              </p>
-            )}
-          </div>
-        </div>
-      ))}
-      <ErrorBox error={error} />
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault();
-          if (!question.trim()) return;
-          setBusy(true);
-          setError("");
-          try {
-            const result = await api<{
-              answer: string;
-              version: number;
-              sources?: string[];
-              citations?: string[];
-            }>(
-              `meetings/${id}/chat`,
-              { method: "POST", body: JSON.stringify({ question }) },
-              access,
-            );
-            setMessages([
-              ...messages,
-              {
-                question,
-                version: result.version,
-                answer: result.answer,
-                sources: result.sources || result.citations || [],
-              },
-            ]);
-            setQuestion("");
-          } catch (e) {
-            setError((e as Error).message);
-          } finally {
-            setBusy(false);
-          }
-        }}
-      >
-        <label className={s.field}>
-          <span>{tr("Votre question")}</span>
-          <textarea
-            className={s.textarea}
-            maxLength={2000}
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            placeholder={tr("Quelles décisions avons-nous prises ?")}
-          />
-        </label>
-        <button disabled={busy || !question.trim()} className={primary}>
-          <Send size={16} />
-          {busy ? tr("Recherche dans la réunion…") : tr("Poser la question")}
-        </button>
-      </form>
-    </section>
-  );
-}
-function Recorder({
-  meeting,
-  refresh,
-  onCaptureState,
-}: {
-  meeting: Meeting;
-  refresh: () => Promise<void>;
-  onCaptureState: (value: string) => void;
-}) {
-  const tr = useMemoraText();
-  const { language } = useI18n();
-  const [captureStream, setCaptureStream] = useState<MediaStream | null>(null);
-  const [selectedDeviceId, setSelectedDeviceId] = useState("");
-  const [microphoneTestActive, setMicrophoneTestActive] = useState(false);
-  const [state, setState] = useState("idle"),
-    [elapsed, setElapsed] = useState(0),
-    [captureLanguage, setCaptureLanguage] = useState<string | null>(
-      meeting.transcription_language || null,
-    ),
-    [selectedFile, setSelectedFile] = useState<{
-      name: string;
-      size: number;
-    } | null>(null),
-    [warning, setWarning] = useState(""),
-    [error, setError] = useState(""),
-    [saved, setSaved] = useState(0),
-    [progress, setProgress] = useState(0),
-    [pending, setPending] = useState(0),
-    [chunkCount, setChunkCount] = useState(meeting.chunks?.length || 0);
-  const changeState = useCallback(
-    (value: string) => {
-      setState(value);
-      onCaptureState(value);
-    },
-    [onCaptureState],
-  );
-  const recorder = useRef<MediaRecorder | null>(null),
-    stream = useRef<MediaStream | null>(null),
-    seq = useRef(meeting.chunk_count || meeting.chunks?.length || 0),
-    chain = useRef(Promise.resolve()),
-    stopRequested = useRef(false),
-    active = useRef(false),
-    lastTick = useRef(0),
-    fileInput = useRef<HTMLInputElement>(null),
-    importController = useRef<AbortController | null>(null);
-  useRecordingContinuity(
-    meeting.id,
-    state,
-    recorder,
-    setWarning,
-    language === "en",
-  );
-  const onDurationLimit = useEffectEvent(() =>
-    setError(
-      tr(
-        "Durée maximale atteinte. Finalisez l’audio sauvegardé pour lancer l’analyse.",
-      ),
-    ),
-  );
-  useEffect(() => {
-    const timer = setInterval(() => {
-      if (active.current)
-        setElapsed((v) => {
-          const now = Date.now();
-          const next =
-            v + Math.max(1, Math.round((now - lastTick.current) / 1000));
-          lastTick.current = now;
-          const limit = (meeting.settings?.max_duration_minutes || 120) * 60;
-          if (next >= limit - 60 && next < limit)
-            queueMicrotask(() =>
-              setWarning(
-                "La limite de durée approche : moins d’une minute restante.",
-              ),
-            );
-          if (next >= (meeting.settings?.max_duration_minutes || 120) * 60) {
-            active.current = false;
-            stopRequested.current = true;
-            if (recorder.current && recorder.current.state !== "inactive")
-              recorder.current.stop();
-            queueMicrotask(() => {
-              changeState("interrupted");
-              onDurationLimit();
-            });
-          }
-          return next;
-        });
-    }, 1000);
-    return () => {
-      clearInterval(timer);
-      stopRequested.current = true;
-      active.current = false;
-      if (recorder.current && recorder.current.state !== "inactive")
-        recorder.current.stop();
-      stream.current?.getTracks().forEach((t) => t.stop());
-    };
-  }, [meeting.settings?.max_duration_minutes, changeState]);
-  useEffect(() => {
-    void pendingChunks(meeting.id).then((chunks) => {
-      setPending(chunks.length);
-      if (chunks.length) {
-        seq.current = Math.max(seq.current, ...chunks.map((c) => c.seq + 1));
-        setChunkCount(seq.current);
-      }
-    });
-  }, [meeting.id]);
-  useEffect(() => {
-    function warn(e: BeforeUnloadEvent) {
-      if (
-        state === "recording" ||
-        state === "paused" ||
-        state === "uploading" ||
-        pending
-      ) {
-        e.preventDefault();
-        e.returnValue = "";
-      }
-    }
-    window.addEventListener("beforeunload", warn);
-    return () => window.removeEventListener("beforeunload", warn);
-  }, [state, pending]);
-  useEffect(() => () => importController.current?.abort(), []);
-  async function sync(signal?: AbortSignal) {
-    const chunks = await pendingChunks(meeting.id);
-    setPending(chunks.length);
-    for (const chunk of chunks) {
-      await api(`meetings/${meeting.id}/chunks?seq=${chunk.seq}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": chunk.blob.type || "application/octet-stream",
-        },
-        body: chunk.blob,
-        signal,
-      });
-      await removeChunk(chunk.key);
-      setSaved((v) => v + 1);
-      setPending((v) => Math.max(0, v - 1));
-    }
-  }
-  function queue(blob: Blob) {
-    const current = seq.current++;
-    setChunkCount(seq.current);
-    chain.current = chain.current
-      .catch(() => {})
-      .then(async () => {
-        await saveChunk(meeting.id, current, blob);
-        setPending((v) => v + 1);
-        try {
-          await sync();
-        } catch (e) {
-          setError(`Audio conservé sur cet appareil. ${(e as Error).message}`);
-        }
-      })
-      .catch((e) => {
-        setError(
-          `Sauvegarde locale impossible : ${e.message}. Gardez cette page ouverte et vérifiez le stockage du navigateur.`,
-        );
-      });
-  }
-  async function start() {
-    setError("");
-    try {
-      if (!navigator.mediaDevices?.getUserMedia)
-        throw Error(
-          tr(
-            "Microphone indisponible. Utilisez HTTPS ou localhost, ou importez un fichier audio.",
-          ),
-        );
-      if (seq.current > 0)
-        throw Error(
-          tr(
-            "Un enregistrement existe déjà. Finalisez-le avant de créer une nouvelle réunion pour enregistrer à nouveau.",
-          ),
-        );
-      try {
-        stream.current = await navigator.mediaDevices.getUserMedia({
-          audio: {
-            ...(selectedDeviceId
-              ? { deviceId: { exact: selectedDeviceId } }
-              : {}),
-            channelCount: { ideal: 1 },
-            sampleRate: { ideal: 48000 },
-            echoCancellation: { ideal: true },
-            noiseSuppression: { ideal: true },
-            autoGainControl: { ideal: true },
-          },
-        });
-      } catch (captureError) {
-        if (
-          captureError instanceof DOMException &&
-          ["OverconstrainedError", "NotSupportedError"].includes(
-            captureError.name,
-          )
-        )
-          stream.current = await navigator.mediaDevices.getUserMedia({
-            audio: true,
-          });
-        else throw captureError;
-      }
-      const type = ["audio/webm;codecs=opus", "audio/mp4", "audio/webm"].find(
-        (v) => MediaRecorder.isTypeSupported(v),
-      );
-      const media = new MediaRecorder(stream.current, {
-        audioBitsPerSecond: 128000,
-        ...(type ? { mimeType: type } : {}),
-      });
-      recorder.current = media;
-      for (const track of stream.current.getAudioTracks())
-        track.onended = () => {
-          stopRequested.current = true;
-          active.current = false;
-          if (media.state !== "inactive") media.stop();
-          changeState("interrupted");
-          setError(
-            tr(
-              "Le microphone a été déconnecté ou son autorisation retirée. Finalisez les fragments sauvegardés ; créez ensuite une autre réunion pour enregistrer à nouveau.",
-            ),
-          );
-          void api(`meetings/${meeting.id}`, {
-            method: "PATCH",
-            body: JSON.stringify({ state: "interrupted" }),
-          }).catch(() => {});
-        };
-      media.ondataavailable = (e) => {
-        if (e.data.size)
-          for (let offset = 0; offset < e.data.size; offset += 2 * 1024 * 1024)
-            queue(e.data.slice(offset, offset + 2 * 1024 * 1024, e.data.type));
-      };
-      media.onerror = () => {
-        stopRequested.current = true;
-        setError(
-          tr(
-            "L’enregistrement a été interrompu. Les fragments sauvegardés peuvent être repris.",
-          ),
-        );
-        changeState("interrupted");
-        active.current = false;
-      };
-      media.onstop = () => {
-        if (!stopRequested.current) {
-          void api(`meetings/${meeting.id}`, {
-            method: "PATCH",
-            body: JSON.stringify({ state: "interrupted" }),
-          }).catch(() => undefined);
-          changeState("interrupted");
-          setError(
-            language === "en"
-              ? "Recording stopped unexpectedly. Saved audio is preserved; check it before finalizing."
-              : "L’enregistrement s’est arrêté de façon inattendue. Les fragments sauvegardés sont conservés ; vérifiez-les avant de finaliser.",
-          );
-        }
-        active.current = false;
-        setCaptureStream(null);
-        stream.current?.getTracks().forEach((t) => t.stop());
-      };
-      await api(`meetings/${meeting.id}`, {
-        method: "PATCH",
-        body: JSON.stringify({
-          state: "recording",
-          mime_type: media.mimeType,
-          transcription_language: captureLanguage || language,
-        }),
-      });
-      stopRequested.current = false;
-      media.start(10000);
-      setCaptureStream(stream.current);
-      active.current = true;
-      lastTick.current = Date.now();
-      changeState("recording");
-    } catch (e) {
-      stream.current?.getTracks().forEach((t) => t.stop());
-      setCaptureStream(null);
-      setError((e as Error).message);
-    }
-  }
-  async function finalize() {
-    setError("");
-    changeState("saving");
-    stopRequested.current = true;
-    try {
-      if (recorder.current && recorder.current.state !== "inactive") {
-        await new Promise<void>((resolve) => {
-          recorder.current!.addEventListener("stop", () => resolve(), {
-            once: true,
-          });
-          recorder.current!.stop();
-        });
-      }
-      active.current = false;
-      await chain.current;
-      await sync();
-      await api(`meetings/${meeting.id}/finalize`, {
-        method: "POST",
-        body: JSON.stringify({ expected_chunks: seq.current }),
-      });
-      changeState("done");
-      await refresh();
-    } catch (e) {
-      setError((e as Error).message);
-      changeState("interrupted");
-    }
-  }
-  async function importFile(file: File) {
-    setSelectedFile({ name: file.name, size: file.size });
-    setError("");
-    if (!/\.(mp3|wav|m4a|mp4|ogg|webm|flac|aac)$/i.test(file.name)) {
-      setError(
-        tr(
-          "Format non pris en charge : MP3, WAV, M4A, MP4, OGG, WebM, FLAC ou AAC attendu.",
-        ),
-      );
-      return;
-    }
-    importController.current?.abort();
-    const controller = new AbortController();
-    importController.current = controller;
-    changeState("uploading");
-    try {
-      const settings =
-        meeting.settings ||
-        (await api<{
-          max_upload_mb?: number;
-        }>("settings"));
-      if (file.size > (settings.max_upload_mb || 500) * 1024 * 1024)
-        throw Error(tr("Ce fichier dépasse la limite d’import configurée."));
-      const size = 2 * 1024 * 1024;
-      await api(`meetings/${meeting.id}`, {
-        method: "PATCH",
-        body: JSON.stringify({
-          mime_type: file.type || "application/octet-stream",
-          filename: file.name,
-          transcription_language: captureLanguage || language,
-        }),
-        signal: controller.signal,
-      });
-      for (let offset = 0; offset < file.size; offset += size) {
-        controller.signal.throwIfAborted();
-        const index = offset / size;
-        await saveChunk(
-          meeting.id,
-          index,
-          file.slice(offset, offset + size, file.type),
-        );
-        setPending((v) => v + 1);
-        await sync(controller.signal);
-        controller.signal.throwIfAborted();
-        seq.current = index + 1;
-        setChunkCount(index + 1);
-        setProgress(
-          Math.round((Math.min(file.size, offset + size) / file.size) * 100),
-        );
-      }
-      controller.signal.throwIfAborted();
-      await finalize();
-    } catch (e) {
-      if (importController.current !== controller) return;
-      setError(
-        controller.signal.aborted
-          ? tr(
-              "Transfert interrompu. Les fragments sauvegardés sont conservés. Sélectionnez le même fichier pour reprendre et terminer l’import.",
-            )
-          : (e as Error).message,
-      );
-      changeState("interrupted");
-    }
-  }
-  return (
-    <section className={s.recorder}>
-      <div className={s.eyebrow}>
-        {meeting.mode === "import"
-          ? tr("IMPORT AUDIO")
-          : tr("ENREGISTREMENT AUDIO")}
-      </div>
-      <h2>
-        {state === "recording"
-          ? tr("Vous êtes à l’écoute.")
-          : state === "paused"
-            ? tr("Prenez votre temps.")
-            : tr("Chaque échange compte.")}
-      </h2>
-      <p className={s.recorderMessage}>
-        {state === "recording"
-          ? language === "en"
-            ? "Your meeting is being recorded. You can pause at any time."
-            : "Votre réunion est en cours d’enregistrement. Vous pouvez mettre en pause à tout moment."
-          : state === "paused"
-            ? language === "en"
-              ? "Recording is paused. Resume whenever you’re ready."
-              : "L’enregistrement est en pause. Reprenez quand vous êtes prêt."
-            : state === "saving"
-              ? language === "en"
-                ? "Saving your audio. Please keep this page open."
-                : "Nous sauvegardons votre audio. Gardez cette page ouverte encore un instant."
-              : state === "uploading"
-                ? language === "en"
-                  ? "Your audio is being imported. You can follow its progress below."
-                  : "Votre audio est en cours d’import. Suivez son avancement ci-dessous."
-                : state === "interrupted"
-                  ? language === "en"
-                    ? "The recording or import was interrupted. Follow the instructions below to continue."
-                    : "L’enregistrement ou l’import a été interrompu. Suivez les indications ci-dessous pour poursuivre."
-                  : state === "done"
-                    ? language === "en"
-                      ? "Your audio has been sent for analysis."
-                      : "Votre audio a été transmis pour analyse."
-                    : meeting.mode === "import"
-                      ? language === "en"
-                        ? "Add your meeting audio to find its key takeaways."
-                        : "Ajoutez l’audio de votre réunion pour en retrouver l’essentiel."
-                      : language === "en"
-                        ? "Ready to begin? Let everyone know, then start recording."
-                        : "Prêt à commencer ? Prévenez les participants, puis lancez l’enregistrement."}
-      </p>
-      <details className={s.recorderHelp}>
-        <summary>
-          {language === "en"
-            ? meeting.mode === "import"
-              ? "Import tips"
-              : "Recording tips"
-            : meeting.mode === "import"
-              ? "Conseils pour importer un audio"
-              : "Conseils pour enregistrer"}
-        </summary>
-        {meeting.mode === "import" ? (
-          <p>
-            {language === "en"
-              ? "Maximum file size:"
-              : "Taille maximale du fichier :"}{" "}
-            {meeting.settings?.max_upload_mb || 250}{" "}
-            {language === "en" ? "MB" : "Mo"}. MP3, WAV, M4A, MP4, OGG, WebM,
-            FLAC, AAC.
-          </p>
-        ) : (
-          <>
-            <p>
-              {language === "en"
-                ? "Let participants know before recording. Your microphone starts only when you select Record."
-                : "Informez les participants avant de commencer. Le microphone s’active uniquement lorsque vous choisissez Enregistrer."}
-            </p>
-            <p>
-              {language === "en"
-                ? "Keep this page open. You can switch tabs; avoid putting your computer to sleep or closing its lid during the meeting."
-                : "Gardez cette page ouverte. Vous pouvez changer d’onglet ; évitez de mettre l’ordinateur en veille ou de fermer son capot pendant la réunion."}
-            </p>
-            <p>
-              {language === "en"
-                ? "Maximum recording time:"
-                : "Durée maximale d’enregistrement :"}{" "}
-              {meeting.settings?.max_duration_minutes || 120} min.
-            </p>
-          </>
-        )}
-      </details>
-      {["idle", "interrupted"].includes(state) && (
-        <div style={{ maxWidth: 330, margin: "20px auto", textAlign: "left" }}>
-          <AudioLanguage
-            value={captureLanguage || language}
-            onChange={setCaptureLanguage}
-          />
-        </div>
-      )}
-      {meeting.mode !== "import" && chunkCount === 0 && (
-        <MicrophoneCheck
-          language={language === "en" ? "en" : "fr"}
-          selectedDeviceId={selectedDeviceId}
-          onDeviceChange={setSelectedDeviceId}
-          onActiveChange={setMicrophoneTestActive}
-          disabled={!["idle", "interrupted"].includes(state)}
-        />
-      )}
-      <ErrorBox error={error} />
-      {warning && (
-        <div className={s.notice} role="status">
-          {tr(warning)}
-        </div>
-      )}
-      {meeting.mode !== "import" && (
-        <div className={s.timer}>
-          {state === "recording" && <span className={s.pulse} />}{" "}
-          {clock(elapsed)}
-        </div>
-      )}
-      {captureStream && ["recording", "paused"].includes(state) && (
-        <RecordingSignal
-          stream={captureStream}
-          state={state}
-          language={language === "en" ? "en" : "fr"}
-        />
-      )}
-      {meeting.mode === "import" && (selectedFile || meeting.filename) && (
-        <div className={s.notice} style={{ overflowWrap: "anywhere" }}>
-          <strong>{tr("Fichier sélectionné")}</strong>
-          <p>{selectedFile?.name || meeting.filename}</p>
-          {selectedFile && (
-            <p>
-              {(selectedFile.size / (1024 * 1024)).toLocaleString(undefined, {
-                maximumFractionDigits: 2,
-              })}{" "}
-              {tr("Mo")}
-            </p>
-          )}
-        </div>
-      )}
-      {state === "uploading" && (
-        <>
-          <progress className={s.progress} max={100} value={progress} />
-          <p>
-            {progress}
-            {tr("% importés")}
-          </p>
-        </>
-      )}
-      <div
-        className={s.actions}
-        style={{ justifyContent: "center", marginTop: 20 }}
-      >
-        {["idle", "interrupted"].includes(state) &&
-          meeting.mode !== "import" &&
-          chunkCount === 0 && (
-            <button
-              className={primary}
-              disabled={microphoneTestActive}
-              onClick={() => void start()}
-            >
-              <Mic size={18} />
-              {tr("Enregistrer")}
-            </button>
-          )}
-        {state === "uploading" && (
-          <button
-            className={btn}
-            onClick={() => {
-              importController.current?.abort();
-            }}
-          >
-            {tr("Interrompre le transfert")}
-          </button>
-        )}
-        {state === "recording" && (
-          <button
-            className={btn}
-            onClick={() => {
-              recorder.current?.pause();
-              active.current = false;
-              changeState("paused");
-              void api(`meetings/${meeting.id}`, {
-                method: "PATCH",
-                body: JSON.stringify({ state: "paused" }),
-              }).catch(() => {});
-            }}
-          >
-            <Pause size={18} />
-            Pause
-          </button>
-        )}
-        {state === "paused" && (
-          <button
-            className={primary}
-            onClick={() => {
-              recorder.current?.resume();
-              active.current = true;
-              lastTick.current = Date.now();
-              changeState("recording");
-              void api(`meetings/${meeting.id}`, {
-                method: "PATCH",
-                body: JSON.stringify({ state: "recording" }),
-              }).catch(() => {});
-            }}
-          >
-            <Play size={18} />
-            {tr("Reprendre")}
-          </button>
-        )}
-        {meeting.mode !== "import" &&
-          ["recording", "paused", "interrupted"].includes(state) && (
-            <button className={primary} onClick={() => void finalize()}>
-              <Square size={16} />
-              {tr("Terminer et analyser")}
-            </button>
-          )}
-        {["idle", "interrupted"].includes(state) &&
-          meeting.mode === "import" && (
-            <button
-              className={primary}
-              onClick={() => fileInput.current?.click()}
-            >
-              <Upload size={18} />
-              {chunkCount > 0
-                ? tr("Reprendre avec le même fichier")
-                : tr("Choisir un fichier audio")}
-            </button>
-          )}
-        {(pending > 0 || (state === "idle" && chunkCount > 0)) && (
-          <>
-            <button
-              className={btn}
-              onClick={() =>
-                void sync()
-                  .then(() => setError(""))
-                  .catch((e) => setError(e.message))
-              }
-            >
-              <RefreshCw size={16} />
-              {tr("Reprendre la sauvegarde")}
-            </button>
-            {meeting.mode !== "import" && (
-              <button className={primary} onClick={() => void finalize()}>
-                {tr("Finaliser l’audio sauvegardé")}
-              </button>
-            )}
-          </>
-        )}
-      </div>
-      <input
-        ref={fileInput}
-        hidden
-        type="file"
-        accept="audio/*,.mp4,.m4a,.webm,.flac"
-        onChange={(e) => {
-          const f = e.target.files?.[0];
-          e.target.value = "";
-          if (f) void importFile(f);
-        }}
-      />
-      <p className={s.sub}>
-        {state === "saving"
-          ? tr("Sauvegarde et préparation de l’analyse…")
-          : `${saved} fragments confirmés · ${pending} en attente locale`}
-      </p>
-      {meeting.live_segments?.length ? (
-        <div className={s.card} style={{ textAlign: "left", marginTop: 20 }}>
-          <h3>
-            {tr("Transcription en direct")} · {tr("Provisoire")}
-          </h3>
-          <p className={s.muted}>
-            {tr(
-              "Ces passages provisoires seront remplacés par la transcription finale après l’arrêt.",
-            )}
-          </p>
-          {meeting.live_segments.slice(-4).map((segment) => (
-            <p key={segment.id}>
-              <span className={s.muted}>{clock(segment.start)} </span>
-              {segment.text}
-            </p>
-          ))}
-        </div>
-      ) : (
-        state === "recording" && (
-          <p className={s.muted}>
-            {tr(
-              "La transcription apparaîtra progressivement après traitement des fragments.",
-            )}
-          </p>
-        )
-      )}
-    </section>
   );
 }
 function ShareDialog({
@@ -3190,40 +2379,6 @@ function MailStatus() {
         ))
       )}
     </>
-  );
-}
-
-function AudioLanguage({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  const tr = useMemoraText();
-  const fieldId = useId();
-  return (
-    <div className={s.field}>
-      <label htmlFor={fieldId} className={s.fieldLabel}>
-        {tr("Langue de l’audio")}
-      </label>
-      <select
-        id={fieldId}
-        aria-describedby={`${fieldId}-help`}
-        className={s.select}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-      >
-        <option value="auto">{tr("Automatique · français / anglais")}</option>
-        <option value="fr">{tr("Français")}</option>
-        <option value="en">English</option>
-      </select>
-      <small id={`${fieldId}-help`} className={`${s.muted} ${s.languageHelp}`}>
-        {tr(
-          "Choisissez Français ou English pour un audio monolingue, Automatique pour une alternance de langues.",
-        )}
-      </small>
-    </div>
   );
 }
 

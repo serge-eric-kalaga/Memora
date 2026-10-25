@@ -156,6 +156,14 @@ async def access(request, mid, capability="view"):
         gen.close()
 
 
+def chat_scope(meeting, rights):
+    if rights.get("transcript"):
+        return "transcript"
+    if rights.get("report"):
+        return "report:" + str(meeting.get("report_id"))
+    return "none"
+
+
 def public_meeting(c, m, rights, actor):
     result = {
         k: v
@@ -234,6 +242,8 @@ def public_meeting(c, m, rights, actor):
                 "SELECT * FROM chats WHERE meeting=? AND actor=? ORDER BY created",
                 (m["id"], actor),
             )
+            if json.loads(r["data"]).get("context_scope") == chat_scope(m, rights)
+            or (rights.get("manage") and not json.loads(r["data"]).get("context_scope"))
         ]
     return result
 
@@ -1054,6 +1064,23 @@ async def chat(mid: str, body: Question, request: Request):
         quota_actor = request.headers.get("x-share-token") or actor
         limit(c, "chat:" + quota_actor, 20)
         version = m["version"]
+        scope = chat_scope(m, rights)
+        if not rights.get("transcript") and m.get("report_version") != version:
+            error(409, "Actualisez le rapport avant de questionner son contenu.")
+        history_filter = "meeting=? AND actor=? AND version=? AND json_extract(data,'$.context_scope')=?"
+        history_args = (mid, actor, version, scope)
+        history_count = c.execute(
+            "SELECT count(*) FROM chats WHERE " + history_filter, history_args
+        ).fetchone()[0]
+        rows = c.execute(
+            "SELECT data FROM chats WHERE "
+            + history_filter
+            + " ORDER BY created DESC,id DESC LIMIT 6",
+            history_args,
+        ).fetchall()
+        history = [json.loads(row["data"]) for row in reversed(rows)]
+        if history:
+            history[0]["_older_turns_omitted"] = history_count - len(history)
         if rights.get("transcript"):
             segments = s.transcript(c, mid, version)
         elif rights.get("report"):
@@ -1083,26 +1110,55 @@ async def chat(mid: str, body: Question, request: Request):
     try:
         from starlette.concurrency import run_in_threadpool
 
-        result = await run_in_threadpool(
-            ai.answer, segments, body.question, m["settings"]["report_language"]
-        )
+        arguments = [segments, body.question, m["settings"]["report_language"]]
+        if history:
+            arguments.append(history)
+        result = await run_in_threadpool(ai.answer, *arguments)
     except Exception:
         error(
             503, "Modèle local indisponible. Réessayez ; votre réunion est conservée."
         )
     # Revalidate after a slow model call: revoke/expire/correct during inference.
-    current, _, _ = await access(request, mid, "chat")
-    if current["version"] != version:
+    current, current_rights, _ = await access(request, mid, "chat")
+    if current["version"] != version or chat_scope(current, current_rights) != scope:
         error(
-            409, "La source a changé pendant la réponse. Posez à nouveau la question."
+            409,
+            "La source ou les droits ont changé pendant la réponse. Posez à nouveau la question.",
         )
-    if not rights.get("transcript"):
-        result["sources"] = []
-    result.update(question=body.question, version=version)
+    allowed = {segment["id"] for segment in segments}
+    result["sources"] = (
+        list(
+            dict.fromkeys(
+                source for source in result.get("sources", []) if source in allowed
+            )
+        )
+        if rights.get("transcript")
+        else []
+    )
+    result.update(
+        question=body.question,
+        version=version,
+        id=s.uid(),
+        created=time.time(),
+        context_scope=scope,
+        history_omitted=ai.conversation_context(history)["omitted_turns"],
+    )
     with s.db() as c:
+        c.execute("BEGIN IMMEDIATE")
+        locked = s.meeting(c, mid)
+        if not locked or s.owner_deleted(c, locked.get("owner_uid")):
+            error(404, "Réunion indisponible.")
+        locked_rights = current_rights
+        if request.headers.get("x-share-token"):
+            share, _ = share_access(c, request, mid, "chat")
+            locked_rights = share["permissions"]
+        if locked["version"] != version or chat_scope(locked, locked_rights) != scope:
+            error(
+                409, "La source ou les droits ont changé. Posez à nouveau la question."
+            )
         c.execute(
             "INSERT INTO chats VALUES(?,?,?,?,?,?)",
-            (s.uid(), mid, actor, version, json.dumps(result), time.time()),
+            (result["id"], mid, actor, version, json.dumps(result), result["created"]),
         )
     return result
 

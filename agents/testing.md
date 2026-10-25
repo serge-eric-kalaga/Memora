@@ -193,3 +193,21 @@ Textes enregistreur activés localement : lint/types/buildPASS, frontend seul re
 Ruff, lint/types/build et contrat OpenAPIcheck PASS. Vrai pipeline synthétique isolé : WhisperTurbo→Resemblyzer→Gemma,40,17s audio2voix/6prisesnonalternées,18,036s pipeline ; mêmes texte/IDs/temps v1/v2, labels1/2/2/1/1/2 et rapport uniquev2. Corpus connu, pas nouvelle réserve ni garantie naturelle. Handoff automatic-speakers-real.md ; reproduction scripts/memora-qa-auto-speakers.py après préparation réserve.
 
 Recette finale réelle21browser+12UI PASS environ108s : nouveaux imports mixte/FR avec labels/provenanceSHA, v1ASR conservée, rapportv2, corrections/renommage/séparation manuelle, aucunJSerror. Logs auto-speakers-isolated-browser.log et handoffs/auto-speakers-browser.md. Main activé après gardes0jobs/0capture/aucun audio récent,4HTTP200 et empreintes de toutes tables domaine inchangées/intégritéOK. Aucun retraitement personnel.
+
+## Capture persistante et chat conversationnel (25/10)
+
+- `python3 scripts/memora-test.py` :315PASS,3RedisSKIP,1warning Pydantic préexistant,23,00s ; logpersistent-chat-backend.log.
+- Ruffcheck backend ai/routes/testconversation et scripts/memora-qa-conversation.py PASS ; exportOpenAPI --check et npm run api:check PASS.
+- `npm run lint`, `npm run typecheck`, `npm run build:memora` PASS ; cinqwarnings lint dans tests existants. Logs persistent-chat-{lint,types,build}.log.
+- Chromium existant1248 explicite, `node tests/memora-persistent-capture-browser.mjs` :10contrôles PASS. MediaRecorder/codec/IndexedDB réels, API/auth/NextLink simulés ; navigation React, expiration et changement de compte, acquisition tardive après logout.
+- Même Chromium, `node tests/memora-meeting-chat-browser.mjs` :7PASS après intégration finale ; réponsesAPI simulées, envoi/reprise/versions/droits/mobile. Logpersistent-chat-component.log.
+- `scripts/memora-qa-conversation.py` :3tours réels Gemma sur transcription synthétique,10,475s total ; échéance vendredi sourcée et budget absent non inventé. Aucune donnée personnelle ni service payant. Logsconversation-real.{json,log}.
+- Recette Next/API/IA réelle isolée : en cours, résultat et captures à ajouter après achèvement.
+
+Tentatives intégrées conservées : première attente d’historique trop stricte (texte accessible inclut « Vous : »), assertion corrigée sans modifier produit ; deuxième navigation révèle modalcréation conservée dans l’étatNext au retour dashboard, recouvrant la barre. Produit corrigé : succèscréation ferme modal et libère busy avant router.push. Nouveau build et recette complète requis ; captures/logséchec conservés horsGit.
+
+Dernier obstacle réel : tousparcours fonctionnels intégrésPASS, mais deux erreurs React418 détectées en finrun. Repro courte réunion brouillon sansIA : baselineproduction→418, dev→0, varianteproduction enfantsdirectsCaptureProvider→0, baselineproduction rétablie→418. Correction enlève wrapperDOM permanent et ajoute spacerconditionnel ; build finalPASS, recette complète relancée. Aucun avertissement masqué ni assertion zéroexception supprimée.
+
+Clôture finale : `PLAYWRIGHT_CHROMIUM_EXECUTABLE=<Chromium1248 installé> python3 scripts/memora-verify-isolated.py --browser-only --asr-engine mlx-whisper --french-asr-engine mlx-whisper --timeout 2400` :5stagesPASS,22browser+13auditUI,120,0s, zéroexceptionJS, demo_data_touched:false. 4capturesbarre et4chat desktop/mobile clair/sombre ; exemples inspectésROOT. Ports/services/stockages isolés nettoyés ; GPUlibre. Logfinal persistent-chat-isolated-browser.log, isolated-summary.json ; preuvesAB hydratation conservées. Harnesscapture10PASS relancé après suppressionwrapper.
+
+Activationmain : guard0jobs/0capture/aucun audio récent, restart scriptsmemora en modeproduction local,4HTTP200 ; empreintes toutes tablesdomaine inchangées, quick_checkOK,0jobs. .memora/persistent-chat-activation.json0600. Aucun contenu personnel testé/modifié.

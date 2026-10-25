@@ -69,3 +69,11 @@ Visualisation de capture dérivée du flux MediaRecorder existant, sans deuxièm
 ### 25 octobre — capture en arrière-plan et veille
 
 Le défilement de l’onde est un historique de pics réels ; l’affichage ne commande jamais la capture. Changer d’onglet déclenche un flush sans pause ni arrêt. Éviter toute promesse impossible d’enregistrement pendant suspension physique de la machine : Screen Wake Lock est limité aux pages visibles. Sur ce backend macOS local, une assertion caffeinate-i bornée120s, renouvelée30s, empêche uniquement la veille automatique ; cleanup et autorisation propriétaire/UID/loopback/capture assurés. Aucun réglageOS permanent, son silencieux ou restriction navigateur contournée. Tests des baux et assertions natifs séparés des mocks WakeLock/HTTP du harness ; micro et veille physiques non testés.
+
+## Capture persistante et conversation
+
+Le layout racine possède la session média via CaptureProvider ; CaptureSlot ne possède que son ancre DOM et les callbacks de page. Le portail expose les contrôles complets sur la réunion, la barre fixe ailleurs. Une autre réunion ne remplace pas une capture active. Déconnexion/expiration/changement de compte arrêtent les pistes ; une acquisition tardive est nettoyée. Le rechargement complet et la fermeture du navigateur restent des interruptions.
+
+Chat déplacé en zone principale sur son onglet, lecteur conservé pour citations. Contexte conversationnel limité aux six derniers tours entiers/6000caractères, même réunion/acteur/version/droits ; omission annoncée. Les réponses précédentes ne constituent pas une preuve. Après inférence, accès/version sont revérifiés avant insertion. Pas de nouvelle dépendance, migration ou fournisseur.
+
+Rendu optimisé Next16/PPR : CaptureProvider conserve les enfants sans conteneur DOM permanent ; un espace réservé est ajouté seulement pendant capture hors page. A/B production isolé : wrapper initial→React418 au rechargement réunion brouillon ; mêmescript avec enfants directs→0erreur ; retour au wrapper→418 reproduit. Le serveur dev n’exposait pas ce défaut. Aucun suppressHydrationWarning ni exception de test ajoutée.

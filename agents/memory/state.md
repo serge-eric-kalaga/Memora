@@ -1,6 +1,18 @@
 # Memora — état de reprise
 
-Mis à jour 2026-10-25 12:53 UTC, Africa/Ouagadougou. Livraison locale V1 et jalon supplémentaire de précision intégrés. Commits locaux autorisés par l’utilisateur après livraison ; aucun push, achat, déploiement public ou email réel. Lire AGENTS.md → agents/README.md → ce fichier, puis uniquement les preuves utiles. Les notes/fichiers actuels priment sur les anciens points de reprise.
+Mis à jour 2026-10-25 13:26 UTC, Africa/Ouagadougou. Livraison locale V1 et jalon supplémentaire de précision intégrés. Commits locaux autorisés par l’utilisateur après livraison ; aucun push, achat, déploiement public ou email réel. Lire AGENTS.md → agents/README.md → ce fichier, puis uniquement les preuves utiles. Les notes/fichiers actuels priment sur les anciens points de reprise.
+
+## Navigation pendant capture et chat conversationnel — livrés localement
+
+CaptureProvider dans layout racine, CaptureRuntime propriétaire médias/queue/IndexedDB et portail CaptureSlot ; barre compacte hors réunion avec pause/reprise/fin et retour. Navigation interne conserve la même piste. Une autre réunion ne remplace pas la capture active ; expiration/déconnexion/changement de compte nettoient les pistes, acquisition tardive comprise. Fermeture/rechargement/veille matérielle restent des interruptions possibles.
+
+Chat en zone principale de son onglet, discussion claire, composer fixe multiline, historique réel, reprise sur erreur et sources accessibles selon droits. Suivis conversationnels : sixderniers tours entiers/6000caractères, même réunion/acteur/version/scope, omissions annoncées, ancienne réponse jamais preuve. Accès/version/scope revérifiés après inférence et sous transaction. Anciens chats restent identifiables ; anciennes citations ne pilotent pas l’audio courant.
+
+Preuves :315backendPASS/3RedisSKIP/1warning23s ;10contrôles Chromium capture et7chat montés (API simulée, médias réels). Trois tours Gemma synthétiques réels10,475s. Lint/types/build/Ruff/format/OpenAPI/SDK PASS (5warnings lint tests). Recette finale réelle isolée22browser+13auditUI PASS120s, zéroexceptionJS : capture/live, navigationdashboard/profil/autreréunion,1getUM/0stop, fragments ET octets croissants, pause/reprise/coupureréseau/finalizebarre→rapport, chatdesktop/mobile et historiqueaprèsreload. Huit capturesbarre/chat clair/sombre/mobile ; échantillons inspectésROOT. Stockages/services jetables nettoyés, aucun microphone physique ou audio personnel utilisé.
+
+Défauts corrigés : modalcréation dashboard conservée par Next au retour (fermeture+busy avantpush) ; wrapperDOM CaptureProvider causant React418 en buildPPR au hardreloadréunion (A/Bproduction confirmé, enfants directs+spacerconditionnel). Deux erreurs de test corrigées sans affaiblir assertions : questionaccessible inclut « Vous : », détailAPI expose chunks[] et nonchunk_count. Échecs conservés horsGit. Handoffs conversation-chat.md, meeting-chat-component.md, persistent-capture-layout.md et persistent-capture-browser.md, persistent-capture-chat-final.md.
+
+Activation locale terminée après garde0jobs/0capture/aucun audio récent :4HTTP200, empreintes toutes tables domaine inchangées, intégritéOK et0jobs. Preuve privée .memora/persistent-chat-activation.json. UI http://127.0.0.1:3000 ; actualiser AVANT de démarrer un nouvel enregistrement, puis naviguer par les liens internes. Microphone physique/Safari-iOS/veille réelle/longue durée non vérifiés. Commit local sans coauteur, aucun push.
 
 ## Intervenants automatiques — livrés localement
 

@@ -1764,3 +1764,17 @@
 .recorderHelp p {
   margin: 8px 0;
 }
+
+/* Chat is the main selected view, never hidden below the audio sidebar. */
+.chatPrimary {
+  min-width: 0;
+  scroll-margin-top: 20px;
+}
+.meetingApp .chatLayout {
+  align-items: start;
+}
+@media (max-width: 1100px) {
+  .meetingApp .chatLayout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

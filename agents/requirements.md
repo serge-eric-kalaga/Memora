@@ -108,3 +108,15 @@ Actions/décisions : cartes regroupant texte, sources et pied de validation ; re
 | Préserver sources/historique/concurrence | checkpoints ASRv1→labels v2→rapport, source_version et active_job gates |57tests ciblés/reprises/races/échecs,306backendPASS ; aucun texte/ID/temps changé v1/v2. |
 | Pas de numéros inventés pour ambiguïtés | speaker-label.ts, app/citations/SpeakerTools/ReportReview |2tests libellés, rendus navigateur réels ; noms humains préservés, Voix à vérifier si non attribuable. |
 | Pas de traitement implicite des anciennes | snapshot absent=pasauto ; env règle prochaines créations seulement | Test API0→1 conserve snapshot antérieur ; activationempreintes domaine inchangées, aucune réunion personnelle retraitée. |
+
+## Navigation et chat — demande supplémentaire
+
+| Exigence | Fichiers | Vérification et état |
+| --- | --- | --- |
+| Naviguer en conservant la capture, commandes compactes | capture-session.tsx, capture-runtime.tsx, capture-session.module.css, app/layout.tsx | Implémenté ;10contrôles Chromium montés, API simulée. Recette Next réelle distincte dans testing.md. |
+| Chat visible et discussion claire inspirée Read.ai | meeting-chat.tsx/module.css, app.tsx | Implémenté ;7contrôles Chromium montés, réponses synthétiques simulées ; build/lint/types PASS. |
+| Questions de suivi et sources autorisées | backend/api/memora/ai.py et routes.py, test_memora_conversation.py |8testsconversation,315backendPASS ;3tours Gemma réels synthétiques, échéance référencée et budget absent non inventé. |
+
+Fermeture/rechargement/veille matérielle ne bénéficient pas de la persistance du layout ; microphone physique et Safari/iOS non vérifiés.
+
+Validation finale navigation/chat : recette réelle22browser+13auditUI PASS120s, zéroexceptionJS, capturemême pistependantnav, pause/reprise/réseau/finalisationbarre→rapport, chatrestauréaprèsreload. Quatrevues clair/sombre desktop/mobile pourbarre etchat. Activationlocale4HTTP200 etempreintesdomaine inchangées. Détails testing.md/state.md ; donnéespersonnelles inchangées.

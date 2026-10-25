@@ -397,6 +397,49 @@ try {
       path: artifactPath("logs", "audit-human-review-mobile.png"),
       fullPage: true,
     });
+    await page.getByRole("button", { name: "Chat IA", exact: true }).click();
+    const primaryChat = page.locator("#meeting-chat-panel");
+    await primaryChat
+      .getByRole("heading", { name: "Memora IA", exact: true })
+      .waitFor();
+    for (const view of [
+      { name: "desktop", width: 1440, height: 1000 },
+      { name: "mobile", width: 390, height: 844 },
+    ]) {
+      await page.setViewportSize({ width: view.width, height: view.height });
+      for (const theme of ["light", "dark"]) {
+        await page
+          .getByRole("combobox", { name: "Thème", exact: true })
+          .selectOption(theme);
+        await page.waitForFunction(
+          (value) => document.documentElement.dataset.theme === value,
+          theme,
+        );
+        assert.equal(
+          await page
+            .getByRole("heading", { name: "Résumé", exact: true })
+            .count(),
+          0,
+        );
+        assert.ok(
+          await primaryChat
+            .getByRole("textbox", { name: "Votre question", exact: true })
+            .isVisible(),
+        );
+        assert.equal(
+          await page.evaluate(
+            () => document.documentElement.scrollWidth > innerWidth,
+          ),
+          false,
+        );
+        await primaryChat.screenshot({
+          path: artifactPath("logs", `chat-primary-${view.name}-${theme}.png`),
+        });
+      }
+    }
+    pass(
+      "Chat principal accessible desktop/mobile clair/sombre, composer visible sans rapport concurrent",
+    );
     await page
       .getByRole("button", { name: "Transcription", exact: true })
       .click();
@@ -445,11 +488,9 @@ try {
           { exact: true },
         )
         .waitFor();
-      const tips = page
-        .locator("details")
-        .filter({
-          has: page.getByText("Conseils pour enregistrer", { exact: true }),
-        });
+      const tips = page.locator("details").filter({
+        has: page.getByText("Conseils pour enregistrer", { exact: true }),
+      });
       assert.equal(await tips.getAttribute("open"), null);
       await page
         .getByText("Conseils pour enregistrer", { exact: true })

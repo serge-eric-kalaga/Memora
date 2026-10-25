@@ -40,7 +40,18 @@ const owner = await browser.newContext({
   permissions: ["microphone"],
 });
 const page = await owner.newPage();
-page.on("pageerror", (e) => errors.push(e.message));
+page.on("pageerror", (e) => {
+  errors.push(e.message);
+  console.error(
+    "Browser exception",
+    JSON.stringify({
+      url: new URL(page.url()).pathname,
+      lastCheckpoint: reports.at(-1),
+      message: e.message,
+      stack: e.stack,
+    }),
+  );
+});
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 async function ready() {
   await page
@@ -120,7 +131,10 @@ try {
     .getByRole("button", { name: "Nouvelle réunion", exact: true })
     .waitFor();
   pass("Authentification réelle et dashboard");
-  await create("Recette UI complète synthétique", "import");
+  const originalMeetingUrl = await create(
+    "Recette UI complète synthétique",
+    "import",
+  );
   await page.locator("input[type=file]").setInputFiles(fixture);
   await ready();
   pass("Import navigateur → Whisper → Ollama → rapport persisté");
@@ -164,7 +178,51 @@ try {
     .getByText(/Alice/)
     .last()
     .waitFor({ timeout: 180000 });
-  pass("Chat réel rendu avec source");
+  const chatPanel = page.locator("#meeting-chat-panel");
+  assert.ok(await chatPanel.isVisible());
+  assert.equal(
+    await page.getByRole("heading", { name: "Résumé", exact: true }).count(),
+    0,
+  );
+  assert.ok(
+    await chatPanel.evaluate(
+      (element) =>
+        !!(
+          element.compareDocumentPosition(
+            Array.from(document.querySelectorAll("h2")).find(
+              (heading) => heading.textContent === "Audio de la réunion",
+            ),
+          ) & Node.DOCUMENT_POSITION_FOLLOWING
+        ),
+    ),
+  );
+  await page.setViewportSize({ width: 390, height: 844 });
+  const chatBox = await chatPanel.boundingBox();
+  const audioBox = await page
+    .getByRole("heading", { name: "Audio de la réunion", exact: true })
+    .boundingBox();
+  assert.ok(chatBox && audioBox && chatBox.y < audioBox.y);
+  assert.equal(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth > innerWidth,
+    ),
+    false,
+  );
+  await page.screenshot({
+    path: artifactPath("logs", "browser-chat-mobile.png"),
+    fullPage: true,
+  });
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.reload();
+  await page.getByRole("button", { name: "Chat IA", exact: true }).click();
+  await page
+    .locator("#meeting-chat-panel")
+    .getByText("Qui prépare la démonstration ?", { exact: false })
+    .waitFor();
+  await page.locator("#meeting-chat-panel").getByText(/Alice/).last().waitFor();
+  pass(
+    "Chat réel prioritaire desktop/mobile, source et conversation restaurée après actualisation",
+  );
   await page
     .getByRole("button", { name: "Transcription", exact: true })
     .click();
@@ -331,7 +389,10 @@ try {
   await page.getByRole("button", { name: "Restaurer", exact: true }).click();
   pass("Archivage et restauration navigateur");
   // Capture never opens the physical microphone: Chromium flags supply only the WAV fixture.
-  await create("Recette capture synthétique pause réseau", "recording");
+  const captureUrl = await create(
+    "Recette capture synthétique pause réseau",
+    "recording",
+  );
   await page
     .getByRole("button", { name: "Tester le microphone", exact: true })
     .click();
@@ -372,6 +433,24 @@ try {
   pass(
     "Contrôle microphone factice, échantillon local et arrêt avant capture réunion",
   );
+  await page.evaluate(() => {
+    window.__captureProof = { requests: 0, stopped: 0 };
+    const original = navigator.mediaDevices.getUserMedia.bind(
+      navigator.mediaDevices,
+    );
+    navigator.mediaDevices.getUserMedia = async (constraints) => {
+      window.__captureProof.requests++;
+      const stream = await original(constraints);
+      for (const track of stream.getTracks()) {
+        const stop = track.stop.bind(track);
+        track.stop = () => {
+          window.__captureProof.stopped++;
+          stop();
+        };
+      }
+      return stream;
+    };
+  });
   await page.getByRole("button", { name: "Enregistrer", exact: true }).click();
   await page.getByRole("button", { name: "Pause", exact: true }).waitFor();
   const recordingSignal = page.getByRole("region", {
@@ -408,6 +487,110 @@ try {
   pass(
     "Capture synthétique, fragment confirmé et transcription en direct réelle",
   );
+  const sourceBeforeNavigation = await meetingData();
+  assert.ok(Array.isArray(sourceBeforeNavigation.chunks));
+  const chunksBeforeNavigation = sourceBeforeNavigation.chunks.length;
+  const bytesBeforeNavigation = sourceBeforeNavigation.chunks.reduce(
+    (total, chunk) => total + chunk.bytes,
+    0,
+  );
+  await page.getByRole("link", { name: "Mes réunions", exact: true }).click();
+  await page.waitForURL(base + "/");
+  const persistentBar = page.getByTestId("persistent-capture-bar");
+  await persistentBar.waitFor();
+  assert.equal(
+    await page.getByRole("dialog").count(),
+    0,
+    "Creation dialog must not reopen when navigating back to dashboard",
+  );
+  for (const view of [
+    { name: "desktop", width: 1440, height: 1000 },
+    { name: "mobile", width: 390, height: 844 },
+  ]) {
+    await page.setViewportSize({ width: view.width, height: view.height });
+    for (const theme of ["light", "dark"]) {
+      await page
+        .getByRole("combobox", { name: "Thème", exact: true })
+        .selectOption(theme);
+      await page.waitForFunction(
+        (value) => document.documentElement.dataset.theme === value,
+        theme,
+      );
+      await persistentBar.screenshot({
+        path: artifactPath(
+          "logs",
+          `persistent-capture-${view.name}-${theme}.png`,
+        ),
+      });
+      assert.equal(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth > innerWidth,
+        ),
+        false,
+      );
+    }
+  }
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page
+    .getByRole("combobox", { name: "Thème", exact: true })
+    .selectOption("light");
+  await page.locator("button.account-trigger").click();
+  await page.getByRole("menuitem", { name: /Modifier mon profil/ }).click();
+  await page.waitForURL(base + "/profil");
+  await persistentBar.waitFor();
+  await page.locator('a[href="/"]').first().click();
+  await page.waitForURL(base + "/");
+  await page
+    .locator(`a[href="${new URL(originalMeetingUrl).pathname}"]`)
+    .first()
+    .click();
+  await page.waitForURL(originalMeetingUrl);
+  await persistentBar.waitFor();
+  await persistentBar
+    .getByRole("button", { name: "Pause", exact: true })
+    .click();
+  await persistentBar
+    .getByRole("button", { name: "Reprendre", exact: true })
+    .waitFor();
+  await sleep(500);
+  assert.deepEqual(await page.evaluate(() => window.__captureProof), {
+    requests: 1,
+    stopped: 0,
+  });
+  await persistentBar
+    .getByRole("button", { name: "Reprendre", exact: true })
+    .click();
+  await persistentBar
+    .getByRole("link", { name: "Retour à la réunion", exact: true })
+    .click();
+  await page.waitForURL(captureUrl);
+  await recordingSignal.waitFor();
+  await page.waitForFunction(() =>
+    document.body.innerText.includes("fragments confirmés"),
+  );
+  const navigationSaveDeadline = Date.now() + 30000;
+  while (
+    (await meetingData()).chunks.length <= chunksBeforeNavigation &&
+    Date.now() < navigationSaveDeadline
+  )
+    await sleep(1000);
+  assert.ok(
+    (await meetingData()).chunks.length > chunksBeforeNavigation,
+    "Real saved chunks must progress through navigation",
+  );
+  assert.ok(
+    (await meetingData()).chunks.reduce(
+      (total, chunk) => total + chunk.bytes,
+      0,
+    ) > bytesBeforeNavigation,
+  );
+  assert.deepEqual(await page.evaluate(() => window.__captureProof), {
+    requests: 1,
+    stopped: 0,
+  });
+  pass(
+    "Capture continue via dashboard/profil/autre réunion, barre pause/reprise/retour sans réouverture du micro",
+  );
   await page.getByRole("button", { name: "Pause", exact: true }).click();
   await recordingSignal
     .getByText("Enregistrement en pause", { exact: true })
@@ -440,11 +623,23 @@ try {
     .getByRole("button", { name: "Reprendre la sauvegarde", exact: true })
     .click();
   await page.getByText(/0 en attente locale/).waitFor();
-  await page
+  await page.getByRole("link", { name: "Mes réunions", exact: true }).click();
+  await page.waitForURL(base + "/");
+  await persistentBar
     .getByRole("button", { name: "Terminer et analyser", exact: true })
     .click();
+  await persistentBar.waitFor({ state: "hidden", timeout: 30000 });
+  assert.equal(await page.evaluate(() => window.__captureProof.requests), 1);
+  assert.ok(await page.evaluate(() => window.__captureProof.stopped > 0));
+  await page
+    .locator(`a[href="${new URL(captureUrl).pathname}"]`)
+    .first()
+    .click();
+  await page.waitForURL(captureUrl);
   await ready();
-  pass("Reprise fragments, finalisation et rapport réel après capture");
+  pass(
+    "Reprise fragments, finalisation depuis barre globale et rapport réel après capture",
+  );
   if (
     process.env.MEMORA_TEST_ISOLATED === "1" &&
     ["parakeet-mlx", "mlx-whisper"].includes(
