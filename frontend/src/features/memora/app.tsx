@@ -1,6 +1,11 @@
 "use client";
 import { useMemoraText } from "./i18n";
 import { describeSegmentLanguage } from "./language";
+import { PlaybackTools } from "./playback-tools";
+import { ReportReview } from "./report-review";
+import { SpeakerTools } from "./speaker-tools";
+import { MicrophoneCheck } from "./microphone-check";
+import { segmentAt } from "./playback";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import {
   useCallback,
@@ -555,6 +560,8 @@ function MeetingContent({
   initial?: Meeting;
 }) {
   const tr = useMemoraText();
+  const { language } = useI18n();
+  const [playbackTime, setPlaybackTime] = useState(0);
   const router = useRouter();
   const [editorName, setEditorName] = useState("");
   const [captureState, setCaptureState] = useState("idle");
@@ -584,6 +591,7 @@ function MeetingContent({
     [audioUrl, setAudioUrl] = useState(""),
     [audioExtension, setAudioExtension] = useState("bin");
   const audio = useRef<HTMLAudioElement>(null);
+  const getAudio = useCallback(() => audio.current, []);
   const load = useCallback(async () => {
     try {
       setMeeting(
@@ -727,6 +735,7 @@ function MeetingContent({
       setTab("transcript");
     }
     if (audio.current) {
+      audio.current.dispatchEvent(new Event("memora:seek-source"));
       audio.current.currentTime = start;
       void audio.current.play().catch(() => {});
     }
@@ -754,7 +763,10 @@ function MeetingContent({
           : "audio"
       : tab;
   const canEdit =
-    !access.token || permissions.edit_transcript || permissions.edit;
+    !access.token ||
+    ((permissions.edit_transcript || permissions.edit) &&
+      permissions.transcript);
+  const canReview = !access.token || permissions.edit;
   const canChat = !access.token || permissions.chat;
   const canAudio = !access.token || permissions.audio;
   const canTranscript = !access.token || permissions.transcript;
@@ -777,6 +789,10 @@ function MeetingContent({
     : meeting.segments?.length
       ? meeting.segments
       : meeting.live_segments || [];
+  const activeSegmentId = segmentAt(
+    editing ? segments : viewedSegments,
+    playbackTime,
+  )?.id;
   return (
     <>
       <div className={s.top}>
@@ -1012,6 +1028,10 @@ function MeetingContent({
                 {report ? (
                   <ReportView
                     report={report}
+                    meetingId={id}
+                    access={access}
+                    editable={!!canReview}
+                    refresh={load}
                     currentVersion={meeting.version}
                     segments={meeting.segments || []}
                     seek={seek}
@@ -1093,6 +1113,46 @@ function MeetingContent({
                     {tr("Chargement de la transcription historique…")}
                   </p>
                 )}
+              {meeting.diarization && !isHistoricalTranscript && (
+                <div className={s.notice}>
+                  {language === "en"
+                    ? "Speakers estimated locally; no identity inferred. Simultaneous speech is not separated."
+                    : "Intervenants estimés localement ; aucune identité déduite. Les paroles simultanées ne sont pas séparées."}
+                  {meeting.diarization.warnings?.map((warning, index) => (
+                    <p key={index}>{tr(warning)}</p>
+                  ))}
+                </div>
+              )}
+              {canEdit &&
+                !isHistoricalTranscript &&
+                !editing &&
+                meeting.segments.length > 0 && (
+                  <SpeakerTools
+                    key={`speakers:${meeting.version}`}
+                    segments={meeting.segments}
+                    version={meeting.version}
+                    guest={!!access.token}
+                    english={language === "en"}
+                    canSeparate={!!canAudio}
+                    busy={
+                      busy ||
+                      ["queued", "transcribing", "analyzing"].includes(
+                        meeting.state,
+                      )
+                    }
+                    run={action}
+                  />
+                )}
+              {canAudio && audioUrl && (
+                <PlaybackTools
+                  key={`${audioUrl}:${viewedTranscriptVersion}`}
+                  getAudio={getAudio}
+                  segments={viewedSegments}
+                  selectedStart={selectedStart}
+                  onPosition={setPlaybackTime}
+                  english={language === "en"}
+                />
+              )}
               {editing && !isHistoricalTranscript ? (
                 <>
                   {access.token && (
@@ -1113,7 +1173,19 @@ function MeetingContent({
                     )}
                   </p>
                   {segments.map((seg, i) => (
-                    <div key={seg.id} className={s.segment}>
+                    <div
+                      key={seg.id}
+                      data-segment-start={seg.start}
+                      className={`${s.segment} ${activeSegmentId === seg.id ? s.selectedSegment : ""}`}
+                    >
+                      {canAudio && (
+                        <button
+                          className={s.time}
+                          onClick={() => seek(seg.start, editVersion)}
+                        >
+                          {clock(seg.start)} → {clock(seg.end)}
+                        </button>
+                      )}
                       <label className={s.field}>
                         <span>
                           {tr("Intervenant ·")}
@@ -1144,6 +1216,32 @@ function MeetingContent({
                           )
                         }
                       />
+                      {(seg.text !== meeting.segments[i]?.text ||
+                        seg.speaker !== meeting.segments[i]?.speaker) && (
+                        <details className={s.notice}>
+                          <summary>
+                            {language === "en"
+                              ? "Compare this correction"
+                              : "Comparer cette correction"}
+                          </summary>
+                          <p>
+                            <strong>
+                              {language === "en" ? "Before:" : "Avant :"}
+                            </strong>{" "}
+                            {meeting.segments[i]?.speaker}
+                            <br />
+                            <del>{meeting.segments[i]?.text}</del>
+                          </p>
+                          <p>
+                            <strong>
+                              {language === "en" ? "After:" : "Après :"}
+                            </strong>{" "}
+                            {seg.speaker}
+                            <br />
+                            <ins>{seg.text}</ins>
+                          </p>
+                        </details>
+                      )}
                     </div>
                   ))}
                   <div className={s.actions}>
@@ -1176,7 +1274,7 @@ function MeetingContent({
                 viewedSegments.map((seg) => (
                   <div
                     data-segment-start={seg.start}
-                    className={`${s.segment} ${selectedStart === seg.start ? s.selectedSegment : ""}`}
+                    className={`${s.segment} ${selectedStart === seg.start || activeSegmentId === seg.id ? s.selectedSegment : ""}`}
                     key={seg.id}
                   >
                     <div className={s.actions}>
@@ -1189,6 +1287,13 @@ function MeetingContent({
                       <strong>
                         {seg.speaker || tr("Intervenant non identifié")}
                       </strong>
+                      {seg.speaker_uncertain && (
+                        <span className={s.badge}>
+                          {language === "en"
+                            ? "Speaker to verify"
+                            : "Intervenant à vérifier"}
+                        </span>
+                      )}
                       {seg.language && <SegmentLanguage segment={seg} />}
                       {seg.uncertain && (
                         <span className={s.badge}>
@@ -1389,17 +1494,26 @@ function MeetingContent({
   );
 }
 function ReportView({
+  meetingId,
+  access,
+  editable,
+  refresh,
   currentVersion,
   report,
   segments,
   seek,
 }: {
   report: Report;
+  meetingId: string;
+  access: Access;
+  editable: boolean;
+  refresh: () => Promise<void>;
   currentVersion: number;
   segments: Segment[];
   seek: (start: number, sourceVersion?: number) => void;
 }) {
   const tr = useMemoraText();
+  const { language } = useI18n();
   const data = report.data;
   const historical = report.version !== currentVersion;
   return (
@@ -1473,6 +1587,32 @@ function ReportView({
                         segments={segments}
                         seek={seek}
                       />
+                      {(sectionIndex === 1 || sectionIndex === 2) && (
+                        <ReportReview
+                          key={`${report.id}:${sectionIndex}:${i}:${report.human_reviews?.find((review) => review.category === (sectionIndex === 1 ? "decisions" : "actions") && review.item_index === i)?.revision || 0}`}
+                          meetingId={meetingId}
+                          reportId={report.id}
+                          version={currentVersion}
+                          category={
+                            sectionIndex === 1 ? "decisions" : "actions"
+                          }
+                          index={i}
+                          item={item}
+                          review={report.human_reviews?.find(
+                            (review) =>
+                              review.category ===
+                                (sectionIndex === 1
+                                  ? "decisions"
+                                  : "actions") && review.item_index === i,
+                          )}
+                          segments={segments}
+                          editable={editable}
+                          stale={historical || !!report.reviews_stale}
+                          access={access}
+                          english={language === "en"}
+                          refresh={refresh}
+                        />
+                      )}
                     </>
                   )}
                 </li>
@@ -1687,6 +1827,8 @@ function Recorder({
 }) {
   const tr = useMemoraText();
   const { language } = useI18n();
+  const [selectedDeviceId, setSelectedDeviceId] = useState("");
+  const [microphoneTestActive, setMicrophoneTestActive] = useState(false);
   const [state, setState] = useState("idle"),
     [elapsed, setElapsed] = useState(0),
     [captureLanguage, setCaptureLanguage] = useState<string | null>(
@@ -1849,6 +1991,9 @@ function Recorder({
       try {
         stream.current = await navigator.mediaDevices.getUserMedia({
           audio: {
+            ...(selectedDeviceId
+              ? { deviceId: { exact: selectedDeviceId } }
+              : {}),
             channelCount: { ideal: 1 },
             sampleRate: { ideal: 48000 },
             echoCancellation: { ideal: true },
@@ -2053,6 +2198,15 @@ function Recorder({
           )}
         </p>
       )}
+      {meeting.mode !== "import" && chunkCount === 0 && (
+        <MicrophoneCheck
+          language={language === "en" ? "en" : "fr"}
+          selectedDeviceId={selectedDeviceId}
+          onDeviceChange={setSelectedDeviceId}
+          onActiveChange={setMicrophoneTestActive}
+          disabled={!["idle", "interrupted"].includes(state)}
+        />
+      )}
       <ErrorBox error={error} />
       {warning && (
         <div className={s.notice} role="status">
@@ -2102,7 +2256,11 @@ function Recorder({
         {["idle", "interrupted"].includes(state) &&
           meeting.mode !== "import" &&
           chunkCount === 0 && (
-            <button className={primary} onClick={() => void start()}>
+            <button
+              className={primary}
+              disabled={microphoneTestActive}
+              onClick={() => void start()}
+            >
               <Mic size={18} />
               {tr("Enregistrer")}
             </button>
@@ -2336,7 +2494,7 @@ function ShareDialog({
           transcript: tr("Consulter la transcription"),
           audio: tr("Écouter / télécharger l’audio"),
           chat: tr("Interroger le chat IA"),
-          edit: tr("Corriger la transcription"),
+          edit: tr("Modifier les contenus autorisés"),
         }).map(([key, label]) => (
           <label className={s.check} key={key}>
             <input

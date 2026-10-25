@@ -63,6 +63,9 @@ if sys.argv[1:2]==['-c']:
         capture_output=True,
     )
     calls = [json.loads(row) for row in log.read_text().splitlines()]
+    assert [
+        call for call in calls if call == ["scripts/memora-prepare-diarization.py"]
+    ] == [["scripts/memora-prepare-diarization.py"]]
     downloads = [
         call
         for call in calls

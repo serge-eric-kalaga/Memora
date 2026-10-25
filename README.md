@@ -1183,3 +1183,5 @@ Versionner ensemble les manifestes et leurs fichiers de verrouillage. Dans Docke
 docker compose --env-file .env.dev run --rm --no-deps frontend npm ci
 docker compose --env-file .env.dev up -d --no-deps --build frontend
 ```
+
+Memora V1.1 ajoute le contrôle microphone, la lecture synchronisée et la comparaison des corrections, les validations humaines historisées et la séparation locale volontaire des voix. Guide et limites : [docs/MEMORA.md](docs/MEMORA.md), résultats : [agents/testing.md](agents/testing.md).

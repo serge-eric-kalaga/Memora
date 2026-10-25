@@ -74,6 +74,9 @@ def init():
         c.executescript(
             (Path(__file__).parent / "migrations/006_job_checkpoints.sql").read_text()
         )
+        c.executescript(
+            (Path(__file__).parent / "migrations/007_human_review.sql").read_text()
+        )
         c.execute("INSERT OR IGNORE INTO config VALUES(1,?)", (json.dumps(DEFAULTS),))
         c.commit()
         # Startup runs before the worker; take the writer lock for recovery and
@@ -191,3 +194,34 @@ def delete_owner(owner_uid):
             purge_meeting(c, mid)
         c.execute("DELETE FROM mail WHERE owner_uid=?", (owner_uid,))
         audit(c, "account:" + owner_uid, None, "account_deleted")
+
+
+def report_reviews(c, report_id, history=False):
+    entries = []
+    for row in c.execute(
+        "SELECT * FROM report_reviews WHERE report=? ORDER BY created,revision,id",
+        (report_id,),
+    ):
+        entry = dict(row)
+        entry.pop("meeting")
+        entry.update(json.loads(entry.pop("data")))
+        entry["provenance"] = "human_review"
+        entries.append(entry)
+    if history:
+        return entries
+    latest = {}
+    for entry in entries:
+        key = (entry["category"], entry["item_index"])
+        if key not in latest or entry["revision"] > latest[key]["revision"]:
+            latest[key] = entry
+    return sorted(
+        latest.values(), key=lambda item: (item["category"], item["item_index"])
+    )
+
+
+def transcript_edit(c, mid, version):
+    row = c.execute(
+        "SELECT kind,author,editor_name,created,data FROM transcript_edits WHERE meeting=? AND version=?",
+        (mid, version),
+    ).fetchone()
+    return {**dict(row), "data": json.loads(row["data"])} if row else None

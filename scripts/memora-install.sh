@@ -52,3 +52,9 @@ case "$memora_french_asr_engine" in
     exit 1
     ;;
 esac
+
+# Optional local speaker clustering is prepared offline from the pinned package.
+# It is currently installed/tested only on native Apple Silicon.
+if backend/.venv/bin/python -c 'import importlib.util,sys; sys.exit(0 if importlib.util.find_spec("resemblyzer") else 1)'; then
+  backend/.venv/bin/python scripts/memora-prepare-diarization.py
+fi

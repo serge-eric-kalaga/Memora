@@ -81,6 +81,8 @@ def send_mail():
 
 
 def process(job):
+    if job["kind"] == "diarize":
+        return process_diarization(job)
     mid = job["meeting"]
     with s.db() as c:
         m = s.meeting(c, mid)
@@ -231,6 +233,101 @@ def process(job):
                 f'<p>Votre rapport est prêt.</p><a href="{html.escape(url)}">Consulter la réunion</a>',
                 owner_uid=current.get("owner_uid"),
             )
+
+
+def process_diarization(job):
+    """Publish speaker labels as a new source revision, never overwrite text."""
+    from . import diarization
+
+    mid = job["meeting"]
+    snapshot = s.ROOT / mid / f"snapshot-{job['id']}.bin"
+    with s.db() as c:
+        c.execute("BEGIN IMMEDIATE")
+        persisted = c.execute("SELECT * FROM jobs WHERE id=?", (job["id"],)).fetchone()
+        if persisted:
+            job.update(dict(persisted))
+        m = s.meeting(c, mid)
+        if (
+            job.get("phase") == "complete"
+            or not m
+            or s.owner_deleted(c, m.get("owner_uid"))
+        ):
+            return
+        expected = job.get("source_version")
+        if expected is None:
+            expected = job["version"]
+        if m["version"] != expected or m.get("active_job_id") != job["id"]:
+            return
+        segments = s.transcript(c, mid, expected)
+        if not segments:
+            raise ai.ProcessingError(
+                "Une transcription est nécessaire pour séparer les intervenants."
+            )
+        request = m.get("diarization_request", {})
+        snapshot.write_bytes((s.ROOT / mid / "audio.bin").read_bytes())
+        m.update(state="transcribing")
+        s.save(c, m)
+    try:
+        with ai._lock:
+            result = diarization.diarize(
+                snapshot, segments, num_speakers=request.get("num_speakers")
+            )
+    finally:
+        snapshot.unlink(missing_ok=True)
+    updated = result["segments"]
+    # Provider output cannot change source text, ordering or audio boundaries.
+    if len(updated) != len(segments) or any(
+        any(before.get(key) != after.get(key) for key in ("id", "start", "end", "text"))
+        for before, after in zip(segments, updated, strict=True)
+    ):
+        raise ai.ProcessingError(
+            "La séparation a modifié les repères de la source ; résultat refusé."
+        )
+    with s.db() as c:
+        c.execute("BEGIN IMMEDIATE")
+        current = s.meeting(c, mid)
+        if not current or s.owner_deleted(c, current.get("owner_uid")):
+            return
+        if current["version"] != expected or current.get("active_job_id") != job["id"]:
+            return
+        version = expected + 1
+        actor = request.get("actor", "Séparation locale des intervenants")
+        c.execute(
+            "INSERT INTO transcripts VALUES(?,?,?,?,?)",
+            (mid, version, json.dumps(updated), actor, time.time()),
+        )
+        c.execute(
+            "INSERT INTO transcript_edits VALUES(?,?,?,?,?,?,?)",
+            (
+                mid,
+                version,
+                "local_speaker_separation",
+                actor,
+                request.get("editor_name"),
+                time.time(),
+                json.dumps(
+                    {
+                        "previous_version": expected,
+                        "num_speakers": request.get("num_speakers"),
+                        "metadata": result["metadata"],
+                    }
+                ),
+            ),
+        )
+        current.update(
+            version=version,
+            state="ready",
+            error=None,
+            diarization=result["metadata"],
+            updated=time.time(),
+        )
+        current.pop("diarization_request", None)
+        s.save(c, current)
+        c.execute(
+            "UPDATE jobs SET phase='complete',source_version=? WHERE id=?",
+            (version, job["id"]),
+        )
+        s.audit(c, actor, mid, "speakers_separated")
 
 
 def retention():

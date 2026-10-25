@@ -93,7 +93,7 @@ Quotas locaux :20 créations/minute/compte,20 partages/minute/compte,6 analyses/
 - **Alternative CPU : Faster Whisper1.2.1/base**, MIT, environ148Mo, int8/4threads. Gardé pour comparaison et configuration explicite ; son français complexe est moins précis dans les essais. Aucun basculement silencieux après une erreur MLX.
 - **Analyse/chat : gemma4:e4b déjà présent dans Ollama**, environ6,1Gio de poids locaux, [modèle Ollama](https://ollama.com/library/gemma4:e4b), [licence Apache2.0 du modèle officiel](https://huggingface.co/google/gemma-4-E4B-it). Sortie JSON validée côté serveur, température0, contexte16384tokens. Sélection après reproduction d’une reformulation trop affirmative avec Qwen et comparaison sur décisions futures, responsables, dates, chat et longues sources. Aucun nouveau modèle Ollama téléchargé, fournisseur payant ou API externe de remplacement.
 - **Embeddings : aucun index externe requis.** Chaque question parcourt les lots autorisés de la version courante puis réduit les réponses pertinentes. La correction change immédiatement la source ; aucun ancien index ne reste actif.
-- **Intervenants : non identifiés automatiquement.** Aucun nom ni identité biométrique n’est déduit. Le nom neutre peut être corrigé ; un renommage dans l’éditeur porte sur le segment concerné.
+- **Intervenants : séparation locale volontaire, sans identification nominative.** Un traitement optionnel regroupe les voix en étiquettes numérotées, avec abstention pour les segments multivoix. Aucun nom ni identité biométrique n’est déduit. Un renommage peut porter sur un segment dans l’éditeur, ou sur tous les passages d’une même étiquette depuis « Gérer les intervenants ».
 
 Configuration centralisée : `MEMORA_OLLAMA_URL`, `MEMORA_MODEL`, `MEMORA_ASR_ENGINE`, `MEMORA_LIVE_ASR_ENGINE`, `MEMORA_FRENCH_ASR_ENGINE`, `MEMORA_PARAKEET_MODEL_PATH`, `MEMORA_MLX_MODEL_PATH`, `MEMORA_ASR_MODEL` et `MEMORA_MODEL_DIR`. `memora-env.py` recommande, pour une nouvelle installation Apple Silicon native, Parakeet en français final et MLX Whisper Turbo pour le direct, l’anglais et le bilingue. Les autres plateformes utilisent Faster Whisper CPU. Une configuration existante est conservée exactement ; les nouveaux modèles ne sont pas activés silencieusement dans un environnement déjà créé. `memora-install.sh` prépare le moteur réellement configuré. Préparation reproductible MLX :
 
@@ -231,3 +231,35 @@ Activation locale le25/10 après sauvegarde privée de configuration, zéro trai
 - Panne réelle du modèle puis restauration :2 contrôles réussis, source conservée et rapport produit sans réimport.
 
 La première tentative navigateur a échoué avant lancement sur un ancien chemin Chromium ; elle reste consignée. Aucun résultat de test ne prouve le microphone physique, Safari/iOS, une réunion naturelle de deux heures, la charge multiutilisateur ou une aptitude à la production. [Commandes et résultats datés](../agents/testing.md).
+
+## V1.1 — contrôle audio, correction et relecture humaine
+
+Le contrôle microphone est proposé avant la capture. Il s’active uniquement au clic, permet de choisir une entrée, affiche le niveau et signale silence ou saturation. Un échantillon de dix secondes maximum reste dans l’onglet pour réécoute ; il n’est pas envoyé au backend. Arrêter le test libère le microphone ; un test actif bloque le démarrage concurrent d’une réunion. Le contrôle s’arrête automatiquement après une minute.
+
+Dans Transcription, le lecteur surligne le passage actif. La barre permet de revenir de trois secondes, changer de passage, ralentir la lecture et écouter le passage sélectionné en boucle. Un clic sur un autre repère annule cette boucle. Les raccourcis Alt+flèches et Alt+Espace s’appliquent lorsque la barre est focalisée, sans intercepter la saisie dans l’éditeur. Une correction affiche une comparaison avant/après ; son enregistrement conserve la version précédente et rend le rapport périmé.
+
+Les actions et décisions proposent une **validation humaine séparée du résultat IA** : proposé, confirmé, annulé ou à vérifier. Le texte, le responsable et l’échéance peuvent être corrigés ; une valeur responsable/échéance vide retire explicitement l’attribution. Le résultat IA reste immuable au-dessus. Chaque validation conserve auteur, date et révision. Les mises à jour concurrentes ou portant sur un ancien rapport sont refusées ; les validations restent consultables et deviennent périmées après correction de source. Le chat continue d’utiliser la transcription autorisée, il ne présente pas une correction humaine du rapport comme une phrase prononcée.
+
+Un invité peut réviser le rapport si le partage lui accorde rapport+édition et si l’administration autorise l’édition invitée. Il n’a pas besoin d’un compte ni d’un accès à la transcription pour cette relecture. Corriger/renommer la transcription exige transcription+édition ; séparer les voix exige également l’accès audio. Révocation et droits courants sont recontrôlés côté serveur.
+
+### Intervenants et séparation locale
+
+« Gérer les intervenants » permet de renommer tous les passages portant la même étiquette. Pour une étiquette inconnue, l’utilisateur doit confirmer qu’il a vérifié qu’ils appartiennent tous à la même personne. Un groupe inconnu n’est pas automatiquement une seule voix.
+
+La séparation locale est une action volontaire après transcription. Elle utilise des embeddings de voix appris Resemblyzer0.1.4, le VAD Silero existant et un clustering acoustique CPU ; elle ne repose pas sur une alternance des lignes. Elle crée des étiquettes numérotées, **aucune identité réelle**. Un segment contenant plusieurs groupes de voix reste non attribué, même si l’un est majoritaire. L’audio, le texte, les IDs et les horodatages d’origine restent inchangés ; une nouvelle version de transcription est publiée et le rapport doit être régénéré après relecture. Les anciens noms restent dans l’historique. Le job est idempotent et un résultat tardif ne remplace pas une correction plus récente.
+
+Modèle Apache-2.0 de17,09Mo, provenant du package officiel épinglé, SHA256 `39373b86598fa3da9fcddee6142382efe09777e8d37dc9c0561f41f0070f134e`. Préparation entièrement locale depuis le package installé :
+
+```sh
+backend/.venv/bin/python scripts/memora-prepare-diarization.py
+backend/.venv/bin/python scripts/memora-prepare-diarization.py --check-only
+```
+
+`MEMORA_DIARIZATION_MODEL_DIR` peut désigner un autre répertoire local préparé. `MEMORA_DIARIZATION_CPU_THREADS` borne le traitement de1à8threads, défaut2 ; le réglage PyTorch précédent est restauré même après erreur. L’installateur prépare ces poids si Resemblyzer est installé. Les dépendances sont actuellement conditionnées à macOS Apple Silicon, plateforme validée ; aucun téléchargement CUDA Linux disproportionné n’est imposé. `setuptools` est borné à une version80 compatible avec `pkg_resources`, requis par une dépendance ; le verrou conserve les autres versions existantes.
+
+Les essais synthétiques couvrent deux/trois voix, retours de parole, FR/EN, gain/bruit et silence. La réserve à nouvelles voix retrouve2/2/3groupes et attribue18/18segments ; DER7,57% et8,10% sur les cas propres,12,37% avec gain/bruit. Le DER mesure une erreur temporelle de séparation, pas un taux d’erreur de transcription ni une précision d’identification. Les références utilisent une grille20ms et l’énergie des pistes TTS ; aucune généralisation aux accents/voix naturelles. Les paroles simultanées ne sont pas séparées, les voix proches peuvent être fusionnées, le bruit et les voix faibles peuvent fragmenter les groupes. La limite technique de deux heures n’est pas une preuve de qualité sur une réunion naturelle de cette durée. [Protocole et limites](../agents/handoffs/diarization-local-v1.md).
+
+Migration domaine007 additive : tables `report_reviews` et `transcript_edits`. Elle ne réécrit ni transcription ni rapport existant. Utiliser le script de migration local après arrêt de l’API ; il vérifie la base ciblée et le verrou du worker avant migration et sauvegarde SQLite. Ne pas migrer une autre base par substitution improvisée de variables.
+
+
+Validation V1.1 finale :284testsbackend/48préparation/16frontendunit réussis ; intégration en phases isolées41API+19navigateur+9auditUI, plus10contrôlesmicroAPIssynthétiques et2contrôles de codecChromium réel surentrée factice (échantillon lu, aucuneémission). Lint/types/build/OpenAPI/SDK etRuff conformes. Les trois interruptions de recettes et leurs correctifs sont conservés, voir agents/testing.md. Services locaux activés après migration007, empreintes sources préservées. Ces résultats ne prouvent pas microphysique/Safari/iOS/conversationnaturelle ni production.

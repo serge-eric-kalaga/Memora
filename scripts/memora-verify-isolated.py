@@ -34,6 +34,8 @@ MODEL_KEYS = (
     "MEMORA_FRENCH_ASR_ENGINE",
     "MEMORA_PARAKEET_MODEL_PATH",
     "MEMORA_OLLAMA_KEEP_ALIVE",
+    "MEMORA_DIARIZATION_MODEL_DIR",
+    "MEMORA_DIARIZATION_CPU_THREADS",
 )
 
 
@@ -103,6 +105,16 @@ def main():
         "--api-only",
         action="store_true",
         help="Run the real API acceptance only, without browser recipes",
+    )
+    modes.add_argument(
+        "--browser-only",
+        action="store_true",
+        help="Run browser and UI audit only on new isolated services, without repeating API acceptance",
+    )
+    modes.add_argument(
+        "--ui-audit-only",
+        action="store_true",
+        help="Run the isolated UI audit only, with synthetic fixture preparation when needed",
     )
     modes.add_argument(
         "--smoke-only",
@@ -355,19 +367,21 @@ def main():
         stages.append("isolated-authenticated-proxy")
         print("PASS isolated-authenticated-proxy", flush=True)
         if not args.smoke_only:
-            step(
-                "api",
-                [str(PYTHON), str(ROOT / "scripts/memora-e2e-api.py")],
-                env,
-                temp,
-            )
-            if not args.api_only:
+            if not args.browser_only and not args.ui_audit_only:
                 step(
-                    "browser",
-                    [node, str(ROOT / "frontend/tests/memora-e2e.mjs")],
+                    "api",
+                    [str(PYTHON), str(ROOT / "scripts/memora-e2e-api.py")],
                     env,
                     temp,
                 )
+            if not args.api_only:
+                if not args.ui_audit_only:
+                    step(
+                        "browser",
+                        [node, str(ROOT / "frontend/tests/memora-e2e.mjs")],
+                        env,
+                        temp,
+                    )
                 step(
                     "ui-audit",
                     [node, str(ROOT / "frontend/tests/memora-ui-audit.mjs")],
@@ -399,6 +413,8 @@ def main():
                     "demo_data_touched": False,
                     "smoke_only": args.smoke_only,
                     "api_only": args.api_only,
+                    "browser_only": args.browser_only,
+                    "ui_audit_only": args.ui_audit_only,
                 },
                 indent=2,
             )

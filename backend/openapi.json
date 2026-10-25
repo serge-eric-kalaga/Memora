@@ -542,6 +542,53 @@
         "title": "CurrentUserModel",
         "type": "object"
       },
+      "DiarizationRequest": {
+        "properties": {
+          "editor_name": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "minLength": 2,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Editor Name"
+          },
+          "num_speakers": {
+            "anyOf": [
+              {
+                "maximum": 8.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Num Speakers"
+          },
+          "request_id": {
+            "maxLength": 80,
+            "minLength": 16,
+            "pattern": "^[a-zA-Z0-9_-]+$",
+            "title": "Request Id",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "version"
+        ],
+        "title": "DiarizationRequest",
+        "type": "object"
+      },
       "Finalize": {
         "properties": {
           "expected_chunks": {
@@ -1044,6 +1091,60 @@
           "verification_required"
         ],
         "title": "RegistrationModel",
+        "type": "object"
+      },
+      "ReportReview": {
+        "properties": {
+          "corrections": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReviewCorrections"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "editor_name": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "minLength": 2,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Editor Name"
+          },
+          "expected_revision": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "proposed",
+              "confirmed",
+              "cancelled",
+              "needs_review"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "transcript_version": {
+            "minimum": 1.0,
+            "title": "Transcript Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "transcript_version",
+          "status"
+        ],
+        "title": "ReportReview",
         "type": "object"
       },
       "ResendConfirmation": {
@@ -1704,6 +1805,49 @@
         "title": "RetranscribeRequest",
         "type": "object"
       },
+      "ReviewCorrections": {
+        "properties": {
+          "deadline": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deadline"
+          },
+          "owner": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner"
+          },
+          "text": {
+            "anyOf": [
+              {
+                "maxLength": 3000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text"
+          }
+        },
+        "title": "ReviewCorrections",
+        "type": "object"
+      },
       "RoleDetail": {
         "additionalProperties": false,
         "description": "Permissions explicitement associées au rôle.",
@@ -1874,6 +2018,51 @@
           }
         },
         "title": "ShareCreate",
+        "type": "object"
+      },
+      "SpeakerRename": {
+        "properties": {
+          "confirm_unidentified": {
+            "default": false,
+            "title": "Confirm Unidentified",
+            "type": "boolean"
+          },
+          "editor_name": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "minLength": 2,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Editor Name"
+          },
+          "from_speaker": {
+            "maxLength": 100,
+            "title": "From Speaker",
+            "type": "string"
+          },
+          "to_speaker": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "To Speaker",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "version",
+          "from_speaker",
+          "to_speaker"
+        ],
+        "title": "SpeakerRename",
         "type": "object"
       },
       "UpdateUserModel": {
@@ -3973,6 +4162,56 @@
         ]
       }
     },
+    "/api/memora/meetings/{mid}/diarize": {
+      "post": {
+        "operationId": "diarize_meeting_api_memora_meetings__mid__diarize_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mid",
+            "required": true,
+            "schema": {
+              "title": "Mid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DiarizationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Diarize Meeting",
+        "tags": [
+          "Memora"
+        ]
+      }
+    },
     "/api/memora/meetings/{mid}/finalize": {
       "post": {
         "operationId": "finalize_api_memora_meetings__mid__finalize_post",
@@ -4018,6 +4257,136 @@
           }
         },
         "summary": "Finalize",
+        "tags": [
+          "Memora"
+        ]
+      }
+    },
+    "/api/memora/meetings/{mid}/reports/{rid}/reviews": {
+      "get": {
+        "operationId": "read_reviews_api_memora_meetings__mid__reports__rid__reviews_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mid",
+            "required": true,
+            "schema": {
+              "title": "Mid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "rid",
+            "required": true,
+            "schema": {
+              "title": "Rid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Reviews",
+        "tags": [
+          "Memora"
+        ]
+      }
+    },
+    "/api/memora/meetings/{mid}/reports/{rid}/reviews/{category}/{item_index}": {
+      "put": {
+        "operationId": "review_item_api_memora_meetings__mid__reports__rid__reviews__category___item_index__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mid",
+            "required": true,
+            "schema": {
+              "title": "Mid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "rid",
+            "required": true,
+            "schema": {
+              "title": "Rid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "category",
+            "required": true,
+            "schema": {
+              "enum": [
+                "actions",
+                "decisions"
+              ],
+              "title": "Category",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "item_index",
+            "required": true,
+            "schema": {
+              "title": "Item Index",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportReview"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Review Item",
         "tags": [
           "Memora"
         ]
@@ -4264,6 +4633,56 @@
           }
         },
         "summary": "Invite",
+        "tags": [
+          "Memora"
+        ]
+      }
+    },
+    "/api/memora/meetings/{mid}/speakers/rename": {
+      "post": {
+        "operationId": "rename_speaker_api_memora_meetings__mid__speakers_rename_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "mid",
+            "required": true,
+            "schema": {
+              "title": "Mid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SpeakerRename"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Rename Speaker",
         "tags": [
           "Memora"
         ]

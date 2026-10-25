@@ -1,6 +1,6 @@
 # Recette API réelle synthétique
 
-Réunion synthétique temporaire et supprimée après recette : `9d844cdb81f54563a3640354759a8472`. Durée totale : 70.36s.
+Réunion synthétique temporaire et supprimée après recette : `1326c9ed503040b7aa6b68c908e51ec2`. Durée totale : 68.39s.
 
 Exécution : `backend/.venv/bin/python scripts/memora-e2e-api.py` sur http://127.0.0.1:18080 ; compte jetable isolé (aucun secret affiché).
 
@@ -38,6 +38,12 @@ Exécution : `backend/.venv/bin/python scripts/memora-e2e-api.py` sur http://127
 - VALIDÉ : Rejeu après retranscription terminée ne crée aucune nouvelle version
 - VALIDÉ : Configuration administrative initiale restaurée après recette
 - VALIDÉ : Route française réelle : transcription et rapport prêts sans langue détectée inventée
+- VALIDÉ : Rapport réel fournit un élément sourcé à réviser
+- VALIDÉ : Validation humaine réelle historisée, conflit détecté et sortie IA inchangée
 - VALIDÉ : Correction de la nouvelle ASR persistée sans422, ancien rapport conservé et périmé
+- VALIDÉ : Correction rend aussi la validation humaine précédente périmée
+- VALIDÉ : Renommage global réel crée une version sans effacer le rapport
+- VALIDÉ : Job de séparation vocale réel terminé, texte et ancien rapport conservés
+- VALIDÉ : Rejeu après séparation réelle ne crée pas de version supplémentaire
 
 Portée : API + persistance + Whisper/Ollama réels + capture SMTP locale. Aucun test microphone physique ni délivrabilité email externe. Navigateur géré par intégrateur.

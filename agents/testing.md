@@ -111,3 +111,35 @@ Cette section remplace les états « en cours » des notes intermédiaires, sans
 Première recette : API35PASS puis navigateur impossible à lancer sur ancien cheminChromium1234. Échec conservé accuracy-attempt1-*. Relance avec Chromium1248 effectivement installé réussie. Aucune dissimulation d’échec ni mock remplaçant l’inférence livrée.
 
 Recherche/expériences rejetées et échecs longs sont conservés ; ne pas réutiliser un score de tuning comme preuve indépendante. La copie personnelle autorisée reste inchangée et privée ; référence reformulée, donc aucun score personnel valide. Pas90% universel ni validation voix naturelle2h/microphysique/Safari/iOS/production. Les notes d’analyse de réserve courte17/18affirmations et8/8faits concernent une petite réserve synthétique, pas une exactitude générale de la chaîne.
+
+## V1.1 — capture, correction, validation et intervenants
+
+- `python3 scripts/memora-test.py` :284PASS,3RedisSkip,1warningpréexistant,26,78s ; `v11-backend-final-tests.log`. Inclut15testsdiarisation et6workerdurabilité/versions/sourceimmutable.
+- `backend/.venv/bin/python -m pytest scripts/tests/test_memora_*.py -q` :48PASS,3,82s ; `v11-preparation-final-tests.log`. Installateur testé avecpréparationpoidsoffline, politiqueisolation/configmodèles.
+- Ruffcheck/format scopeMemora :69fichiersPASS ; `v11-ruff-final.log`.
+- Frontend lint/types/buildPASS,16testsunit(7langue+3playback+6micro)PASS. SDK/OpenAPIexport+checkPASS. `v11-frontend-*-final.log` ; testsmicrocomposant :10contrôlesChromium avecAPIsmédias synthétiques(mockées),0exception ; `microphone-check-browser.log`, script `frontend/tests/memora-microphone-browser.mjs`.
+- ModèleResemblyzer17,09MoSHApin préparé etcheck-onlyofflinePASS. `UV_CACHE_DIR=.memora/cache/uv .memora/tooling/bin/uv pip check --python backend/.venv/bin/python` :160packagescompatibles. Seulchangementversionexistante : setuptools84→80 compatiblepkg_resources ; dépendancesDarwinarm64, pasCUDAimposéLinux.
+- Corpusdiarisation7cas+réserve4 ànouvellesvoix :seuilfigé0,30 avant réserve,18/18segmentsattribués ; DERréserve7,57%/8,10%propres,12,37%gainbruit. Segmentscouvrantdeuxgroupesabstiennent. FauxTTSsoussandboxv1vide rejeté, preuvesv2+finalréellesconservées. Protocole `handoffs/diarization-local-v1.md`, pasvoixhumaine/overlapnaturel2h.
+
+Première recetteisolée V1.1 :API41PASS79,36s puis échecbrowser surlabelStatutambigu, formulaire pourtantvisible. Captureinspectée etancienslogs conservés `v11-attempt1-*`. Libellésaccessibles explicites corrigés, interface reconstruite. Relance finale en cours : `v11-isolated-final-run.log`, sourcesSHA dans `v11-isolated-source-provenance.json`. Aucun changementdecodeproductionpendantrelance ; auditmobileadditionnel chargéaprèsbrowser pourvérifiernouveauxformulaires.
+
+Commande :
+
+```sh
+PLAYWRIGHT_CHROMIUM_EXECUTABLE='/Users/kalagasergeeric/Library/Caches/ms-playwright/chromium-1248/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing' \
+  backend/.venv/bin/python scripts/memora-verify-isolated.py --asr-engine mlx-whisper --french-asr-engine parakeet-mlx --timeout 2400
+```
+
+Base/stockage/captureSMTP/ports etcomptesjetables, vraiASR/Ollama/Resemblyzer. Chromiumfakedevice utilisel’audiosynthétique etsonvraiMediaRecorder, pasmicrophysique. Les noms/responsables ne sontpasidentifiésbiométriquement ; leséditshumainsrapport séparés ne remplacentpaslesphrasesprononcéesdanslechat. Migration007 additive etactivationmain restentàattesteraprèsrecette ; aucune donnéeprivée retraitée automatiquement.
+
+
+### Clôture V1.1
+
+Validation composée **41API+19navigateur+9auditUI=69contrôles PASS**, en exécutions isolées distinctes sur le même code de production figé. APIpreuve `v11-attempt2-isolated-api.log` (68,39s), browserpreuve `v11-attempt3-isolated-browser.log`, auditfinal `isolated-ui-audit.log` (lanceur21,88s). `v11-validation-summary.json` centralise les chiffres/empreintes. Ce n’est pas un unique run final69 ; backend etbuild inchangés entre phases. Les modes `--browser-only` et `--ui-audit-only` permettent une relance ciblée après problème de recette ; l’audit autonome prépare si nécessaire une fixture audio synthétique via le vrai pipeline, uniquement sur instance isolée.
+
+Tentatives conservées :1labelStatutambigu (formulaire visible) corrigé par nom accessible explicite ;2sélecteurtexte interceptait optionmasquée Voixsynthétique, maintenant scopedstrong ;3auditPOST sansOrigin refusé403parCSRF, headerOrigin ajouté au test, protection serveur inchangée. Les41API avaient déjà passé deuxfois, les19browser passent avant relance audit seul. Les suites inchangées ne sont pas relancées pour masquer l’échec. Audit desktop/mobile final9PASS, deuxcapturessupplémentaires `isolated-audit-transcript-tools-mobile.png` et `isolated-audit-microphone-mobile.png` inspectées visuellement parROOT, pasdébordement.
+
+Activation007 effective :0job/aucuneécritureaudio récente avant arrêt ; script migration local sauvegardeSQLite/validechemins+verrou ; intégritéOK et mêmes comptages+empreintes des transcriptions/rapports/partages/fragments. Nouvelles tables vides, aucun traitement de réunion original. Quatre servicesHTTP200, nouvelles routes présentes dans OpenAPI principal. Preuves privées `.memora/v11-activation.json` et `.memora/v11-migration.log`, jamais versionnées. Nettoyage processus/bases temporaires fait par chaque lanceur. Aucun micro physique, Safari/iOS, voixnaturelles ou déploiementproduction validé.
+
+
+Complément codec microphone : `frontend/tests/memora-microphone-browser.mjs --real-codec` avec Chromium1248 et fichierWAVsynthétique, **2contrôles PASS** (`v11-microphone-real-codec.log`). VraiesAPIsMediaRecorder/AudioContext/getUserMediaChromium, entrée fournieparfake-device ; échantillonblob effectivement décodé et lu (currentTime avance), pistes stoppées, zéroPOST et zéroexception. DocumentHTTPS.test intercepté localement dansleprocessus, aucunserveurexterne ni microphysique. Le modedéfaut du mêmescript conserve les10contrôlesAPIsmédiasmockées distincts. Aucun changement de codeproduction après recette finale.

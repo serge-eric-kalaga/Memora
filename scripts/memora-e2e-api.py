@@ -505,6 +505,51 @@ def main():
                     ),
                     "Route française réelle : transcription et rapport prêts sans langue détectée inventée",
                 )
+                current_report = next(
+                    item
+                    for item in french["reports"]
+                    if item["id"] == french["report_id"]
+                )
+                review_category = (
+                    "actions" if current_report["data"].get("actions") else "decisions"
+                )
+                check(
+                    bool(current_report["data"].get(review_category)),
+                    "Rapport réel fournit un élément sourcé à réviser",
+                )
+                review_path = route + "/reports/" + current_report["id"] + "/reviews"
+                human = call(
+                    "PUT",
+                    review_path + "/" + review_category + "/0",
+                    json={
+                        "transcript_version": 1,
+                        "expected_revision": 0,
+                        "status": "confirmed",
+                        "corrections": {},
+                    },
+                )
+                call(
+                    "PUT",
+                    review_path + "/" + review_category + "/0",
+                    expected=409,
+                    json={
+                        "transcript_version": 1,
+                        "expected_revision": 0,
+                        "status": "cancelled",
+                    },
+                )
+                reviewed = call("GET", review_path)
+                same_report = next(
+                    item
+                    for item in call("GET", route)["reports"]
+                    if item["id"] == current_report["id"]
+                )
+                check(
+                    human["provenance"] == "human_review"
+                    and reviewed["history"][0]["status"] == "confirmed"
+                    and same_report["data"] == current_report["data"],
+                    "Validation humaine réelle historisée, conflit détecté et sortie IA inchangée",
+                )
                 edited = [dict(segment) for segment in french["segments"]]
                 edited[0]["speaker"] = "Voix synthétique française"
                 updated = call(
@@ -522,6 +567,64 @@ def main():
                     and len(saved["reports"]) == 1,
                     "Correction de la nouvelle ASR persistée sans422, ancien rapport conservé et périmé",
                 )
+                check(
+                    call("GET", review_path)["stale"],
+                    "Correction rend aussi la validation humaine précédente périmée",
+                )
+                renamed = call(
+                    "POST",
+                    route + "/speakers/rename",
+                    json={
+                        "version": 2,
+                        "from_speaker": edited[0]["speaker"],
+                        "to_speaker": "Intervenant synthétique relu",
+                    },
+                )
+                renamed_meeting = call("GET", route)
+                check(
+                    renamed["version"] == 3
+                    and renamed_meeting["segments"][0]["speaker"]
+                    == "Intervenant synthétique relu"
+                    and renamed_meeting["report_version"] == 1,
+                    "Renommage global réel crée une version sans effacer le rapport",
+                )
+                speaker_request = {
+                    "version": 3,
+                    "request_id": "isolated-speakers-" + secrets.token_hex(8),
+                    "num_speakers": 1,
+                }
+                submitted_speakers = call(
+                    "POST", route + "/diarize", json=speaker_request
+                )
+                deadline = time.monotonic() + 180
+                separated = None
+                while time.monotonic() < deadline:
+                    separated = call("GET", route)
+                    if separated["state"] == "failed":
+                        raise RuntimeError("Séparation locale réelle échouée")
+                    if separated["state"] == "ready" and separated["version"] == 4:
+                        break
+                    time.sleep(1)
+                check(
+                    separated is not None
+                    and separated["version"] == 4
+                    and separated["report_version"] == 1
+                    and len(separated["reports"]) == 1
+                    and separated.get("diarization", {}).get("engine")
+                    and [item["text"] for item in separated["segments"]]
+                    == [item["text"] for item in renamed_meeting["segments"]],
+                    "Job de séparation vocale réel terminé, texte et ancien rapport conservés",
+                )
+                repeated_speakers = call(
+                    "POST", route + "/diarize", json=speaker_request
+                )
+                check(
+                    repeated_speakers.get("idempotent")
+                    and repeated_speakers["job_id"] == submitted_speakers["job_id"]
+                    and call("GET", route)["version"] == 4,
+                    "Rejeu après séparation réelle ne crée pas de version supplémentaire",
+                )
+
             finally:
                 route = original_route
                 if french_mid:

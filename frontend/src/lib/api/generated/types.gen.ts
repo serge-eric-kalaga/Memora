@@ -327,6 +327,28 @@ export type CurrentUserModel = {
 };
 
 /**
+ * DiarizationRequest
+ */
+export type DiarizationRequest = {
+    /**
+     * Editor Name
+     */
+    editor_name?: string | null;
+    /**
+     * Num Speakers
+     */
+    num_speakers?: number | null;
+    /**
+     * Request Id
+     */
+    request_id?: string;
+    /**
+     * Version
+     */
+    version: number;
+};
+
+/**
  * Finalize
  */
 export type Finalize = {
@@ -636,6 +658,29 @@ export type RegistrationModel = {
      * Confirmer l’adresse avant de se connecter.
      */
     verification_required: boolean;
+};
+
+/**
+ * ReportReview
+ */
+export type ReportReview = {
+    corrections?: ReviewCorrections | null;
+    /**
+     * Editor Name
+     */
+    editor_name?: string | null;
+    /**
+     * Expected Revision
+     */
+    expected_revision?: number;
+    /**
+     * Status
+     */
+    status: 'proposed' | 'confirmed' | 'cancelled' | 'needs_review';
+    /**
+     * Transcript Version
+     */
+    transcript_version: number;
 };
 
 /**
@@ -990,6 +1035,24 @@ export type RetranscribeRequest = {
 };
 
 /**
+ * ReviewCorrections
+ */
+export type ReviewCorrections = {
+    /**
+     * Deadline
+     */
+    deadline?: string | null;
+    /**
+     * Owner
+     */
+    owner?: string | null;
+    /**
+     * Text
+     */
+    text?: string | null;
+};
+
+/**
  * RoleDetail
  *
  * Permissions explicitement associées au rôle.
@@ -1098,6 +1161,32 @@ export type ShareCreate = {
      */
     password?: string | null;
     permissions?: Permissions;
+};
+
+/**
+ * SpeakerRename
+ */
+export type SpeakerRename = {
+    /**
+     * Confirm Unidentified
+     */
+    confirm_unidentified?: boolean;
+    /**
+     * Editor Name
+     */
+    editor_name?: string | null;
+    /**
+     * From Speaker
+     */
+    from_speaker: string;
+    /**
+     * To Speaker
+     */
+    to_speaker: string;
+    /**
+     * Version
+     */
+    version: number;
 };
 
 /**
@@ -2621,6 +2710,34 @@ export type UploadChunkApiMemoraMeetingsMidChunksPostResponses = {
     200: unknown;
 };
 
+export type DiarizeMeetingApiMemoraMeetingsMidDiarizePostData = {
+    body: DiarizationRequest;
+    path: {
+        /**
+         * Mid
+         */
+        mid: string;
+    };
+    query?: never;
+    url: '/api/memora/meetings/{mid}/diarize';
+};
+
+export type DiarizeMeetingApiMemoraMeetingsMidDiarizePostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type DiarizeMeetingApiMemoraMeetingsMidDiarizePostError = DiarizeMeetingApiMemoraMeetingsMidDiarizePostErrors[keyof DiarizeMeetingApiMemoraMeetingsMidDiarizePostErrors];
+
+export type DiarizeMeetingApiMemoraMeetingsMidDiarizePostResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
+
 export type FinalizeApiMemoraMeetingsMidFinalizePostData = {
     body: Finalize;
     path: {
@@ -2643,6 +2760,78 @@ export type FinalizeApiMemoraMeetingsMidFinalizePostErrors = {
 export type FinalizeApiMemoraMeetingsMidFinalizePostError = FinalizeApiMemoraMeetingsMidFinalizePostErrors[keyof FinalizeApiMemoraMeetingsMidFinalizePostErrors];
 
 export type FinalizeApiMemoraMeetingsMidFinalizePostResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
+
+export type ReadReviewsApiMemoraMeetingsMidReportsRidReviewsGetData = {
+    body?: never;
+    path: {
+        /**
+         * Mid
+         */
+        mid: string;
+        /**
+         * Rid
+         */
+        rid: string;
+    };
+    query?: never;
+    url: '/api/memora/meetings/{mid}/reports/{rid}/reviews';
+};
+
+export type ReadReviewsApiMemoraMeetingsMidReportsRidReviewsGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type ReadReviewsApiMemoraMeetingsMidReportsRidReviewsGetError = ReadReviewsApiMemoraMeetingsMidReportsRidReviewsGetErrors[keyof ReadReviewsApiMemoraMeetingsMidReportsRidReviewsGetErrors];
+
+export type ReadReviewsApiMemoraMeetingsMidReportsRidReviewsGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
+
+export type ReviewItemApiMemoraMeetingsMidReportsRidReviewsCategoryItemIndexPutData = {
+    body: ReportReview;
+    path: {
+        /**
+         * Mid
+         */
+        mid: string;
+        /**
+         * Rid
+         */
+        rid: string;
+        /**
+         * Category
+         */
+        category: 'actions' | 'decisions';
+        /**
+         * Item Index
+         */
+        item_index: number;
+    };
+    query?: never;
+    url: '/api/memora/meetings/{mid}/reports/{rid}/reviews/{category}/{item_index}';
+};
+
+export type ReviewItemApiMemoraMeetingsMidReportsRidReviewsCategoryItemIndexPutErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type ReviewItemApiMemoraMeetingsMidReportsRidReviewsCategoryItemIndexPutError = ReviewItemApiMemoraMeetingsMidReportsRidReviewsCategoryItemIndexPutErrors[keyof ReviewItemApiMemoraMeetingsMidReportsRidReviewsCategoryItemIndexPutErrors];
+
+export type ReviewItemApiMemoraMeetingsMidReportsRidReviewsCategoryItemIndexPutResponses = {
     /**
      * Successful Response
      */
@@ -2791,6 +2980,34 @@ export type InviteApiMemoraMeetingsMidSharesTokenInvitePostErrors = {
 export type InviteApiMemoraMeetingsMidSharesTokenInvitePostError = InviteApiMemoraMeetingsMidSharesTokenInvitePostErrors[keyof InviteApiMemoraMeetingsMidSharesTokenInvitePostErrors];
 
 export type InviteApiMemoraMeetingsMidSharesTokenInvitePostResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
+
+export type RenameSpeakerApiMemoraMeetingsMidSpeakersRenamePostData = {
+    body: SpeakerRename;
+    path: {
+        /**
+         * Mid
+         */
+        mid: string;
+    };
+    query?: never;
+    url: '/api/memora/meetings/{mid}/speakers/rename';
+};
+
+export type RenameSpeakerApiMemoraMeetingsMidSpeakersRenamePostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type RenameSpeakerApiMemoraMeetingsMidSpeakersRenamePostError = RenameSpeakerApiMemoraMeetingsMidSpeakersRenamePostErrors[keyof RenameSpeakerApiMemoraMeetingsMidSpeakersRenamePostErrors];
+
+export type RenameSpeakerApiMemoraMeetingsMidSpeakersRenamePostResponses = {
     /**
      * Successful Response
      */

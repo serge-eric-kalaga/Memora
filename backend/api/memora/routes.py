@@ -76,11 +76,19 @@ def share_access(c, request, mid, capability):
             # Legitimate polling does not consume the failed-guess quota.
             limit(c, unlock_key, 20)
             error(401, "Mot de passe requis ou incorrect.")
+    if capability == "review" and (
+        not s.config(c)["allow_guest_edit"]
+        or not sh["permissions"].get("edit")
+        or not sh["permissions"].get("report")
+    ):
+        error(403, "Ce partage ne permet pas la révision humaine du rapport.")
     if capability == "edit" and (
         not s.config(c)["allow_guest_edit"] or not sh["permissions"].get("transcript")
     ):
         error(403, "Modification invitée désactivée.")
-    if not sh["permissions"].get(capability, False):
+    if not sh["permissions"].get(
+        "edit" if capability == "review" else capability, False
+    ):
         error(403, "Ce partage ne permet pas cette action.")
     guest_session = request.headers.get("x-guest-session", "")
     # Never give unrelated visitors who omit a session a common chat history.
@@ -102,7 +110,7 @@ async def access(request, mid, capability="view"):
             rights = dict(sh["permissions"])
             rights["edit"] = bool(
                 rights.get("edit")
-                and rights.get("transcript")
+                and (rights.get("transcript") or rights.get("report"))
                 and s.config(c)["allow_guest_edit"]
             )
             return m, rights, actor
@@ -179,6 +187,10 @@ def public_meeting(c, m, rights, actor):
             d = dict(r)
             d.pop("meeting", None)
             d["data"] = json.loads(d["data"])
+            d["human_reviews"] = s.report_reviews(c, d["id"])
+            d["reviews_stale"] = d["version"] != m["version"] or d["id"] != m.get(
+                "report_id"
+            )
             if not rights.get("transcript"):
                 for key in (
                     "summary",
@@ -569,6 +581,7 @@ async def read_transcript(mid: str, request: Request, version: int | None = None
             "version": version,
             "segments": s.transcript(c, mid, version),
             "created": row["created"],
+            "provenance": s.transcript_edit(c, mid, version),
         }
 
 
@@ -593,19 +606,12 @@ async def correct(mid: str, body: Correction, request: Request):
     _, rights, actor = await access(request, mid, "edit")
     with s.db() as c:
         c.execute("BEGIN IMMEDIATE")
-        m = s.meeting(c, mid)
-        if not m:
-            error(404, "Réunion indisponible.")
-        if actor.startswith("guest:") and (
-            not s.config(c)["allow_guest_edit"]
-            or not rights.get("transcript")
-            or not body.editor_name
-        ):
-            error(403, "Modification invitée désactivée ou nom d’éditeur manquant.")
+        m, rights, actor = locked_edit(c, request, mid, actor, rights, body.editor_name)
         if m["version"] != body.version:
             error(409, "La transcription a changé. Rechargez avant de corriger.")
         old = s.transcript(c, mid, m["version"])
-        new = [x.model_dump() for x in body.segments]
+        incoming = [x.model_dump() for x in body.segments]
+        new = incoming
         if [(x["id"], x["start"], x["end"]) for x in old] != [
             (x["id"], x["start"], x["end"]) for x in new
         ]:
@@ -613,6 +619,25 @@ async def correct(mid: str, body: Correction, request: Request):
                 422,
                 "Seuls le texte, le nom et l’incertitude peuvent être corrigés ; repères audio immuables.",
             )
+        new = []
+        for previous, submitted in zip(old, body.segments):
+            item = {**previous, "text": submitted.text}
+            if "uncertain" in submitted.model_fields_set:
+                item["uncertain"] = submitted.uncertain
+            if (
+                "speaker" in submitted.model_fields_set
+                and submitted.speaker != previous.get("speaker")
+            ):
+                item["speaker"] = submitted.speaker
+                item["speaker_uncertain"] = False
+                item["speaker_confidence"] = None
+                item["speaker_provenance"] = {
+                    "kind": "human_correction",
+                    "actor": actor,
+                    "editor_name": body.editor_name,
+                    "created": time.time(),
+                }
+            new.append(item)
         m["version"] += 1
         c.execute(
             "INSERT INTO transcripts VALUES(?,?,?,?,?)",
@@ -634,6 +659,348 @@ async def correct(mid: str, body: Correction, request: Request):
         s.save(c, m)
         s.audit(c, actor, mid, "transcript_corrected:v" + str(m["version"]))
     return {"version": m["version"], "stale": True}
+
+
+def locked_edit(c, request, mid, actor, rights, editor_name=None, capability="edit"):
+    """Revalidate mutable guest policy/revocation after acquiring the writer lock."""
+    m = s.meeting(c, mid)
+    if not m or not m.get("owner_uid") or s.owner_deleted(c, m["owner_uid"]):
+        error(404, "Réunion indisponible.")
+    if request.headers.get("x-share-token"):
+        share, actor = share_access(c, request, mid, capability)
+        rights = dict(share["permissions"])
+        if not editor_name or not editor_name.strip():
+            error(403, "Le nom de l’éditeur invité est requis.")
+    return m, rights, actor
+
+
+def readable_report(c, mid, rid):
+    row = c.execute(
+        "SELECT * FROM reports WHERE id=? AND meeting=?", (rid, mid)
+    ).fetchone()
+    if not row:
+        error(404, "Rapport indisponible.")
+    return row
+
+
+class ReviewCorrections(BaseModel):
+    text: str | None = Field(default=None, min_length=1, max_length=3000)
+    owner: str | None = Field(default=None, max_length=100)
+    deadline: str | None = Field(default=None, max_length=200)
+
+
+class ReportReview(BaseModel):
+    transcript_version: int = Field(ge=1)
+    expected_revision: int = Field(default=0, ge=0)
+    status: Literal["proposed", "confirmed", "cancelled", "needs_review"]
+    corrections: ReviewCorrections | None = None
+    editor_name: str | None = Field(default=None, min_length=2, max_length=100)
+
+
+@router.get("/meetings/{mid}/reports/{rid}/reviews")
+async def read_reviews(mid: str, rid: str, request: Request):
+    _, _, _ = await access(request, mid, "report")
+    with s.db() as c:
+        m = s.meeting(c, mid)
+        if not m or s.owner_deleted(c, m.get("owner_uid")):
+            error(404, "Réunion indisponible.")
+        if request.headers.get("x-share-token"):
+            share_access(c, request, mid, "report")
+        row = readable_report(c, mid, rid)
+        return {
+            "report_id": rid,
+            "report_version": row["version"],
+            "current_transcript_version": m["version"],
+            "stale": row["version"] != m["version"] or rid != m.get("report_id"),
+            "items": s.report_reviews(c, rid),
+            "history": s.report_reviews(c, rid, history=True),
+        }
+
+
+@router.put("/meetings/{mid}/reports/{rid}/reviews/{category}/{item_index}")
+async def review_item(
+    mid: str,
+    rid: str,
+    category: Literal["actions", "decisions"],
+    item_index: int,
+    body: ReportReview,
+    request: Request,
+):
+    _, rights, actor = await access(request, mid, "review")
+    with s.db() as c:
+        limit(c, "review:" + mid + ":" + actor, 60)
+        c.execute("BEGIN IMMEDIATE")
+        m, rights, actor = locked_edit(
+            c, request, mid, actor, rights, body.editor_name, capability="review"
+        )
+        if not rights.get("report"):
+            error(403, "La consultation du rapport est requise pour le réviser.")
+        row = readable_report(c, mid, rid)
+        if (
+            body.transcript_version != m["version"]
+            or row["version"] != m["version"]
+            or rid != m.get("report_id")
+        ):
+            error(
+                409,
+                "Le rapport ou la transcription a changé. Rechargez avant de réviser.",
+            )
+        items = json.loads(row["data"]).get(category, [])
+        if item_index < 0 or item_index >= len(items):
+            error(404, "Élément de rapport indisponible.")
+        previous = c.execute(
+            "SELECT revision,data FROM report_reviews WHERE report=? AND category=? AND item_index=? ORDER BY revision DESC LIMIT 1",
+            (rid, category, item_index),
+        ).fetchone()
+        revision = previous["revision"] if previous else 0
+        if revision != body.expected_revision:
+            error(409, "La révision humaine a changé. Rechargez avant de modifier.")
+        corrections = (
+            (json.loads(previous["data"])["corrections"] if previous else {})
+            if body.corrections is None
+            else body.corrections.model_dump(exclude_none=True)
+        )
+        for field, value in corrections.items():
+            corrections[field] = value.strip()
+            if field == "text" and not corrections[field]:
+                error(422, "Une correction renseignée ne peut pas être vide.")
+        identifier, created = s.uid(), time.time()
+        data = {"status": body.status, "corrections": corrections}
+        c.execute(
+            "INSERT INTO report_reviews VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+            (
+                identifier,
+                mid,
+                rid,
+                category,
+                item_index,
+                revision + 1,
+                m["version"],
+                actor,
+                body.editor_name,
+                created,
+                json.dumps(data),
+            ),
+        )
+        m["updated"] = created
+        s.save(c, m)
+        s.audit(c, actor, mid, "human_report_review:" + rid)
+        return next(
+            item for item in s.report_reviews(c, rid) if item["id"] == identifier
+        )
+
+
+class SpeakerRename(BaseModel):
+    version: int = Field(ge=1)
+    from_speaker: str = Field(max_length=100)
+    to_speaker: str = Field(min_length=1, max_length=100)
+    confirm_unidentified: bool = False
+    editor_name: str | None = Field(default=None, min_length=2, max_length=100)
+
+
+@router.post("/meetings/{mid}/speakers/rename")
+async def rename_speaker(mid: str, body: SpeakerRename, request: Request):
+    _, rights, actor = await access(request, mid, "edit")
+    target = body.to_speaker.strip()
+    if not target:
+        error(422, "Le nouveau nom ne peut pas être vide.")
+    with s.db() as c:
+        limit(c, "rename:" + mid + ":" + actor, 30)
+        c.execute("BEGIN IMMEDIATE")
+        m, rights, actor = locked_edit(c, request, mid, actor, rights, body.editor_name)
+        if not rights.get("transcript"):
+            error(
+                403,
+                "La transcription doit être accessible pour renommer un intervenant.",
+            )
+        if body.version != m["version"]:
+            error(409, "La transcription a changé. Rechargez avant de renommer.")
+        old = s.transcript(c, mid, m["version"])
+        matched = [item for item in old if item.get("speaker", "") == body.from_speaker]
+        if not matched:
+            error(404, "Intervenant absent de cette version.")
+        unknown = body.from_speaker.strip().casefold() in {
+            "",
+            "intervenant non identifié",
+            "non identifié",
+            "unknown",
+            "unknown speaker",
+            "unidentified speaker",
+        }
+        if unknown and not body.confirm_unidentified:
+            error(
+                422,
+                "Les passages non identifiés peuvent concerner plusieurs personnes. Confirmez explicitement le renommage de tous ces passages.",
+            )
+        if body.from_speaker == target:
+            return {
+                "version": m["version"],
+                "renamed_segments": 0,
+                "stale": m.get("report_version") != m["version"],
+                "no_change": True,
+            }
+        new = [
+            {
+                **item,
+                "speaker": target,
+                "speaker_uncertain": False,
+                "speaker_confidence": None,
+                "speaker_provenance": {
+                    "kind": "human_global_speaker_rename",
+                    "actor": actor,
+                    "editor_name": body.editor_name,
+                    "created": time.time(),
+                },
+            }
+            if item.get("speaker", "") == body.from_speaker
+            else item
+            for item in old
+        ]
+        m["version"] += 1
+        created = time.time()
+        c.execute(
+            "INSERT INTO transcripts VALUES(?,?,?,?,?)",
+            (
+                mid,
+                m["version"],
+                json.dumps(new),
+                actor + (":" + body.editor_name if body.editor_name else ""),
+                created,
+            ),
+        )
+        provenance = {
+            "from_speaker": body.from_speaker,
+            "to_speaker": target,
+            "renamed_segments": len(matched),
+            "previous_version": body.version,
+            "confirmed_unidentified": body.confirm_unidentified,
+        }
+        c.execute(
+            "INSERT INTO transcript_edits VALUES(?,?,?,?,?,?,?)",
+            (
+                mid,
+                m["version"],
+                "global_speaker_rename",
+                actor,
+                body.editor_name,
+                created,
+                json.dumps(provenance),
+            ),
+        )
+        m.update(
+            updated=created,
+            state="ready" if m.get("report_id") else "failed",
+            error=None
+            if m.get("report_id")
+            else "Transcription modifiée : relancez l’analyse.",
+        )
+        s.save(c, m)
+        s.audit(c, actor, mid, "global_speaker_rename:v" + str(m["version"]))
+    return {
+        "version": m["version"],
+        "renamed_segments": len(matched),
+        "stale": True,
+        "provenance": "human_global_speaker_rename",
+    }
+
+
+class DiarizationRequest(BaseModel):
+    version: int = Field(ge=1)
+    request_id: str = Field(
+        default_factory=s.uid, min_length=16, max_length=80, pattern=r"^[a-zA-Z0-9_-]+$"
+    )
+    editor_name: str | None = Field(default=None, min_length=2, max_length=100)
+    num_speakers: int | None = Field(default=None, ge=1, le=8)
+
+
+@router.post("/meetings/{mid}/diarize")
+async def diarize_meeting(mid: str, body: DiarizationRequest, request: Request):
+    _, rights, actor = await access(request, mid, "edit")
+    with s.db() as c:
+        limit(c, "diarize:" + mid + ":" + actor, 5)
+        c.execute("BEGIN IMMEDIATE")
+        m, rights, actor = locked_edit(c, request, mid, actor, rights, body.editor_name)
+        if not rights.get("transcript") or not rights.get("audio"):
+            error(
+                403,
+                "La transcription et l’audio doivent être accessibles pour séparer les intervenants.",
+            )
+        logical_id = "diarize_" + body.request_id
+        existing = c.execute(
+            "SELECT j.id,j.state,j.version FROM analysis_requests a JOIN jobs j ON j.id=a.job WHERE a.meeting=? AND a.request_id=?",
+            (mid, logical_id),
+        ).fetchone()
+        if existing:
+            if existing["version"] != body.version:
+                error(
+                    409,
+                    "Cet identifiant correspond à une autre version de transcription.",
+                )
+            previous = m.get("diarization_request", {})
+            if (
+                previous.get("job_id") == existing["id"]
+                and previous.get("num_speakers") != body.num_speakers
+            ):
+                error(
+                    409,
+                    "Cet identifiant correspond à d’autres paramètres de séparation.",
+                )
+            return {
+                "job_id": existing["id"],
+                "state": existing["state"],
+                "idempotent": True,
+            }
+        if body.version != m["version"]:
+            error(
+                409,
+                "La transcription a changé. Rechargez avant de séparer les intervenants.",
+            )
+        if (
+            m.get("state") not in ("ready", "failed")
+            or c.execute(
+                "SELECT 1 FROM jobs WHERE meeting=? AND state IN ('queued','running')",
+                (mid,),
+            ).fetchone()
+        ):
+            error(
+                409,
+                "Un traitement est déjà en cours ou la transcription n’est pas prête.",
+            )
+        if not s.transcript(c, mid, m["version"]):
+            error(
+                409,
+                "Une transcription est requise avant la séparation des intervenants.",
+            )
+        if audio_expired(m) or not (s.ROOT / mid / "audio.bin").is_file():
+            error(410, "Audio indisponible ou expiré.")
+        try:
+            from . import diarization
+
+            available = diarization.available()
+        except (ImportError, OSError, RuntimeError):
+            available = False
+        if not available:
+            error(
+                503,
+                "La séparation locale des intervenants n’est pas disponible. Vérifiez le modèle et ses dépendances.",
+            )
+        job = s.enqueue(c, mid, "diarize", body.version)
+        c.execute("INSERT INTO analysis_requests VALUES(?,?,?)", (mid, logical_id, job))
+        m.update(
+            state="queued",
+            error=None,
+            active_job_id=job,
+            diarization_request={
+                "job_id": job,
+                "actor": actor,
+                "editor_name": body.editor_name,
+                "num_speakers": body.num_speakers,
+                "requested_version": body.version,
+            },
+        )
+        s.save(c, m)
+        s.audit(c, actor, mid, "diarization_requested")
+    return {"job_id": job, "state": "queued", "idempotent": False}
 
 
 class Question(BaseModel):
@@ -768,11 +1135,12 @@ async def create_share(mid: str, body: ShareCreate, request: Request):
         if not any(permissions[k] for k in ("report", "transcript", "audio", "chat")):
             error(422, "Choisissez au moins un contenu.")
         if permissions["edit"] and (
-            not s.config(c)["allow_guest_edit"] or not permissions["transcript"]
+            not s.config(c)["allow_guest_edit"]
+            or not (permissions["transcript"] or permissions["report"])
         ):
             error(
                 422,
-                "Modification invitée autorisée uniquement si activée et transcription partagée.",
+                "Modification invitée autorisée uniquement si activée et rapport ou transcription partagé.",
             )
         if (
             body.expires_at is not None

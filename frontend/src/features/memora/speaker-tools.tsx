@@ -1,0 +1,206 @@
+"use client";
+import { useState } from "react";
+import type { Segment } from "./api";
+import s from "./memora.module.css";
+
+export function SpeakerTools({
+  segments,
+  version,
+  guest,
+  english,
+  busy,
+  canSeparate,
+  run,
+}: {
+  segments: Segment[];
+  version: number;
+  guest: boolean;
+  english: boolean;
+  busy: boolean;
+  canSeparate: boolean;
+  run: (path: string, method: string, body: unknown) => Promise<boolean>;
+}) {
+  const names = [...new Set(segments.map((segment) => segment.speaker || ""))];
+  const [from, setFrom] = useState(names[0] || "");
+  const [to, setTo] = useState("");
+  const [name, setName] = useState("");
+  const [confirm, setConfirm] = useState(false);
+  const [count, setCount] = useState("");
+  const [message, setMessage] = useState("");
+  const unidentified =
+    !from.trim() || /non identifi|unknown|unidentified/i.test(from);
+  return (
+    <details className={s.notice}>
+      <summary>
+        {english ? "Manage speakers" : "Gérer les intervenants"}
+      </summary>
+      <p>
+        {english
+          ? "A rename affects every passage bearing this label and creates a new transcript version. It does not identify a voice."
+          : "Le renommage concerne tous les passages portant cette étiquette et crée une nouvelle version. Il n’identifie pas une voix."}
+      </p>
+      {guest && (
+        <label className={s.field}>
+          {english ? "Your name" : "Votre nom"}
+          <input
+            className={s.input}
+            required
+            minLength={2}
+            maxLength={100}
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+          />
+        </label>
+      )}
+      <form
+        onSubmit={async (event) => {
+          event.preventDefault();
+          setMessage("");
+          if (
+            await run("/speakers/rename", "POST", {
+              version,
+              from_speaker: from,
+              to_speaker: to,
+              confirm_unidentified: confirm,
+              ...(guest ? { editor_name: name } : {}),
+            })
+          )
+            setMessage(
+              english
+                ? "Speaker renamed. The report needs regeneration."
+                : "Intervenant renommé. Le rapport est à actualiser.",
+            );
+        }}
+      >
+        <label className={s.field}>
+          {english ? "Existing label" : "Étiquette actuelle"}
+          <select
+            className={s.select}
+            aria-label={english ? "Existing label" : "Étiquette actuelle"}
+            value={from}
+            onChange={(event) => {
+              setFrom(event.target.value);
+              setConfirm(false);
+            }}
+          >
+            {names.map((value) => (
+              <option key={value} value={value}>
+                {value ||
+                  (english
+                    ? "Unidentified speaker"
+                    : "Intervenant non identifié")}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className={s.field}>
+          {english ? "New name" : "Nouveau nom"}
+          <input
+            className={s.input}
+            required
+            maxLength={100}
+            value={to}
+            onChange={(event) => setTo(event.target.value)}
+          />
+        </label>
+        {unidentified && (
+          <label>
+            <input
+              type="checkbox"
+              checked={confirm}
+              onChange={(event) => setConfirm(event.target.checked)}
+            />{" "}
+            {english
+              ? "I checked that ALL passages with this unidentified label belong to the same person."
+              : "J’ai vérifié que TOUS les passages portant cette étiquette inconnue appartiennent à la même personne."}
+          </label>
+        )}
+        <p>
+          <button
+            className={s.button}
+            disabled={
+              busy ||
+              !to.trim() ||
+              (unidentified && !confirm) ||
+              (guest && name.trim().length < 2)
+            }
+          >
+            {english
+              ? "Rename all these passages"
+              : "Renommer tous ces passages"}
+          </button>
+        </p>
+      </form>
+      {canSeparate && (
+        <>
+          <hr />
+          <h3>
+            {english
+              ? "Local speaker separation"
+              : "Séparation locale des voix"}
+          </h3>
+          <p>
+            {english
+              ? "Groups similar voices into numbered speakers. Short passages, similar voices and overlapping speech may be mislabelled. Review labels before assigning names. The text is preserved; the report becomes out of date."
+              : "Regroupe les voix similaires sous des intervenants numérotés. Les passages courts, les voix proches et les paroles simultanées peuvent être mal attribués. Vérifiez avant de nommer les personnes. Le texte est conservé ; le rapport devient à actualiser."}
+          </p>
+          <label className={s.field}>
+            {english
+              ? "Known speaker count (optional)"
+              : "Nombre d’intervenants connu (facultatif)"}
+            <input
+              className={s.input}
+              type="number"
+              min={1}
+              max={8}
+              placeholder={
+                english ? "Automatic estimate" : "Estimation automatique"
+              }
+              value={count}
+              onChange={(event) => setCount(event.target.value)}
+            />
+          </label>
+          <button
+            className={s.button}
+            disabled={
+              busy ||
+              (guest && name.trim().length < 2) ||
+              (!!count &&
+                (!Number.isInteger(Number(count)) ||
+                  Number(count) < 1 ||
+                  Number(count) > 8))
+            }
+            onClick={async () => {
+              if (
+                !window.confirm(
+                  english
+                    ? "Replace current speaker labels with a local estimate? Previous labels remain in history. Review the result before regenerating the report."
+                    : "Remplacer les étiquettes actuelles par une estimation locale ? Les anciennes restent dans l’historique. Vérifiez le résultat avant de régénérer le rapport.",
+                )
+              )
+                return;
+              if (
+                await run("/diarize", "POST", {
+                  version,
+                  request_id: crypto.randomUUID(),
+                  ...(count ? { num_speakers: Number(count) } : {}),
+                  ...(guest ? { editor_name: name } : {}),
+                })
+              )
+                setMessage(
+                  english
+                    ? "Separation queued. You can leave this page open to follow progress."
+                    : "Séparation en attente. Cette page affichera le résultat du traitement.",
+                );
+            }}
+          >
+            {english
+              ? "Separate speakers locally"
+              : "Séparer les intervenants localement"}
+          </button>
+        </>
+      )}
+      {message && <p role="status">{message}</p>}
+    </details>
+  );
+}

@@ -81,6 +81,27 @@ try {
   await page.locator("input[type=file]").setInputFiles(fixture);
   await ready();
   pass("Import navigateur → Whisper → Ollama → rapport persisté");
+  const humanReview = page.locator('[data-testid^="human-review-"]').first();
+  await humanReview
+    .getByRole("button", { name: "Valider cet élément", exact: true })
+    .click();
+  await humanReview
+    .getByLabel("Statut", { exact: true })
+    .selectOption("confirmed");
+  await humanReview
+    .getByRole("button", {
+      name: "Enregistrer la validation humaine",
+      exact: true,
+    })
+    .click();
+  await humanReview.getByText("Confirmé", { exact: true }).waitFor();
+  await humanReview
+    .getByRole("button", { name: "Historique des validations", exact: true })
+    .click();
+  await humanReview.locator("ol li").first().waitFor();
+  pass(
+    "Validation humaine persistée séparément du rapport IA, historique accessible",
+  );
   await page.screenshot({
     path: artifactPath("logs", "browser-report-desktop.png"),
     fullPage: true,
@@ -103,6 +124,68 @@ try {
   await page
     .getByRole("button", { name: "Transcription", exact: true })
     .click();
+  const tools = page.getByLabel("Outils de lecture de transcription", {
+    exact: true,
+  });
+  await tools.waitFor();
+  await page
+    .locator("audio")
+    .first()
+    .evaluate(async (audio) => {
+      if (audio.readyState < 1)
+        await new Promise((resolve) =>
+          audio.addEventListener("loadedmetadata", resolve, { once: true }),
+        );
+    });
+  await tools
+    .getByRole("combobox", { name: "Vitesse de lecture", exact: true })
+    .selectOption("0.75");
+  assert.equal(
+    await page
+      .locator("audio")
+      .first()
+      .evaluate((audio) => audio.playbackRate),
+    0.75,
+  );
+  await tools
+    .getByRole("button", { name: "Écouter le passage en boucle", exact: true })
+    .click();
+  await tools
+    .getByRole("button", { name: "Arrêter la boucle", exact: true })
+    .waitFor();
+  await page.waitForFunction(() =>
+    document.querySelector('[data-segment-start][class*="selectedSegment"]'),
+  );
+  const nextPassage = page.locator("[data-segment-start]").nth(1);
+  const expectedStart = Number(
+    await nextPassage.getAttribute("data-segment-start"),
+  );
+  await nextPassage.getByRole("button").first().click();
+  await tools
+    .getByRole("button", { name: "Écouter le passage en boucle", exact: true })
+    .waitFor();
+  assert.ok(
+    await page
+      .locator("audio")
+      .first()
+      .evaluate(
+        (audio, start) =>
+          audio.currentTime >= start && audio.currentTime < start + 2,
+        expectedStart,
+      ),
+  );
+  await tools.focus();
+  await page.keyboard.press("Alt+Space");
+  assert.equal(
+    await page
+      .locator("audio")
+      .first()
+      .evaluate((audio) => audio.paused),
+    true,
+  );
+  pass(
+    "Lecture synchronisée : surlignage, vitesse, boucle, saut externe libéré et raccourci clavier",
+  );
   await page.getByRole("button", { name: "Corriger", exact: true }).click();
   await page
     .getByRole("textbox", { name: "Passage 1", exact: true })
@@ -112,6 +195,13 @@ try {
   await page
     .getByRole("textbox", { name: "Intervenant 1", exact: true })
     .fill("Camille (synthétique)");
+  await page
+    .getByText("Comparer cette correction", { exact: true })
+    .first()
+    .click();
+  assert.ok(await page.locator("del").first().isVisible());
+  assert.ok(await page.locator("ins").first().isVisible());
+  pass("Comparaison avant/après affichée sans écraser la source");
   await page
     .getByRole("button", { name: "Enregistrer les corrections", exact: true })
     .click();
@@ -190,6 +280,46 @@ try {
   pass("Archivage et restauration navigateur");
   // Capture never opens the physical microphone: Chromium flags supply only the WAV fixture.
   await create("Recette capture synthétique pause réseau", "recording");
+  await page
+    .getByRole("button", { name: "Tester le microphone", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Arrêter le test", exact: true })
+    .waitFor();
+  assert.equal(
+    await page
+      .getByRole("button", { name: "Enregistrer", exact: true })
+      .isDisabled(),
+    true,
+  );
+  await page
+    .getByRole("button", {
+      name: "Enregistrer un échantillon (10 s max.)",
+      exact: true,
+    })
+    .click();
+  await sleep(1200);
+  await page
+    .getByRole("button", { name: "Terminer l’échantillon", exact: true })
+    .click();
+  await page
+    .getByText("Réécouter votre échantillon", { exact: true })
+    .waitFor();
+  await page
+    .getByRole("button", { name: "Arrêter le test", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Enregistrer", exact: true })
+    .waitFor({ state: "visible" });
+  assert.equal(
+    await page
+      .getByRole("button", { name: "Enregistrer", exact: true })
+      .isEnabled(),
+    true,
+  );
+  pass(
+    "Contrôle microphone factice, échantillon local et arrêt avant capture réunion",
+  );
   await page.getByRole("button", { name: "Enregistrer", exact: true }).click();
   await page.getByRole("button", { name: "Pause", exact: true }).waitFor();
   await page.getByText(/1 fragments confirmés/).waitFor({ timeout: 30000 });
@@ -230,21 +360,100 @@ try {
     process.env.MEMORA_FRENCH_ASR_ENGINE === "parakeet-mlx"
   ) {
     await create("Recette française synthétique", "import", "fr");
-    await page.locator("input[type=file]").setInputFiles(
-      resolve(root, "backend/test/fixtures/memora/french.wav"),
-    );
+    await page
+      .locator("input[type=file]")
+      .setInputFiles(resolve(root, "backend/test/fixtures/memora/french.wav"));
     await ready();
-    await page.getByRole("button", { name: "Transcription", exact: true }).click();
-    const unknown = page.getByText("Langue non déterminée", { exact: true }).first();
+    await page
+      .getByRole("button", { name: "Transcription", exact: true })
+      .click();
+    const unknown = page
+      .getByText("Langue non déterminée", { exact: true })
+      .first();
     await unknown.waitFor();
-    assert.match(await unknown.getAttribute("title"), /ne fournit pas de langue détectée/);
+    assert.match(
+      await unknown.getAttribute("title"),
+      /ne fournit pas de langue détectée/,
+    );
     await page.getByRole("button", { name: "Corriger", exact: true }).click();
-    await page.getByRole("textbox", { name: "Intervenant 1", exact: true }).fill("Voix synthétique");
-    await page.getByRole("button", { name: "Enregistrer les corrections", exact: true }).click();
+    await page
+      .getByRole("textbox", { name: "Intervenant 1", exact: true })
+      .fill("Voix synthétique");
+    await page
+      .getByRole("button", { name: "Enregistrer les corrections", exact: true })
+      .click();
     await page.getByText(/Le rapport est à actualiser/).waitFor();
-    await page.getByText("Voix synthétique", { exact: true }).first().waitFor();
-    pass("Import français réel, langue non inventée et correction persistée dans le navigateur");
-    await page.screenshot({ path: artifactPath("logs", "browser-french-transcript.png"), fullPage: true });
+    await page.locator("strong").filter({ hasText: /^Voix synthétique$/ }).first().waitFor();
+    pass(
+      "Import français réel, langue non inventée et correction persistée dans le navigateur",
+    );
+    await page.getByText("Gérer les intervenants", { exact: true }).click();
+    await page
+      .getByRole("combobox", { name: "Étiquette actuelle", exact: true })
+      .selectOption("Voix synthétique");
+    await page
+      .getByRole("textbox", { name: "Nouveau nom", exact: true })
+      .fill("Camille synthétique");
+    await page
+      .getByRole("button", { name: "Renommer tous ces passages", exact: true })
+      .click();
+    await page
+      .locator("strong")
+      .filter({ hasText: /^Camille synthétique$/ })
+      .first()
+      .waitFor();
+    await page
+      .getByRole("combobox", {
+        name: "Version de la transcription",
+        exact: true,
+      })
+      .selectOption("1");
+    await page
+      .getByText("Version historique en lecture seule.", { exact: false })
+      .waitFor();
+    await page
+      .getByRole("combobox", {
+        name: "Version de la transcription",
+        exact: true,
+      })
+      .selectOption("3");
+    pass("Renommage global persisté et ancienne transcription consultable");
+    await page.getByText("Gérer les intervenants", { exact: true }).click();
+    await page
+      .getByRole("spinbutton", {
+        name: "Nombre d’intervenants connu (facultatif)",
+        exact: true,
+      })
+      .fill("1");
+    page.once("dialog", (dialog) => dialog.accept());
+    await page
+      .getByRole("button", {
+        name: "Séparer les intervenants localement",
+        exact: true,
+      })
+      .click();
+    await page.waitForFunction(
+      () =>
+        document.querySelector("select") &&
+        Array.from(document.querySelectorAll("select")).some(
+          (select) => select.value === "4",
+        ),
+      null,
+      { timeout: 120000 },
+    );
+    await page
+      .getByText("Intervenants estimés localement ; aucune identité déduite.", {
+        exact: false,
+      })
+      .waitFor();
+    pass(
+      "Séparation locale réelle déclenchée dans le navigateur, nouvelle version et avertissements visibles",
+    );
+
+    await page.screenshot({
+      path: artifactPath("logs", "browser-french-transcript.png"),
+      fullPage: true,
+    });
   }
   assert.deepEqual(errors, []);
   pass("Aucune exception JavaScript non gérée");

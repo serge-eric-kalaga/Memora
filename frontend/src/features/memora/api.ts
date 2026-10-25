@@ -4,9 +4,15 @@ export type Segment = {
   end: number;
   text: string;
   speaker: string;
+  speaker_id?: string | null;
+  speaker_confidence?: number | null;
+  speaker_uncertain?: boolean;
+  speaker_provenance?: Record<string, unknown>;
   language?: string;
   language_scope?:
-    "initial_window_detection" | "speech_region_detection" | "forced";
+    | "initial_window_detection"
+    | "speech_region_detection"
+    | "forced";
   language_confidence?: number | null;
   uncertain?: boolean;
 };
@@ -21,6 +27,8 @@ export type Report = {
   revision?: number;
   version: number;
   created: string;
+  human_reviews?: HumanReview[];
+  reviews_stale?: boolean;
   data: {
     summary: string | Item[];
     topics: (Item | string)[];
@@ -29,6 +37,20 @@ export type Report = {
     open_questions: (Item | string)[];
     limitations?: string[] | string;
   };
+};
+export type HumanReview = {
+  id: string;
+  report: string;
+  category: "actions" | "decisions";
+  item_index: number;
+  revision: number;
+  transcript_version: number;
+  author: string;
+  editor_name: string | null;
+  created: string;
+  status: "proposed" | "confirmed" | "cancelled" | "needs_review";
+  corrections: { text?: string; owner?: string; deadline?: string };
+  provenance: "human_review";
 };
 export type Share = {
   token: string;
@@ -63,6 +85,12 @@ export type Meeting = {
   audio_available?: boolean;
   duration?: number;
   archived?: boolean;
+  diarization?: {
+    engine?: string;
+    speaker_count?: number;
+    warnings?: string[];
+    overlap_supported?: boolean;
+  };
   error?: string;
   permissions?: Record<string, boolean>;
   chunks?: { seq: number; bytes: number }[];

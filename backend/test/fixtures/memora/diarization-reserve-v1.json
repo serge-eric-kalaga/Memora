@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "synthetic_only": true,
+  "frozen_before_inference": true,
+  "voices": {
+    "D": "Daniel",
+    "K": "Karen",
+    "E": "Eddy (Français (France))"
+  },
+  "utterances": [
+    {"speaker": "D", "text": "Please keep the previous estimates available. We need to compare the figures before making any final commitment."},
+    {"speaker": "K", "text": "The access review will continue next week. I will check the missing entries and bring a complete list to our next session."},
+    {"speaker": "E", "text": "Les documents sont encore provisoires. Nous allons relire les observations et distinguer les propositions des engagements confirmés."},
+    {"speaker": "D", "text": "We should also record the unanswered questions. No payment has been approved and the budget remains under discussion."},
+    {"speaker": "K", "text": "I agree that the records need another review. We will keep the archive intact and only export the access log."}
+  ],
+  "cases": [
+    {"id": "reserve-two-return", "indices": [0, 1, 4, 3, 0, 1], "noise": false},
+    {"id": "reserve-gain-noise", "indices": [0, 1, 4, 3, 0, 1], "noise": true, "weak_speaker": "D", "weak_gain": 0.35, "global_noise_snr_db": 20},
+    {"id": "reserve-three-return", "indices": [0, 1, 2, 3, 2, 4], "noise": false},
+    {"id": "reserve-strong-white-noise", "indices": [], "noise_only_rms": 0.03}
+  ]
+}

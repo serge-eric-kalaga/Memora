@@ -209,6 +209,132 @@ try {
     fullPage: true,
   });
   pass("Dashboard et paramètres mobile sans débordement");
+  if (process.env.MEMORA_TEST_ISOLATED === "1") {
+    const response = await page.request.get(base + "/mapi/meetings");
+    let meetings = await response.json();
+    meetings = meetings.data || meetings;
+    let meeting = meetings.find(
+      (value) => value.title === "Recette UI complète synthétique",
+    );
+    if (!meeting) {
+      const created = await page.request.post(base + "/mapi/meetings", {
+        headers: { Origin: base },
+        data: {
+          title: "Audit rapport mobile synthétique",
+          mode: "import",
+          transcription_language: "fr",
+        },
+      });
+      assert.equal(created.status(), 201);
+      let seeded = await created.json();
+      seeded = seeded.data || seeded;
+      const uploaded = await page.request.post(
+        base + `/mapi/meetings/${seeded.id}/chunks?seq=0`,
+        {
+          headers: { Origin: base, "Content-Type": "application/octet-stream" },
+          data: await readFile(
+            resolve(root, "backend/test/fixtures/memora/french.wav"),
+          ),
+        },
+      );
+      assert.ok(uploaded.ok());
+      assert.ok(
+        (
+          await page.request.post(
+            base + `/mapi/meetings/${seeded.id}/finalize`,
+            { headers: { Origin: base }, data: { expected_chunks: 1 } },
+          )
+        ).ok(),
+      );
+      const deadline = Date.now() + 180000;
+      while (Date.now() < deadline) {
+        const stateResponse = await page.request.get(
+          base + `/mapi/meetings/${seeded.id}`,
+        );
+        let state = await stateResponse.json();
+        state = state.data || state;
+        if (state.state === "failed")
+          throw new Error("Synthetic audit import failed");
+        if (state.state === "ready") {
+          meeting = state;
+          break;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+    }
+    assert.ok(meeting, "Réunion synthétique dédiée présente pour audit mobile");
+    await page.goto(base + "/reunions/" + meeting.id);
+    await page.getByRole("heading", { name: "Résumé", exact: true }).waitFor();
+    await page
+      .getByRole("button", { name: "Valider cet élément", exact: true })
+      .first()
+      .click();
+    await page.getByLabel("Statut", { exact: true }).first().waitFor();
+    assert.equal(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth > innerWidth,
+      ),
+      false,
+    );
+    await page.screenshot({
+      path: artifactPath("logs", "audit-human-review-mobile.png"),
+      fullPage: true,
+    });
+    await page
+      .getByRole("button", { name: "Transcription", exact: true })
+      .click();
+    await page.getByText("Gérer les intervenants", { exact: true }).click();
+    await page
+      .getByRole("textbox", { name: "Nouveau nom", exact: true })
+      .waitFor();
+    assert.equal(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth > innerWidth,
+      ),
+      false,
+    );
+    await page.screenshot({
+      path: artifactPath("logs", "audit-transcript-tools-mobile.png"),
+      fullPage: true,
+    });
+    pass(
+      "Formulaires de validation, lecteur de transcription et intervenants mobile sans débordement",
+    );
+    const created = await page.request.post(base + "/mapi/meetings", {
+      headers: { Origin: base },
+      data: {
+        title: "Audit microphone mobile synthétique",
+        mode: "recording",
+        transcription_language: "fr",
+      },
+    });
+    assert.equal(created.status(), 201);
+    let draft = await created.json();
+    draft = draft.data || draft;
+    try {
+      await page.goto(base + "/reunions/" + draft.id);
+      await page
+        .getByRole("button", { name: "Tester le microphone", exact: true })
+        .waitFor();
+      assert.equal(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth > innerWidth,
+        ),
+        false,
+      );
+      await page.screenshot({
+        path: artifactPath("logs", "audit-microphone-mobile.png"),
+        fullPage: true,
+      });
+      pass(
+        "Contrôle microphone mobile visible sans activation automatique ni débordement",
+      );
+    } finally {
+      await page.request.delete(base + "/mapi/meetings/" + draft.id, {
+        headers: { Origin: base },
+      });
+    }
+  }
   assert.deepEqual(errors, []);
   pass("Aucune exception JavaScript non gérée");
   await mkdir(resolve(root, "agents/handoffs"), { recursive: true });
@@ -218,7 +344,7 @@ try {
       new Date().toISOString() +
       "\n\n" +
       results.map((x) => "- VALIDÉ : " + x).join("\n") +
-      "\n\nDonnées synthétiques uniquement. Aucun paramètre sauvegardé, aucun audio ajouté. Captures dans agents/logs (locales, ignorées).\n",
+      "\n\nDonnées synthétiques uniquement. Aucun paramètre sauvegardé. Une fixture audio synthétique peut être importée uniquement sur instance isolée pour l’audit autonome. Captures dans agents/logs (locales, ignorées).\n",
   );
 } catch (e) {
   console.error(

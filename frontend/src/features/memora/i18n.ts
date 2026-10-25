@@ -2,6 +2,9 @@
 import { useCallback } from "react";
 import { useI18n } from "@/lib/i18n/use-i18n";
 const english: Record<string, string> = {
+  "Les étiquettes distinguent des groupes de voix, pas des identités. Les paroles simultanées ne sont pas séparées.": "Labels distinguish voice groups, not identities. Overlapping speech is not separated.",
+  "Les voix proches, passages courts et bruits peuvent entraîner fusion ou fragmentation ; vérification humaine nécessaire.": "Similar voices, short passages and noise can merge or fragment groups; human review is required.",
+  "Modifier les contenus autorisés": "Edit permitted content",
   "Terminez l’enregistrement ou interrompez le transfert avant de supprimer la réunion.":
     "Finish recording or pause the upload before deleting the meeting.",
   "Réunion supprimée sur le serveur. Le stockage local du navigateur n’a pas pu être nettoyé ; effacez les données locales de cette application.":

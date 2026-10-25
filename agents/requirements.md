@@ -60,3 +60,15 @@ Cette section actualise les états historiques ci-dessus ; les preuves antérieu
 | Activation sans retraitement imposé | envprivée sauvegardée, garde jobs/capture, restartlocal | Zérojobavant/après, mêmes nombres de ressources, intégritéSQLiteOK, quatreHTTP200. Aucun original privé retraité. Guide/MEMORA et state.md. |
 
 Les seuils universels90% (toutes voix, noms, bruit, analyse) ne sont pas acquis ; les métriques bornées et limites sont publiées, sans réduire le périmètre ni simuler les moteurs.
+
+
+## V1.1 — amélioration de confiance autorisée
+
+| Besoin | Implémentation | Validation à la livraison |
+|---|---|---|
+| Contrôle microphone avant capture | microphone-check.tsx/helpers/CSS, Recorder entrée sélectionnée et exclusion test/capture |6testsunit et10contrôlesChromium avecAPIsmédias synthétiques ; recetteMediaRecorder réelleChromiumfakedevice PASS. Aucun micro physique. |
+| Éditeur synchronisé et corrections comparables | playback.ts/tools +app : passage actif, boucle, vitesse, raccourcis, diff avant/après |3testsfondamentauxPASS, lint/types/buildPASS ; recettebrowserPASS. |
+| Validation humaine actions/décisions, historique et sources | routes.py capacitéreview, table007report_reviews ; report-review.tsx |Tests droits/versions/conflits/historique/effacementvaleurs/IAimmuable ; APIréellePASS, browserPASS. Rapport-seul+édition invité permis, sources masquées conservées. |
+| Renommage global versionné | speakers/rename, transcript_edits, SpeakerTools |Source et timestamps conservés, anciennesversions ; unknownexigeconfirmation ; testsbackend etAPIréellePASS, browserPASS. |
+| Séparation acoustique locale réelle | diarization.py Resemblyzer/Silero/AHC ; workerjobversionné etendpoint |Corpus synthétique7cas+réserve4 ; nouvellevoix18/18segments, DERbruit12,37% ;15testsmodule+6workerPASS ; jobAPIréelPASS. Paschevauchement/identité/2hnaturelles. |
+| Limites ressources et effets externes | CPU2threads1..8/restauration, ai._lock, SHApoids/offline, idempotencephasecomplete |Pipcheck160PASS, poids17Mo vérifiés, pas serviceexterne ni retraitementprivé. Migration007 additive appliquée après recette/gardejobs, empreintes sources inchangées etHTTP200. |

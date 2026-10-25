@@ -21,3 +21,13 @@ Ordre de reprise et action courante : memory/state.md. Les critères de recette 
 5. Activation locale après garde jobs/capture, sauvegarde privée et contrôle de préservation ; quatre services HTTP200. Aucune réunion personnelle retraitée.
 
 Le seuil général90% n’est pas acquis : résultats synthétiques bornés, noms/bruit encore difficiles, référence personnelle reformulée non scorable. Prochaine action : essai volontaire dans l’application puis revue des passages importants. Détails dans state/testing/requirements et handoffs référencés.
+
+## V1.1 — confiance et correction (livrée localement)
+
+1. Contrôle micro explicitement activé, choix entrée/niveau/extrait et nettoyage vérifiés.
+2. Lecture synchronisée, boucle/raccourcis et comparaison corrections, historique intact.
+3. Revue humaine versionnée décisions/actions et renommage intervenant global, permissions/versions vérifiées.
+4. Diarisation locale réelle évaluée synthétique ; intégration volontaire seulement après preuve, blocages/modèles documentés.
+5. Tests backend/frontend, recette navigateur isolée, activation locale prudente et commits sans coauteur.
+
+FinV1.1 : les cinq jalons ci-dessus sont intégrés/vérifiés ; détails testing/state. Activation007 préserve les sources et0jobs/HTTP200, commitlocal sanscoauteur autorisé. Limitesvoixnaturelles/overlap/production maintenues.

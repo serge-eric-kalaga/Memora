@@ -48,3 +48,13 @@ Sources de vérité des résultats : testing.md + handoffs/*.md ; les logs volum
 - `ai._report_plan_payload/_reconcile_report_statuses` : classificationcibléeactifs seulement, résumésdérivésnonclassifiés, littérauxtargets+vérificationchangementsummary-only, statutstypésparcatégorie, gardesIDs/ordre/quotes/context. Multi-lotsrésuméschronologiques, singlebatchinchangé. EnvalidationV10, nepasdéduireactivationducodeprésent.
 - `scripts/memora-benchmark-analysis.py`, `memora-qa-cross-batch.py`, `memora-qa-reconciliation-plan.py` : vraisappelslocalsetrevues explicites ; scoresmanuelscomplets etéchecspréservés. `backend/test/fixtures/memora/analysis-long-cases.v1.json` :3caslongsinéditsfigés, IDsremappésopaquesavantmodèleparrunner.
 - `frontend/src/features/memora/language.ts` : unknownFR/ENhonnête, aidefiabiliténonchiffrée ; recetteisoléeajoutefrimport/rapport/correctionAPI+browser. `memora-verify-isolated.py --french-asr-engine` explicitementtestable sanschangerMain.
+
+
+## V1.1 — confiance
+
+- frontend/src/features/memora/microphone-check.tsx et microphone-check.helpers.ts : test explicite/entrée/niveau/échantillon local, intégré à Recorder dans app.tsx.
+- playback.ts/playback-tools.tsx : repères, boucle, vitesse/raccourcis ; app.tsx synchronise passage actif et diff de correction.
+- report-review.tsx : couche humaine séparée de Report.data IA, formulaires/history ; routes.py capacités review et edit distinctes, tables report_reviews/transcript_edits via007.
+- speaker-tools.tsx : renommage global et job volontairediarize, droits audio requis seulement pour séparation.
+- diarization.py : ResemblyzerCPU/Silero/AHC, poidsSHAofflinemode, abstentionmultivoix ; worker.process_diarization commitsatomiques/version+1/phasecomplete. scripts/memora-prepare-diarization.py et benchmark/reserve synthétiques.
+- Tests nouveaux : test_memora_human_review.py, test_memora_diarization.py, test_memora_worker_diarization.py ; frontend/tests/memora-microphone-*.mjs/memora-playback.test.mjs ; recettes API/navigateurétendues.
