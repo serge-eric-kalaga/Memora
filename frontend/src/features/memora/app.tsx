@@ -772,6 +772,9 @@ function MeetingContent({
           ? "chat"
           : "audio"
       : tab;
+  const processing = ["queued", "transcribing", "analyzing"].includes(
+    meeting.state,
+  );
   const canEdit =
     !access.token ||
     ((permissions.edit_transcript || permissions.edit) &&
@@ -936,7 +939,7 @@ function MeetingContent({
             onCaptureState={setCaptureState}
           />
         )}
-      {["queued", "transcribing", "analyzing"].includes(meeting.state) && (
+      {processing && (
         <div className={s.notice} role="status">
           <RefreshCw size={16} /> {labels[meeting.state]}
           {tr(
@@ -950,10 +953,7 @@ function MeetingContent({
           <div className={s.actions}>
             <button
               className={btn}
-              disabled={
-                busy ||
-                ["queued", "transcribing", "analyzing"].includes(meeting.state)
-              }
+              disabled={busy || processing}
               onClick={() =>
                 void action("/analyze", "POST", {
                   request_id: crypto.randomUUID(),
@@ -967,7 +967,8 @@ function MeetingContent({
             </button>
           </div>
         )}
-      {meeting.report_version !== undefined &&
+      {!processing &&
+        meeting.report_version !== undefined &&
         meeting.version > meeting.report_version &&
         reports.length > 0 && (
           <div className={s.notice}>

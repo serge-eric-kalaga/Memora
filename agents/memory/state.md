@@ -2,6 +2,10 @@
 
 Mis à jour 2026-10-25 13:26 UTC, Africa/Ouagadougou. Livraison locale V1 et jalon supplémentaire de précision intégrés. Commits locaux autorisés par l’utilisateur après livraison ; aucun push, achat, déploiement public ou email réel. Lire AGENTS.md → agents/README.md → ce fichier, puis uniquement les preuves utiles. Les notes/fichiers actuels priment sur les anciens points de reprise.
 
+## Bandeaux et libellés intervenants — livrés localement
+
+Pendant queued/transcribing/analyzing, seul bandeau de progression ; rappel rapportpérimé réservé aux états hors traitement. Libellés non attribués (anciens placeholders et « Voix à vérifier ») affichés « Intervenant »/« Speaker », sans inventer numéro ni changer source/identités. Groupes numérotés et noms humains conservés. Deux tests libellésPASS, lint/types/buildPASS ;14contrôles UI isolésPASS22,11s, dont état traitement+périmé injecté en réponseHTTP uniquement pour régression affichage, aucune DB modifiée. ASR/rapport synthétiques de préparation réels. Capturemobile unique bandeau inspectéeROOT. Activationgarde0jobs/0capture/aucun audio récent,4HTTP200, empreintesdomaine inchangées/intégritéOK ; preuve privée .memora/status-speaker-activation.json.
+
 ## Navigation pendant capture et chat conversationnel — livrés localement
 
 CaptureProvider dans layout racine, CaptureRuntime propriétaire médias/queue/IndexedDB et portail CaptureSlot ; barre compacte hors réunion avec pause/reprise/fin et retour. Navigation interne conserve la même piste. Une autre réunion ne remplace pas la capture active ; expiration/déconnexion/changement de compte nettoient les pistes, acquisition tardive comprise. Fermeture/rechargement/veille matérielle restent des interruptions possibles.

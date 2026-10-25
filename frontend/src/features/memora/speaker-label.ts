@@ -16,9 +16,11 @@ export function speakerLabel(
       "unidentified speaker",
       "unknown speaker",
       "unknown",
+      "voix a verifier",
+      "voice to verify",
     ].includes(normalized)
   )
-    return english ? "Voice to verify" : "Voix à vérifier";
+    return english ? "Speaker" : "Intervenant";
   const numbered = /^Intervenant (\d+)$/.exec(label);
   return english && numbered ? `Speaker ${numbered[1]}` : label;
 }

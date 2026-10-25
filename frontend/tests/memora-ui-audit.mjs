@@ -263,6 +263,34 @@ try {
       }
     }
     assert.ok(meeting, "Réunion synthétique dédiée présente pour audit mobile");
+    // Display-state regression only: no backend data or real job is changed.
+    const detailRoute = base + "/mapi/meetings/" + meeting.id;
+    await page.route(detailRoute, async (route) => {
+      const response = await route.fetch();
+      const body = await response.json();
+      const value = body.data || body;
+      value.state = "analyzing";
+      value.version = Math.max(2, value.version);
+      value.report_version = value.version - 1;
+      await route.fulfill({ response, json: body });
+    });
+    await page.goto(base + "/reunions/" + meeting.id);
+    await page
+      .getByRole("status")
+      .filter({ hasText: "Une notification vous avertira" })
+      .waitFor();
+    assert.equal(
+      await page
+        .getByText("La transcription a été corrigée.", { exact: false })
+        .count(),
+      0,
+    );
+    await page.screenshot({
+      path: artifactPath("logs", "audit-single-analysis-status.png"),
+      fullPage: true,
+    });
+    await page.unroute(detailRoute);
+    pass("Analyse en cours : un seul bandeau, rappel de rapport périmé masqué");
     await page.goto(base + "/reunions/" + meeting.id);
     await page.getByRole("heading", { name: "Résumé", exact: true }).waitFor();
     const actionSection = page

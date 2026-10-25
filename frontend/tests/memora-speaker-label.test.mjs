@@ -20,9 +20,11 @@ test("Unassigned labels never fabricate a speaker number", () => {
     "Intervenant non identifié",
     "Unidentified speaker",
     "unknown",
+    "Voix à vérifier",
+    "Voice to verify",
   ]) {
-    assert.equal(speakerLabel(label), "Voix à vérifier");
-    assert.equal(speakerLabel(label, true), "Voice to verify");
+    assert.equal(speakerLabel(label), "Intervenant");
+    assert.equal(speakerLabel(label, true), "Speaker");
   }
 });
 test("Actual numbered speakers and human names are preserved", () => {
