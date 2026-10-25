@@ -120,3 +120,7 @@ Actions/décisions : cartes regroupant texte, sources et pied de validation ; re
 Fermeture/rechargement/veille matérielle ne bénéficient pas de la persistance du layout ; microphone physique et Safari/iOS non vérifiés.
 
 Validation finale navigation/chat : recette réelle22browser+13auditUI PASS120s, zéroexceptionJS, capturemême pistependantnav, pause/reprise/réseau/finalisationbarre→rapport, chatrestauréaprèsreload. Quatrevues clair/sombre desktop/mobile pourbarre etchat. Activationlocale4HTTP200 etempreintesdomaine inchangées. Détails testing.md/state.md ; donnéespersonnelles inchangées.
+
+## Relance d’analyse et voix
+
+/analyze ne se limite plus au rapport lorsqu’une séparation automatique de la sourcecourante est enéchec : phase durable repriseavant rapport, nombreconnu1..8optionnel, audio/droitsvérifiés. Une révisionhumaine plusrécente n’est pasréétiquetée ; anciennestranscriptions/rapports conservés ; panneaprèslabels reprendrapport sansrefairelabels. Routes.py/worker.py/app.tsx, test_memora_analysis_speakers_retry.py (8cas), scripts/memora-qa-analysis-speakers.py (routeauthstub+moteurslocauxréels). OpenAPI/SDKmisàjour. Preuvesfinalesdans testing.md/state.md.

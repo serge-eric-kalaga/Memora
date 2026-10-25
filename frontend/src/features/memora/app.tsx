@@ -564,6 +564,7 @@ function MeetingContent({
   const { language } = useI18n();
   const { confirm: confirmAction, confirmation } = useConfirmation();
   const [playbackTime, setPlaybackTime] = useState(0);
+  const [analysisSpeakerCount, setAnalysisSpeakerCount] = useState("");
   const router = useRouter();
   const [editorName, setEditorName] = useState("");
   const [captureState, setCaptureState] = useState("idle");
@@ -785,6 +786,13 @@ function MeetingContent({
   const canChat = !access.token || permissions.chat;
   const canAudio = !access.token || permissions.audio;
   const canTranscript = !access.token || permissions.transcript;
+  const retrySpeakers =
+    meeting.automatic_diarization?.state === "failed" &&
+    meeting.automatic_diarization.source_version === meeting.version &&
+    !!canAudio &&
+    !!canTranscript &&
+    !!meeting.audio_available;
+
   const chapterReport = reports.find((r) => r.id === meeting.report_id);
   const chapters = canTranscript
     ? (chapterReport?.data.topics || []).flatMap((item) => {
@@ -956,18 +964,63 @@ function MeetingContent({
           <div className={s.actions}>
             <button
               className={btn}
-              disabled={busy || processing}
+              disabled={
+                busy ||
+                processing ||
+                (retrySpeakers &&
+                  !!analysisSpeakerCount &&
+                  (!Number.isInteger(Number(analysisSpeakerCount)) ||
+                    Number(analysisSpeakerCount) < 1 ||
+                    Number(analysisSpeakerCount) > 8))
+              }
               onClick={() =>
                 void action("/analyze", "POST", {
                   request_id: crypto.randomUUID(),
+                  ...(retrySpeakers && analysisSpeakerCount
+                    ? { num_speakers: Number(analysisSpeakerCount) }
+                    : {}),
                 })
               }
             >
               <RefreshCw size={16} />
-              {reports.length
-                ? tr("Régénérer le rapport")
-                : tr("Lancer / reprendre l’analyse")}
+              {retrySpeakers
+                ? language === "en"
+                  ? "Retry analysis"
+                  : "Relancer l’analyse"
+                : reports.length
+                  ? tr("Régénérer le rapport")
+                  : tr("Lancer / reprendre l’analyse")}
             </button>
+            {retrySpeakers && !processing && (
+              <label className={`${s.muted} ${s.analysisRetry}`}>
+                {language === "en"
+                  ? "Known speaker count (optional)"
+                  : "Nombre d’intervenants pour l’analyse (facultatif)"}
+                <input
+                  className={s.input}
+                  style={{ maxWidth: 180 }}
+                  type="number"
+                  aria-label={
+                    language === "en"
+                      ? "Known speaker count (optional)"
+                      : "Nombre d’intervenants pour l’analyse (facultatif)"
+                  }
+                  aria-describedby={`analysis-speakers-help-${id}`}
+                  min={1}
+                  max={8}
+                  placeholder={language === "en" ? "Automatic" : "Automatique"}
+                  value={analysisSpeakerCount}
+                  onChange={(event) =>
+                    setAnalysisSpeakerCount(event.target.value)
+                  }
+                />
+                <small id={`analysis-speakers-help-${id}`}>
+                  {language === "en"
+                    ? "Speaker separation will be retried before generating the report."
+                    : "La séparation des voix sera reprise avant de générer le rapport."}
+                </small>
+              </label>
+            )}
           </div>
         )}
       {!processing &&

@@ -1,6 +1,12 @@
 # Memora — état de reprise
 
-Mis à jour 2026-10-25 14:26 UTC, Africa/Ouagadougou. Livraison locale V1 et jalon supplémentaire de précision intégrés. Commits locaux autorisés par l’utilisateur après livraison ; aucun push, achat, déploiement public ou email réel. Lire AGENTS.md → agents/README.md → ce fichier, puis uniquement les preuves utiles. Les notes/fichiers actuels priment sur les anciens points de reprise.
+Mis à jour 2026-10-25 14:40 UTC, Africa/Ouagadougou. Livraison locale V1 et jalon supplémentaire de précision intégrés. Commits locaux autorisés par l’utilisateur après livraison ; aucun push, achat, déploiement public ou email réel. Lire AGENTS.md → agents/README.md → ce fichier, puis uniquement les preuves utiles. Les notes/fichiers actuels priment sur les anciens points de reprise.
+
+## Relance analyse et séparation échouée — livrée localement
+
+/analyze reprend désormais phase durable diarize_initial si automatic_diarization.failed concerne sourcecourante et audio/transcription accessibles+audio disponible. num_speakers1..8 facultatif via nouveau ReportAnalysisRequest ; connu fourni seulement pour cette reprise, jamais pour écraser une version corrigée. Paramètres liésaujob/source, concurrencecontrôlée, sourceASR pasretranscrite, versionsrapport/transcription conservées. Rapportseul resteautorisé sansaudio, requêteexplicitevoix refusée sansdroits/fichier. no-bodyidempotence ne masqueplusune repriseéligible aprèséchecvoix.
+
+UI :Relancerl’analyse+champnombreconnu quandéchecsourcecourante réparable ; sourcecorrigée/plusd’audio garderapportseul. ContratOpenAPI/SDKmisàjour.8nouveaxtests,323backendPASS/3RedisSKIP/1warning25,93s ; cas réel synthétique route(authstub)→ResemblyzerCPU→Gemma21,699s,2groupes,rapportv2,source/ancienrapportconservés.22browserréelsPASS avantultimesajustementsaudiogating/a11y/CSS ;17UI surbuildfinalPASS24,39s/zéroexceptionJS,validation9désactive/2transmis à/analyze,4vues etconfirmationsexistantes. Nomaccessible/texteaideséparés et champmobilegrid inspectéROOT. Aucune réunionpersonnelleretraitée. Activationgarde0jobs/0capture/aucun audio récent,4HTTP200,toutesempreintesdomaineinchangées/intégritéOK ; preuveprivée .memora/analysis-speakers-activation.json. Actualiser avantcapture ; danscasd’échec le nombreconnupeutêtre fourni dans la relance, aucunereconnaissanceparfaite garantie.
 
 ## Confirmations intégrées — livrées localement
 

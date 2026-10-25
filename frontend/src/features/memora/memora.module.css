@@ -1778,3 +1778,14 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+.analysisRetry {
+  display: grid;
+  gap: 6px;
+  flex-basis: 100%;
+  max-width: 500px;
+  font-size: 13px;
+}
+.analysisRetry small {
+  line-height: 1.6;
+}

@@ -50,3 +50,7 @@ Clôture : activation locale effectuée après garde0jobs/aucun audio récent ; 
 3.315testsbackend,17contrôlescomposants montés et recette réelle22browser+13UI : PASS.
 4. Deux défautsproduit observés corrigés (modalcréation retenue, wrapperDOM/PPR), rerun complet sansexception.
 5. Activationlocale avec garde et empreintesdomaine inchangées, documentationmiseàjour, commitlocal autorisé sanscoauteur ; aucunpush.
+
+## Reprisevoix dans analyse — livrée
+
+Analyse reprendcheckpointvoix écheccourant accessibleavantnouveaurapport ; nombreconnuoptionnel, versionshumaines/anciennesprotégées.8testsrégression,323backendet17UIfinalPASS ; routeauthstub/moteurslocauxsynthétiquesvalidés21,699s,22browserréelsavantultimesajustementsUI/éligibilité. ContratOpenAPI/SDKàjour, activationlocalepréserveempreintesdomaine. Voirstate/testing pourphasesdepreuve.

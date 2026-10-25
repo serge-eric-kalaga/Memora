@@ -298,3 +298,9 @@ Preuve réelle synthétique connue :40,17s audio, deux voix et six prises non al
 Démarrez l’enregistrement depuis une réunion, puis utilisez les liens de navigation internes. Une barre en bas conserve le titre, la durée et les commandes Pause/Reprendre, Terminer et analyser et Retour à la réunion. Un seul enregistrement peut être actif. La déconnexion arrête le microphone. Évitez de recharger la page ou de fermer le navigateur pendant la capture ; une vraie suspension de la machine peut toujours couper le microphone.
 
 Ouvrez l’onglet Chat IA d’une réunion : discussion en zone principale, questions de suivi, historique conservé, réponses avec passages sources et accès audio lorsque le partage l’autorise. Entrée envoie et Maj+Entrée ajoute une ligne. Les anciennes réponses restent identifiables après correction, mais leurs anciennes citations ne pilotent pas l’audio courant. Les six derniers échanges sont utilisés dans la limite de6000caractères ; une indication signale les échanges omis. Le texte source courant demeure la référence factuelle.
+
+## Reprendre une séparation échouée avec l’analyse
+
+Quand la séparation automatique a échoué sur la transcription courante et que l’audio est disponible, « Relancer l’analyse » réessaie d’abord de distinguer les intervenants, puis génère le rapport sur la nouvelle version. Le nombre d’intervenants connu peut être indiqué (1 à8) ; laissez le champ vide pour une estimation automatique, qui peut encore échouer. Les anciennes transcriptions et les anciens rapports restent dans l’historique.
+
+Une correction manuelle plus récente n’est pas réétiquetée automatiquement ; pour remplacer volontairement ces attributions, utilisez la séparation dédiée et sa confirmation. Sans audio disponible ou autorisé, seule la régénération du rapport demeure possible. Une défaillance des voix ne supprime pas la transcription et reste signalée ; elle ne constitue jamais une preuve qu’une seule personne a parlé.

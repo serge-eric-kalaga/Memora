@@ -264,7 +264,7 @@ def process(job):
 
 
 def _initial_speaker_labels(job, segments, version):
-    """Optional first-final-pass labels; ASR is already committed and survives failure."""
+    """Initial or retried labels; the committed transcript survives optional failure."""
     from . import diarization
 
     mid = job["meeting"]
@@ -278,6 +278,13 @@ def _initial_speaker_labels(job, segments, version):
             or current.get("active_job_id") != job["id"]
         ):
             return None
+        retry = current.get("speaker_analysis_request", {})
+        count = (
+            retry.get("num_speakers")
+            if retry.get("job_id") == job["id"]
+            and retry.get("source_version") == version
+            else None
+        )
     result = None
     warning = ""
     try:
@@ -285,7 +292,10 @@ def _initial_speaker_labels(job, segments, version):
             raise diarization.DiarizationError("Unavailable local speaker engine")
         snapshot.write_bytes((s.ROOT / mid / "audio.bin").read_bytes())
         with ai._lock:
-            result = diarization.diarize(snapshot, json.loads(json.dumps(segments)))
+            kwargs = {"num_speakers": count} if count is not None else {}
+            result = diarization.diarize(
+                snapshot, json.loads(json.dumps(segments)), **kwargs
+            )
         if not isinstance(result, dict) or not isinstance(result.get("metadata"), dict):
             raise ai.ProcessingError("Invalid speaker provider metadata")
         updated = result["segments"]

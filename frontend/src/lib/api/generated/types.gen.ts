@@ -121,16 +121,6 @@ export type AdminUser = {
 };
 
 /**
- * AnalyzeRequest
- */
-export type AnalyzeRequest = {
-    /**
-     * Request Id
-     */
-    request_id: string;
-};
-
-/**
  * AuthConfiguration
  *
  * Options publiques que le frontend utilise pour adapter l’inscription.
@@ -668,6 +658,20 @@ export type RegistrationModel = {
      * Confirmer l’adresse avant de se connecter.
      */
     verification_required: boolean;
+};
+
+/**
+ * ReportAnalysisRequest
+ */
+export type ReportAnalysisRequest = {
+    /**
+     * Num Speakers
+     */
+    num_speakers?: number | null;
+    /**
+     * Request Id
+     */
+    request_id: string;
 };
 
 /**
@@ -2604,7 +2608,7 @@ export type AnalyzeApiMemoraMeetingsMidAnalyzePostData = {
     /**
      * Body
      */
-    body?: AnalyzeRequest | null;
+    body?: ReportAnalysisRequest | null;
     path: {
         /**
          * Mid

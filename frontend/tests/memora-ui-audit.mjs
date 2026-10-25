@@ -586,6 +586,33 @@ try {
       path: artifactPath("logs", "speaker-failure-recovery-mobile.png"),
       fullPage: true,
     });
+    const analysisCount = page.getByRole("spinbutton", {
+      name: "Nombre d’intervenants pour l’analyse (facultatif)",
+      exact: true,
+    });
+    const retryAnalysis = page.getByRole("button", {
+      name: "Relancer l’analyse",
+      exact: true,
+    });
+    await analysisCount.fill("9");
+    assert.ok(await retryAnalysis.isDisabled());
+    await analysisCount.fill("2");
+    let retryBody;
+    await page.route(detailRoute + "/analyze", async (route) => {
+      retryBody = route.request().postDataJSON();
+      await route.fulfill({
+        status: 409,
+        contentType: "application/json",
+        body: JSON.stringify({ detail: "Synthetic retry received" }),
+      });
+    });
+    await retryAnalysis.click();
+    await page
+      .getByRole("alert")
+      .filter({ hasText: "Synthetic retry received" })
+      .waitFor();
+    assert.equal(retryBody.num_speakers, 2);
+    await page.unroute(detailRoute + "/analyze");
     await page.unroute(detailRoute);
     pass(
       "Échec de séparation explicite et relance accessible avec nombre connu, sans renommer toutes les voix",

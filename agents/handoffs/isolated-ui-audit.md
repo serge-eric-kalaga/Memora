@@ -1,6 +1,6 @@
 # Audit UI ciblé
 
-2026-10-25T14:25:23.653Z
+2026-10-25T14:39:31.668Z
 
 - VALIDÉ : Dashboard desktop sans débordement
 - VALIDÉ : Dialogue clavier : focus initial, boucle Tab/Shift+Tab, Escape et restauration

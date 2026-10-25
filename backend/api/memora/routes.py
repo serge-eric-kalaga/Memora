@@ -521,8 +521,14 @@ class AnalyzeRequest(BaseModel):
     request_id: str = Field(min_length=8, max_length=100, pattern=r"^[a-zA-Z0-9_-]+$")
 
 
+class ReportAnalysisRequest(AnalyzeRequest):
+    num_speakers: int | None = Field(default=None, ge=1, le=8)
+
+
 @router.post("/meetings/{mid}/analyze")
-async def analyze(mid: str, request: Request, body: AnalyzeRequest | None = None):
+async def analyze(
+    mid: str, request: Request, body: ReportAnalysisRequest | None = None
+):
     m, rights, _ = await access(request, mid, "edit")
     with s.db() as c:
         limit(c, "analyze:" + mid, 6)
@@ -532,12 +538,32 @@ async def analyze(mid: str, request: Request, body: AnalyzeRequest | None = None
             error(404, "Réunion indisponible.")
         if not m["version"] and not m["duration"]:
             error(409, "Finalisez un audio valide avant analyse.")
+        if request.headers.get("x-share-token"):
+            share, _ = share_access(c, request, mid, "edit")
+            rights = share["permissions"]
+        failed_speakers = (
+            m.get("automatic_diarization", {}).get("state") == "failed"
+            and m.get("automatic_diarization", {}).get("source_version") == m["version"]
+        )
+        audio_ready = not audio_expired(m) and (s.ROOT / mid / "audio.bin").is_file()
+        retry_speakers = bool(
+            failed_speakers
+            and rights.get("audio")
+            and rights.get("transcript")
+            and audio_ready
+        )
         logical_id = body.request_id if body else f"source_{m['version']}"
         existing = c.execute(
             "SELECT j.id,j.state FROM analysis_requests a JOIN jobs j ON j.id=a.job WHERE a.meeting=? AND a.request_id=?",
             (mid, logical_id),
         ).fetchone()
-        if existing and not (not body and existing["state"] == "failed"):
+        if existing and not (
+            not body
+            and (
+                existing["state"] == "failed"
+                or (retry_speakers and existing["state"] == "done")
+            )
+        ):
             if m["state"] == "failed" and existing["state"] == "queued":
                 m.update(state="queued", error=None, active_job_id=existing["id"])
                 s.save(c, m)
@@ -548,13 +574,47 @@ async def analyze(mid: str, request: Request, body: AnalyzeRequest | None = None
             }
         if existing:
             logical_id = "retry_" + s.uid()
-        if not body and m["report_version"] == m["version"] and m["state"] == "ready":
+        count = body.num_speakers if body else None
+        if count is not None and not failed_speakers:
+            error(
+                409,
+                "Les intervenants ont déjà été modifiés ; utilisez la séparation dédiée pour remplacer leurs étiquettes.",
+            )
+        if count is not None and not (rights.get("audio") and rights.get("transcript")):
+            error(
+                403,
+                "L’audio et la transcription sont nécessaires pour reprendre la séparation.",
+            )
+        if (
+            not body
+            and not retry_speakers
+            and m["report_version"] == m["version"]
+            and m["state"] == "ready"
+        ):
             return {"state": "ready", "idempotent": True}
         if c.execute(
-            "SELECT 1 FROM jobs WHERE meeting=? AND kind='retranscribe' AND state IN ('queued','running')",
+            "SELECT 1 FROM jobs WHERE meeting=? AND kind IN ('retranscribe','diarize') AND state IN ('queued','running')",
             (mid,),
         ).fetchone():
             error(409, "Une nouvelle transcription est déjà en cours.")
+        active = c.execute(
+            "SELECT id,state FROM jobs WHERE meeting=? AND kind='pipeline' AND state IN ('queued','running')",
+            (mid,),
+        ).fetchone()
+        if active:
+            previous = m.get("speaker_analysis_request", {})
+            if count is not None and (
+                previous.get("job_id") != active["id"]
+                or previous.get("num_speakers") != count
+            ):
+                error(409, "Une analyse est déjà en cours avec d’autres paramètres.")
+            return {
+                "job_id": active["id"],
+                "state": active["state"],
+                "idempotent": True,
+            }
+        if count is not None and not audio_ready:
+            error(410, "L’audio n’est plus disponible pour reprendre la séparation.")
         # A pipeline without source segments retries ASR and therefore reads audio.
         # Report-only regeneration must remain available without audio permission.
         # Existing request IDs above do not create another processing operation.
@@ -566,6 +626,16 @@ async def analyze(mid: str, request: Request, body: AnalyzeRequest | None = None
             if not (s.ROOT / mid / "audio.bin").is_file():
                 error(404, "Audio indisponible pour une nouvelle transcription.")
         job = s.enqueue(c, mid, "pipeline", m["version"])
+        if retry_speakers:
+            m["speaker_analysis_request"] = {
+                "job_id": job,
+                "source_version": m["version"],
+                "num_speakers": count,
+            }
+            c.execute(
+                "UPDATE jobs SET phase='diarize_initial',source_version=? WHERE id=?",
+                (m["version"], job),
+            )
         c.execute("INSERT INTO analysis_requests VALUES(?,?,?)", (mid, logical_id, job))
         m.update(state="queued", error=None, active_job_id=job)
         s.save(c, m)

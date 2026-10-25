@@ -64,3 +64,5 @@ Capture persistante : app/layout.tsx→CaptureProvider (capture-session.tsx)→C
 meeting-chat.tsx→chat-answer.ts (nettoyage présentation/copie groupesuN) ; AnswerBody JSX échappé, sourcesdetails bornées et questionAnchorsticky. Tests memora-chat-answer.test.mjs et memora-meeting-chat-browser.mjs incluent réponseslongues/30sources ; memora-ui-audit.mjs inclut4vues longuesproduction.
 
 components/ui/confirmation.tsx→useConfirmation promesse+dialogue action nommé, confirmation.module.css ; repose Modal partagé (modal.tsx/CSS), bouclefocus explicite. MeetingContent app.tsx l’utilise retranscription/suppression ; SpeakerTools pour séparation. TestsUIaudit3actions +E2E/importrecovery adaptés aux rôlesdialog/boutons au lieuévénementswindowdialog.
+
+ReportAnalysisRequest.num_speakers1..8 →routes.analyze détecte écheccourant réparable, persiste speaker_analysis_request(job_id/source_version/num_speakers), phasejobsdiarize_initial. worker._initial_speaker_labels relitnombreliéaujob, versionnesourceavantrapport ; autoouexplicitretry mêmesgardeversions. app.tsx afficheRelancerl’analyse etchampoptionneluniquement siéchecsourcecourante+audioaccessible/disponible.

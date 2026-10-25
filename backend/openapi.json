@@ -178,22 +178,6 @@
         "title": "AdminUser",
         "type": "object"
       },
-      "AnalyzeRequest": {
-        "properties": {
-          "request_id": {
-            "maxLength": 100,
-            "minLength": 8,
-            "pattern": "^[a-zA-Z0-9_-]+$",
-            "title": "Request Id",
-            "type": "string"
-          }
-        },
-        "required": [
-          "request_id"
-        ],
-        "title": "AnalyzeRequest",
-        "type": "object"
-      },
       "AuthConfiguration": {
         "description": "Options publiques que le frontend utilise pour adapter l’inscription.",
         "properties": {
@@ -1104,6 +1088,35 @@
           "verification_required"
         ],
         "title": "RegistrationModel",
+        "type": "object"
+      },
+      "ReportAnalysisRequest": {
+        "properties": {
+          "num_speakers": {
+            "anyOf": [
+              {
+                "maximum": 8.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Num Speakers"
+          },
+          "request_id": {
+            "maxLength": 100,
+            "minLength": 8,
+            "pattern": "^[a-zA-Z0-9_-]+$",
+            "title": "Request Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id"
+        ],
+        "title": "ReportAnalysisRequest",
         "type": "object"
       },
       "ReportReview": {
@@ -3998,7 +4011,7 @@
               "schema": {
                 "anyOf": [
                   {
-                    "$ref": "#/components/schemas/AnalyzeRequest"
+                    "$ref": "#/components/schemas/ReportAnalysisRequest"
                   },
                   {
                     "type": "null"
