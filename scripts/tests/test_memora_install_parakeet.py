@@ -39,6 +39,7 @@ if sys.argv[1:2]==['-c']:
  if 'MEMORA_FRENCH_ASR_ENGINE' in code:print(os.environ['TEST_FRENCH'])
  elif 'MEMORA_PARAKEET_MODEL_PATH' in code:print(os.environ['TEST_TARGET'])
  elif 'MEMORA_ASR_ENGINE' in code:print(os.environ['TEST_PRIMARY'])
+ elif 'MEMORA_DIARIZATION_ENGINE' in code:print('resemblyzer')
  elif 'MEMORA_MLX_FR_MODEL_PATH' in code:print('')
  elif 'MEMORA_MLX_MODEL_PATH' in code:print(os.environ['TEST_TURBO'])
 """
@@ -58,12 +59,13 @@ if sys.argv[1:2]==['-c']:
         "TEST_TARGET": str(tmp_path / "model with spaces"),
         "TEST_TURBO": str(tmp_path / "turbo"),
     }
-    subprocess.run(
+    result = subprocess.run(
         ["sh", str(scripts / "memora-install.sh")],
         env=env,
-        check=True,
+        check=False,
         capture_output=True,
     )
+    assert result.returncode == 0, result.stderr.decode()
     calls = [json.loads(row) for row in log.read_text().splitlines()]
     assert [
         call for call in calls if call == ["scripts/memora-prepare-diarization.py"]

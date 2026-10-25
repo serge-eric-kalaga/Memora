@@ -1,10 +1,10 @@
 # Scripts Memora
 
-Ces scripts servent au fonctionnement, à l’installation et à la validation de l’application. Ils ne sont pas des fichiers de mémoire d’un agent de code et restent versionnés.
+Ce dossier contient les outils nécessaires à l’installation, au fonctionnement et à la vérification de Memora. Les diagnostics ponctuels de développement et les anciennes expériences devenues redondantes ont été retirés. Les notes des agents de code restent dans `.agents/`, hors Git.
+
+Les commandes ci-dessous s’exécutent depuis la racine du dépôt. Le [guide principal](../README.md) décrit l’installation complète et les précautions de maintenance.
 
 ## Usage quotidien
-
-Depuis la racine du projet :
 
 ```sh
 ./scripts/memora-start.sh
@@ -12,32 +12,74 @@ Depuis la racine du projet :
 ./scripts/memora-stop.sh
 ```
 
-Ces trois commandes délèguent aux scripts `memora-docker-*`. Ceux-ci préparent la configuration privée, vérifient la base PostgreSQL importée, gèrent les cinq services Docker (dont le worker indépendant) et démarrent le compagnon IA natif. `memora-docker-bridge.py`, `memora-inference-host.py` et `memora-postgres-check.py` sont donc nécessaires au fonctionnement actuel sur ce Mac. L’arrêt conserve les volumes et les données.
+Ces trois commandes délèguent aux lanceurs `memora-docker-start.sh`, `memora-docker-status.sh` et `memora-docker-stop.sh`. Ils gèrent les cinq services Docker, dont le worker indépendant, et le compagnon IA natif. L’arrêt conserve les volumes et les données.
 
-## Installation et maintenance ponctuelles
+| Script de fonctionnement | Rôle |
+|---|---|
+| `memora-docker-env.py` | Générer la configuration privée Docker en préservant les identités applicatives. |
+| `memora-postgres-check.py` | Vérifier que PostgreSQL correspond à la base importée et validée. |
+| `memora-docker-bridge.py` | Démarrer, contrôler et arrêter le compagnon natif local. |
+| `memora-inference-host.py` | Exécuter les inférences audio natives appelées par l’application Docker. |
+
+## Installation et maintenance
 
 | Scripts | Utilité |
 |---|---|
-| `memora-install.sh`, `memora-env.py` | Préparer les dépendances natives, les modèles et la configuration initiale. |
-| `memora-docker-env.py` | Générer la configuration Docker privée sans remplacer les identités applicatives existantes. |
+| `memora-install.sh`, `memora-env.py` | Installer les dépendances verrouillées, préparer les modèles sélectionnés et la configuration initiale. |
 | `memora-import-postgres.py` | Importer les SQLite dans un PostgreSQL vide, avec sauvegardes et comparaison des données. Ne pas relancer pour un démarrage normal. |
-| `memora-migrate.py`, `memora-bind-owners.py` | Préparer ou mettre à niveau un ancien stockage SQLite avant import ; également utiles au bootstrap et aux tests. |
-| `memora-download-*`, `memora-prepare-*` | Préparer des modèles ou des corpus de test précis ; suivre le guide avant utilisation. |
-| `memora-demo.py` | Préparer le compte synthétique de démonstration, avec identifiants privés. |
+| `memora-migrate.py`, `memora-bind-owners.py` | Préparer les bases SQLite de bootstrap ou mettre à niveau un ancien stockage avant import. Ils restent utilisés par l’installateur et les tests. |
+| `memora-demo.py` | Préparer un compte synthétique de démonstration ; ses identifiants restent privés. |
+| `memora-download-mlx.py` | Préparer et vérifier les poids Whisper MLX épinglés. |
+| `memora-prepare-ecapa.py` | Préparer et vérifier les poids du moteur de séparation ECAPA. |
+| `memora-prepare-diarization.py` | Préparer les poids de l’alternative Resemblyzer, encore configurable. |
+| `memora-download-parakeet.py`, `memora-download-large-v3.py` | Préparer les modèles alternatifs si explicitement sélectionnés dans la configuration. L’installateur les utilise encore ; ils ne sont pas nécessaires au démarrage quotidien. |
 
-## Tests et diagnostics
+Les modèles existants ne doivent pas être supprimés lors d’un nettoyage des scripts. Aucun poids n’est téléchargé automatiquement pendant une réunion. Les commandes de contrôle sans téléchargement sont documentées dans le [guide IA](../docs/MEMORA.md#ia-locale-et-limites).
+
+## Tests de fonctionnement et de reprise
 
 | Scripts | Utilité |
 |---|---|
-| `memora-test.py` | Exécuter les tests backend avec bases et stockage jetables. |
-| `memora-verify-postgres.py` | Tester PostgreSQL et l’import sur deux bases synthétiques temporaires, puis les supprimer. |
-| `memora-verify-docker.py` | Vérifier l’application complète dans une stack Docker isolée, avec microphone factice. Option `--ui-audit-only` pour l’audit d’interface. |
-| `memora-verify-isolated.py` | Recette native avec SQLite, utile pour comparer et diagnostiquer indépendamment de Docker. |
-| `memora-verify-worker-resume.py`, `memora-resilience.py` | Vérifier les reprises et interruptions sur une instance de test dédiée. |
-| `memora-mail-capture.py` | Capture SMTP des recettes natives ; le fonctionnement Docker utilise Mailpit. |
-| `memora-e2e-api.py`, `memora-qa-*` | Contrôles fonctionnels ou IA ciblés ; certains exigent une instance isolée et des fixtures préparées. |
-| `memora-benchmark-*`, `memora-compare-*`, `memora-parakeet-experimental.py` | Mesurer ou comparer les moteurs et leurs limites. Outils optionnels, hors démarrage quotidien. Certains dépendent de résultats locaux ou d’un environnement expérimental à préparer. |
+| `memora-test.py` | Exécuter les tests backend avec bases et stockage temporaires. |
+| `memora-verify-postgres.py` | Vérifier PostgreSQL et l’import sur deux bases synthétiques jetables. |
+| `memora-verify-docker.py` | Recette intégrée Docker : navigateur, modèles locaux, partage, exports, SSE et emails locaux. Option `--ui-audit-only` pour l’audit d’interface et le temps réel. |
+| `memora-verify-isolated.py` | Recette native SQLite isolée, également utilisée pour vérifier la reprise du worker. |
+| `memora-e2e-api.py` | Contrôles fonctionnels API exécutés notamment par la recette native. |
+| `memora-verify-worker-resume.py` | Vérifier les checkpoints et la reprise après arrêt brutal dans un environnement synthétique dédié. |
+| `memora-resilience.py` | Vérifier un échec réel du fournisseur local puis la relance sur des données jetables. |
+| `memora-mail-capture.py` | Capture SMTP des recettes natives ; Docker utilise Mailpit. |
 
-Les scripts de diagnostic ne sont pas tous autonomes : lire leur en-tête et le [guide Memora](../docs/MEMORA.md) avant de les lancer. Les tests utilisent des données synthétiques ; les outils d’analyse privée exigent une autorisation explicite pour l’enregistrement désigné. Aucun microphone réel ni email extérieur ne doit être utilisé pour une recette automatisée.
+Les tests des scripts eux-mêmes sont dans `tests/`. Ils vérifient notamment la génération d’environnement, les installateurs, les téléchargeurs, le scoring et l’isolation des recettes. Certains utilisent pytest, d’autres unittest :
 
-Les journaux et comptes rendus sont locaux dans `.agents/`, ignorés par Git et créés au besoin par les lanceurs. Les données, modèles, secrets et sauvegardes restent dans `.memora/`, également hors Git.
+```sh
+backend/.venv/bin/python -m pytest scripts/tests -q
+```
+
+## Non-régression de la qualité IA
+
+Ces outils restent utiles pour vérifier un changement de moteur ou de prompt. Ils ne sont pas exécutés au démarrage de l’application. Lire leur en-tête et leurs options avant utilisation ; les inférences peuvent prendre du temps et concurrencer les réunions en cours.
+
+| Scripts | Périmètre |
+|---|---|
+| `memora-benchmark-accuracy.py` | Corpus synthétique de précision ASR, préparation des audios et mesures sur références. |
+| `memora-benchmark-mlx.py` | Comparaison de transcription MLX/CPU ; contient aussi la vérification des poids appelée par le téléchargeur MLX. |
+| `memora-benchmark-long.py`, `memora-prepare-long-asr.py` | Sources synthétiques longues, bilingues ou françaises, pour contrôler la segmentation et les limites de lots. |
+| `memora-qa-capture.py` | Mesures codec/transcription et métriques réutilisées par le benchmark MLX. |
+| `memora-qa-asr-language-drift.py` | Régression de langue et comparaison sur corpus français synthétique. |
+| `memora-benchmark-analysis.py` | Évaluation des rapports avec références et relecture sémantique explicite ; pas de score inventé par le modèle. |
+| `memora-qa-long-context.py`, `memora-qa-long-independent.py`, `memora-qa-cross-batch.py` | Conservation des faits et transitions sur sources longues ou réparties en plusieurs lots. |
+| `memora-qa-speaker-context.py`, `memora-qa-report-fragments.py` | Attribution des noms corrigés, dates, engagements et fragments de transcription. |
+| `memora-qa-gemma-validation.py` | Regrouper les contrôles sémantiques courts et les cas de sécurité du modèle local. |
+| `memora-qa-conversation.py` | Questions de suivi, références conversationnelles et information absente. |
+| `memora-qa-local.py` | Parcours local ASR → analyse → réponse sur fixtures synthétiques. |
+| `memora-benchmark-diarization.py` | Préparation et évaluation de la séparation des voix synthétiques. |
+| `memora-prepare-diarization-reserve.py`, `memora-prepare-speaker-holdout.py` | Corpus complémentaires pour vérifier les erreurs d’attribution et de comptage. |
+| `memora-qa-speaker-consistency.py`, `memora-qa-auto-speakers.py` | Cohérence du nombre de voix et intégration de la séparation automatique. |
+
+Les outils de qualité peuvent exiger des voix TTS macOS déjà installées, des modèles préparés ou un chemin de sortie neuf. Ils utilisent des données synthétiques, pas les enregistrements personnels de l’application. Les mesures sont propres au corpus utilisé et ne garantissent pas une précision universelle.
+
+## Fichiers locaux et sécurité
+
+Les journaux et comptes rendus restent dans `.agents/`, ignoré par Git. Les données, modèles, secrets, emails et sauvegardes restent dans `.memora/`, également hors Git. Les recettes ne doivent déclencher ni microphone utilisateur ni email extérieur. Les scripts de migration ne doivent jamais servir de commande de réinitialisation de l’application active.
+
+La suppression des anciens scripts n’efface ni les résultats historiques locaux ni les modèles. Le démarrage, les migrations, les recettes Docker et les outils de qualité conservés gardent leurs chemins existants.
