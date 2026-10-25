@@ -1,4 +1,5 @@
 "use client";
+import { useConfirmation } from "@/components/ui/confirmation";
 import { MeetingChat } from "./meeting-chat";
 import { useMemoraText } from "./i18n";
 import { CaptureSlot as Recorder } from "./capture-session";
@@ -561,6 +562,7 @@ function MeetingContent({
 }) {
   const tr = useMemoraText();
   const { language } = useI18n();
+  const { confirm: confirmAction, confirmation } = useConfirmation();
   const [playbackTime, setPlaybackTime] = useState(0);
   const router = useRouter();
   const [editorName, setEditorName] = useState("");
@@ -808,6 +810,7 @@ function MeetingContent({
   )?.id;
   return (
     <>
+      {confirmation}
       <div className={s.top}>
         <div>
           <Link className={s.muted} href="/">
@@ -1435,11 +1438,13 @@ function MeetingContent({
                   }
                   onClick={async () => {
                     if (
-                      window.confirm(
-                        tr(
+                      await confirmAction({
+                        title: tr("Retranscrire l’audio"),
+                        confirmLabel: tr("Retranscrire l’audio"),
+                        message: tr(
                           "Retranscrire l’audio crée une nouvelle version de transcription et relance l’analyse. Les corrections courantes ne seront plus la version active ; elles resteront consultables dans l’historique, comme les anciens rapports. Continuer ?",
                         ),
-                      )
+                      })
                     )
                       await action("/retranscribe", "POST", {
                         request_id: crypto.randomUUID(),
@@ -1482,11 +1487,14 @@ function MeetingContent({
                   )}
                   onClick={async () => {
                     if (
-                      window.confirm(
-                        tr(
+                      await confirmAction({
+                        title: tr("Supprimer définitivement"),
+                        confirmLabel: tr("Supprimer définitivement"),
+                        destructive: true,
+                        message: tr(
                           "Supprimer définitivement cette réunion et ses fichiers ?",
                         ),
-                      )
+                      })
                     ) {
                       if (await action("", "DELETE")) {
                         try {

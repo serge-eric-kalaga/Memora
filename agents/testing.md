@@ -227,3 +227,13 @@ Lint/types/buildfinalPASS et linttestsPASS. Recette `--ui-audit-only --asr-engin
 `scripts/memora-qa-auto-speakers.py --cpu-only` sur réserve synthétique :PASS ; pas nouveau benchmarkseuils. Lint/types/buildPASS. Recette --ui-audit-only avecmoteursmlx etChromium1248 :16UI PASS21,91s,zéroexceptionJS. ScénarioHTTPisolé automaticfailed sourcecourante : messageclair,boutonouvre/focalisechampnombre,2accepté,actionactivée ;aucune nouvelle modificationbase par cecontrôle. PréparationASR/rapport réelle synthétique. Logspeaker-recovery-ui.log/captureisolated-speaker-failure-recovery-mobile.png.
 
 Exception utilisateur pourcopie audio désignée : résultats etdiagnostics strictement .memora/accuracy-private/, pasdansceslogs/notes ; originalinchangé. Aucunrésultat qualitatifpersonnel généralisé.
+
+## Dialogues intégrés25/10
+
+Auditglobal frontend/src/public :aucunappel window.alert/confirm/prompt niéquivalentglobal restant. beforeunloadcapture conservé. Lint/types/buildfinalPASS (5warnings testspréexistants).
+
+`memora-import-recovery.mjs` surfrontendjetable13000, toutesAPIinterceptéessynthétiques :7PASS, dont suppressionéchouée puisréussie/nettoyageIndexedDB via confirmationintégrée. Logdialog-import-recovery.log.
+
+Recetteisolée --browser-only mlx/FRmlx :22browserréelsPASS (dialog-real-browser-passed.log), puisUIaudit détecteTabpouvantquitter HTMLdialog. Correctif Modal partagéboucleTab/ShiftTab explicite ; nouveau lint/types/buildPASS, puis --ui-audit-only :17UI PASS24,97s,zéroexceptionJS (dialog-final-ui.log).3confirmationsÉchap/Annuler→0requête,focusrestauré etTabcontenu,confirmation→1requêteinterceptée409 (sansmodifierDB). Quatrevues confirmation-{desktop,mobile}-{light,dark}.png ; mobile sombreinspectéROOT. Testsréels ettestscontratdistincts,pasunique39contrôlesmêmesource. Première tentativebrowserattendait dernierextraitAlice maintenanthidden ; sélecteurcorrigé ciblantAnswerBodyvisible,sansaffaiblirvérification.
+
+Activationlocalegarde0jobs/0capture/aucun audio récent,4HTTP200, toutesempreintesdomaineinchangées,intégritéOK ;preuve .memora/dialog-activation.json. Microphonephysiqueetdonnéespersonnellesnonutilisés.

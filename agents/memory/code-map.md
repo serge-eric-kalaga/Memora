@@ -62,3 +62,5 @@ Sources de vérité des résultats : testing.md + handoffs/*.md ; les logs volum
 Capture persistante : app/layout.tsx→CaptureProvider (capture-session.tsx)→CaptureRuntime ; app.tsx→CaptureSlot ; capture-runtime.tsx possède médias/queue/IndexedDB/continuité, audio-language.tsx fournit le sélecteur. MeetingChat dans meeting-chat.tsx, styles dédiés ; API conversation routes.py→ai.answer(history), autorisation répétée après inférence.
 
 meeting-chat.tsx→chat-answer.ts (nettoyage présentation/copie groupesuN) ; AnswerBody JSX échappé, sourcesdetails bornées et questionAnchorsticky. Tests memora-chat-answer.test.mjs et memora-meeting-chat-browser.mjs incluent réponseslongues/30sources ; memora-ui-audit.mjs inclut4vues longuesproduction.
+
+components/ui/confirmation.tsx→useConfirmation promesse+dialogue action nommé, confirmation.module.css ; repose Modal partagé (modal.tsx/CSS), bouclefocus explicite. MeetingContent app.tsx l’utilise retranscription/suppression ; SpeakerTools pour séparation. TestsUIaudit3actions +E2E/importrecovery adaptés aux rôlesdialog/boutons au lieuévénementswindowdialog.

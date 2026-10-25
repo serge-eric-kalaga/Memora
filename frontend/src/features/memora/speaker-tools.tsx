@@ -1,4 +1,5 @@
 "use client";
+import { useConfirmation } from "@/components/ui/confirmation";
 import { useRef, useState } from "react";
 import type { Segment } from "./api";
 import { speakerLabel } from "./speaker-label";
@@ -23,6 +24,7 @@ export function SpeakerTools({
   separationFailed?: boolean;
   run: (path: string, method: string, body: unknown) => Promise<boolean>;
 }) {
+  const { confirm: confirmAction, confirmation } = useConfirmation();
   const names = [...new Set(segments.map((segment) => segment.speaker || ""))];
   const [from, setFrom] = useState(names[0] || "");
   const [to, setTo] = useState("");
@@ -36,6 +38,7 @@ export function SpeakerTools({
     !from.trim() || /non identifi|unknown|unidentified/i.test(from);
   return (
     <>
+      {confirmation}
       {separationFailed && canSeparate && (
         <div className={s.recovery} role="status">
           <strong>
@@ -211,11 +214,17 @@ export function SpeakerTools({
                 }
                 onClick={async () => {
                   if (
-                    !window.confirm(
-                      english
+                    !(await confirmAction({
+                      title: english
+                        ? "Separate speakers"
+                        : "Séparer les intervenants",
+                      confirmLabel: english
+                        ? "Start separation"
+                        : "Lancer la séparation",
+                      message: english
                         ? "Replace current speaker labels with a local estimate? Previous labels remain in history. Review the result before regenerating the report."
                         : "Remplacer les étiquettes actuelles par une estimation locale ? Les anciennes restent dans l’historique. Vérifiez le résultat avant de régénérer le rapport.",
-                    )
+                    }))
                   )
                     return;
                   if (

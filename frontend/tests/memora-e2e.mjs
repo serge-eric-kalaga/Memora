@@ -175,8 +175,8 @@ try {
     .click();
   await page
     .locator("#meeting-chat-panel")
-    .getByText(/Alice/)
-    .last()
+    .locator('[class*="answerBody"]')
+    .filter({ hasText: /Alice/ })
     .waitFor({ timeout: 180000 });
   const chatPanel = page.locator("#meeting-chat-panel");
   assert.ok(await chatPanel.isVisible());
@@ -219,7 +219,7 @@ try {
     .locator("#meeting-chat-panel")
     .getByText("Qui prépare la démonstration ?", { exact: false })
     .waitFor();
-  await page.locator("#meeting-chat-panel").getByText(/Alice/).last().waitFor();
+  await page.locator('#meeting-chat-panel [class*="answerBody"]').filter({hasText:/Alice/}).waitFor();
   pass(
     "Chat réel prioritaire desktop/mobile, source et conversation restaurée après actualisation",
   );
@@ -731,12 +731,15 @@ try {
         exact: true,
       })
       .fill("1");
-    page.once("dialog", (dialog) => dialog.accept());
     await page
       .getByRole("button", {
         name: "Séparer les intervenants localement",
         exact: true,
       })
+      .click();
+    await page
+      .getByRole("dialog", { name: "Séparer les intervenants", exact: true })
+      .getByRole("button", { name: "Lancer la séparation", exact: true })
       .click();
     await page.waitForFunction(
       (expectedVersion) =>

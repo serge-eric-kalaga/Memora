@@ -266,8 +266,11 @@ try {
     exact: true,
   });
   await remove.waitFor();
-  page.once("dialog", (dialog) => dialog.accept());
   await remove.click();
+  await page
+    .getByRole("dialog", { name: "Supprimer définitivement", exact: true })
+    .getByRole("button", { name: "Supprimer définitivement", exact: true })
+    .click();
   await page
     .getByRole("alert")
     .filter({ hasText: "Synthetic deletion unavailable" })
@@ -298,8 +301,11 @@ try {
     meeting.id,
   );
   deleteFails = false;
-  page.once("dialog", (dialog) => dialog.accept());
   await remove.click();
+  await page
+    .getByRole("dialog", { name: "Supprimer définitivement", exact: true })
+    .getByRole("button", { name: "Supprimer définitivement", exact: true })
+    .click();
   await page.waitForURL(base + "/");
   const localCount = await page.evaluate(
     () =>

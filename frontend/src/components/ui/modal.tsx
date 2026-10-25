@@ -47,6 +47,23 @@ export function Modal({
       className={styles.dialog}
       aria-labelledby={id}
       aria-describedby={description ? `${id}-description` : undefined}
+      onKeyDown={(event) => {
+        if (event.key !== "Tab") return;
+        const nodes = Array.from(
+          event.currentTarget.querySelectorAll<HTMLElement>(
+            'button:not(:disabled),a[href],input:not([type="hidden"]):not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex]:not([tabindex="-1"])',
+          ),
+        ).filter((node) => node.getClientRects().length > 0);
+        const first = nodes[0],
+          last = nodes[nodes.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last?.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first?.focus();
+        }
+      }}
       onCancel={(event) => {
         event.preventDefault();
         onClose();

@@ -1,6 +1,14 @@
 # Memora — état de reprise
 
-Mis à jour 2026-10-25 13:42 UTC, Africa/Ouagadougou. Livraison locale V1 et jalon supplémentaire de précision intégrés. Commits locaux autorisés par l’utilisateur après livraison ; aucun push, achat, déploiement public ou email réel. Lire AGENTS.md → agents/README.md → ce fichier, puis uniquement les preuves utiles. Les notes/fichiers actuels priment sur les anciens points de reprise.
+Mis à jour 2026-10-25 14:26 UTC, Africa/Ouagadougou. Livraison locale V1 et jalon supplémentaire de précision intégrés. Commits locaux autorisés par l’utilisateur après livraison ; aucun push, achat, déploiement public ou email réel. Lire AGENTS.md → agents/README.md → ce fichier, puis uniquement les preuves utiles. Les notes/fichiers actuels priment sur les anciens points de reprise.
+
+## Confirmations intégrées — livrées localement
+
+Trois window.confirm remplacés par useConfirmation/Confirmation réutilisant components/ui/Modal : retranscription, suppression définitive et séparation. Boutonsactionexplicites, focusinitialAnnuler, Échap/croix/fond annulent, fondinerte et restitutionfocus ; promesseannulée surunmount/duplicaterejeté. Modal partagé complète Tab/ShiftTab par boucleexplicite. Aucun appel natif alert/confirm/prompt dans src/public. beforeunload capture conservé : avertissementfermeture navigateur nonremplaçable par dialogueasynchrone.
+
+Lint/types/buildfinalPASS.7contrats import/recovery/suppressionPASS avecAPIinterceptée.22browserréelsPASS (avant correctionfocusseule), puis17auditUI surbuildfinalPASS24,97s/zéroexceptionJS :3actions,Annuler/Échapzérorequête,focusAnnuler,Tabrestecontenu,focusrestauré,validation1requêteHTTPinterceptéerejetée sansmutationDB,4capturesdesktop/mobileclair/sombre. ModaleséprouvéescodeinterfacepasnouvellepreuvequalitéIA. Échecsconservés : ancien sélecteurChat sourceAlice repliée corrigé versréponsevisible ; fuiteTab corrigéeparboucleModal. CapturemobiledarkinspectéeROOT.
+
+Activationmainaprèsgarde0jobs/0capture/aucun audio récent,4HTTP200 etempreintesdomaineinchangées/intégritéOK ; preuveprivée .memora/dialog-activation.json. Actualiser avant capture ; aucunpush/coauteur.
 
 ## Séparation des intervenants — reprise après échec
 

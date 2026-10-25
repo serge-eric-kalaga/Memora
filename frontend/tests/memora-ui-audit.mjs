@@ -590,6 +590,118 @@ try {
     pass(
       "Échec de séparation explicite et relance accessible avec nombre connu, sans renommer toutes les voix",
     );
+    let nativeDialogs = 0;
+    const unexpectedDialog = async (dialog) => {
+      nativeDialogs++;
+      await dialog.dismiss();
+    };
+    page.on("dialog", unexpectedDialog);
+    for (const item of [
+      {
+        trigger: "Retranscrire l’audio",
+        title: "Retranscrire l’audio",
+        accept: "Retranscrire l’audio",
+        path: "/retranscribe",
+        method: "POST",
+      },
+      {
+        trigger: "Séparer les intervenants localement",
+        title: "Séparer les intervenants",
+        accept: "Lancer la séparation",
+        path: "/diarize",
+        method: "POST",
+      },
+      {
+        trigger: "Supprimer définitivement",
+        title: "Supprimer définitivement",
+        accept: "Supprimer définitivement",
+        path: "",
+        method: "DELETE",
+      },
+    ]) {
+      let calls = 0;
+      const endpoint = detailRoute + item.path;
+      await page.route(endpoint, async (route) => {
+        if (route.request().method() !== item.method) return route.continue();
+        calls++;
+        await route.fulfill({
+          status: 409,
+          contentType: "application/json",
+          body: JSON.stringify({
+            detail: "Synthetic confirmation request rejected",
+          }),
+        });
+      });
+      const trigger = page.getByRole("button", {
+        name: item.trigger,
+        exact: true,
+      });
+      await trigger.click();
+      const dialog = page.getByRole("dialog", {
+        name: item.title,
+        exact: true,
+      });
+      await dialog.waitFor();
+      const cancel = dialog.getByRole("button", {
+        name: "Annuler",
+        exact: true,
+      });
+      assert.ok(await cancel.evaluate((el) => el === document.activeElement));
+      for (let step = 0; step < 5; step++) {
+        await page.keyboard.press("Tab");
+        assert.ok(
+          await dialog.evaluate((el) => el.contains(document.activeElement)),
+        );
+      }
+      await page.keyboard.press("Escape");
+      await dialog.waitFor({ state: "hidden" });
+      assert.equal(calls, 0);
+      assert.ok(await trigger.evaluate((el) => el === document.activeElement));
+      await trigger.click();
+      await dialog
+        .getByRole("button", { name: "Annuler", exact: true })
+        .click();
+      assert.equal(calls, 0);
+      if (item.path === "/retranscribe") {
+        for (const view of [
+          { name: "desktop", width: 1440, height: 1000 },
+          { name: "mobile", width: 390, height: 844 },
+        ]) {
+          await page.setViewportSize({
+            width: view.width,
+            height: view.height,
+          });
+          for (const theme of ["light", "dark"]) {
+            await page
+              .getByRole("combobox", { name: "Thème", exact: true })
+              .selectOption(theme);
+            await trigger.click();
+            await dialog.screenshot({
+              path: artifactPath(
+                "logs",
+                `confirmation-${view.name}-${theme}.png`,
+              ),
+            });
+            await cancel.click();
+          }
+        }
+      }
+      await trigger.click();
+      await dialog
+        .getByRole("button", { name: item.accept, exact: true })
+        .click();
+      await page
+        .getByRole("alert")
+        .filter({ hasText: "Synthetic confirmation request rejected" })
+        .waitFor();
+      assert.equal(calls, 1);
+      await page.unroute(endpoint);
+    }
+    page.off("dialog", unexpectedDialog);
+    assert.equal(nativeDialogs, 0);
+    pass(
+      "Trois confirmations intégrées : Annuler/Échap sans requête, focus restauré, une seule requête confirmée, zéro fenêtre JavaScript native",
+    );
     const created = await page.request.post(base + "/mapi/meetings", {
       headers: { Origin: base },
       data: {

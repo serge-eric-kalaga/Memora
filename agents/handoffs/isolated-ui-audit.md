@@ -1,6 +1,6 @@
 # Audit UI ciblé
 
-2026-10-25T14:12:34.967Z
+2026-10-25T14:25:23.653Z
 
 - VALIDÉ : Dashboard desktop sans débordement
 - VALIDÉ : Dialogue clavier : focus initial, boucle Tab/Shift+Tab, Escape et restauration
@@ -15,6 +15,7 @@
 - VALIDÉ : Réponse longue : références internes masquées, sources repliées et police lisible dans quatre vues
 - VALIDÉ : Formulaires de validation, lecteur de transcription et intervenants mobile sans débordement
 - VALIDÉ : Échec de séparation explicite et relance accessible avec nombre connu, sans renommer toutes les voix
+- VALIDÉ : Trois confirmations intégrées : Annuler/Échap sans requête, focus restauré, une seule requête confirmée, zéro fenêtre JavaScript native
 - VALIDÉ : Message utilisateur clair et conseils repliés accessibles sans ouvrir le microphone
 - VALIDÉ : Contrôle microphone mobile visible sans activation automatique ni débordement
 - VALIDÉ : Aucune exception JavaScript non gérée
