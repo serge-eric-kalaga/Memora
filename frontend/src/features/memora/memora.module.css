@@ -56,11 +56,11 @@
 }
 .primary {
   background: var(--green);
-  color: white;
+  color: var(--on-accent);
   border-color: var(--green);
 }
 .danger {
-  color: #a83333;
+  color: var(--danger);
 }
 .card {
   border: 1px solid var(--line);
@@ -97,7 +97,7 @@
 .textarea {
   width: 100%;
   padding: 11px 12px;
-  border: 1px solid #a8b8af;
+  border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface);
   color: var(--ink);
@@ -109,7 +109,7 @@
 }
 .input:focus,
 .textarea:focus {
-  outline: 2px solid #87b9a3;
+  outline: 2px solid var(--focus-ring);
 }
 .search {
   max-width: 360px;
@@ -173,9 +173,9 @@
 }
 .error {
   padding: 14px 18px;
-  border: 1px solid #eac4bd;
-  background: #fff2ef;
-  color: #8e3022;
+  border: 1px solid var(--danger-line);
+  background: var(--danger-bg);
+  color: var(--danger);
   border-radius: 9px;
   margin: 16px 0;
 }
@@ -189,7 +189,7 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: #10261e88;
+  background: #211a3888;
   z-index: 100;
   display: flex;
   align-items: center;
@@ -461,18 +461,18 @@
     box-shadow 0.15s;
 }
 .button:hover {
-  border-color: #bcb4e9;
+  border-color: var(--line);
   background: var(--soft);
 }
 .primary {
-  background: #6b55df;
-  border-color: #6b55df;
-  color: #fff;
-  box-shadow: 0 3px 7px #6b55df18;
+  background: var(--green);
+  border-color: var(--green);
+  color: var(--on-accent);
+  box-shadow: 0 3px 7px color-mix(in srgb, var(--green) 10%, transparent);
 }
 .primary:hover {
-  background: #5a43cf;
-  border-color: #5a43cf;
+  background: var(--green-dark);
+  border-color: var(--green-dark);
 }
 .card {
   border-radius: 10px;
@@ -512,7 +512,7 @@
   top: 20px;
   bottom: 20px;
   width: 3px;
-  background: #c8bef8;
+  background: var(--green);
   border-radius: 0 4px 4px 0;
 }
 .toolbar {
@@ -558,14 +558,14 @@
 .input,
 .textarea,
 .select {
-  border-color: #d9d8e7;
+  border-color: var(--line);
   border-radius: 7px;
   font-size: 13px;
 }
 .input:focus,
 .textarea:focus,
 .select:focus {
-  outline: 2px solid #c7bdf8;
+  outline: 2px solid var(--focus-ring);
   outline-offset: 1px;
 }
 .meetingList {
@@ -628,16 +628,16 @@
   height: 43px;
   display: grid;
   place-items: center;
-  background: #f0ecff;
-  color: #8067e5;
-  border: 1px solid #e8e0ff;
+  background: var(--soft);
+  color: var(--green);
+  border: 1px solid var(--line);
   border-radius: 9px;
   flex-shrink: 0;
 }
 .importIcon {
-  color: #7b8ba8;
-  background: #f0f4f9;
-  border-color: #e7ecf5;
+  color: var(--muted);
+  background: var(--background);
+  border-color: var(--line);
 }
 .meetingDate {
   font-size: 11px;
@@ -659,21 +659,21 @@
   color: var(--muted);
 }
 .meetingArrow {
-  color: #aaa6bd;
+  color: var(--muted);
 }
 .badge {
   justify-self: start;
   white-space: nowrap;
   font-size: 9px;
-  background: #f0ecff;
-  color: #7c65cb;
+  background: var(--soft);
+  color: var(--green);
   border-radius: 5px;
   padding: 4px 7px;
   line-height: 1.5;
 }
 .readyBadge {
-  background: #eef8f3;
-  color: #409477;
+  background: var(--success-bg);
+  color: var(--success);
 }
 .listFooter {
   padding: 12px 23px;
@@ -792,7 +792,7 @@
   color: var(--muted);
 }
 .chatExamples button:hover {
-  border-color: #c8baf5;
+  border-color: var(--focus-ring);
   color: var(--green);
 }
 .bubble {
@@ -818,7 +818,7 @@
   line-height: 1.7;
   background: var(--background);
   color: var(--muted);
-  border-left: 2px solid #d7cff8;
+  border-left: 2px solid var(--line);
   border-radius: 4px;
   padding: 11px 13px;
 }
@@ -842,7 +842,7 @@
   padding-left: 18px;
 }
 .report li::marker {
-  color: #9d8cdd;
+  color: var(--green);
 }
 .report li {
   margin: 13px 0;
@@ -927,7 +927,7 @@
   font-size: 30px;
 }
 .selectedSegment {
-  outline-color: #b9a6f3;
+  outline-color: var(--focus-ring);
   background: var(--soft);
 }
 @media (min-width: 1500px) {
@@ -1316,7 +1316,7 @@
   align-items: center;
 }
 .meetingMeta > span > svg {
-  color: #8d8b9e;
+  color: var(--muted);
 }
 .meetingApp .tabs {
   margin: 0 0 24px;
@@ -1333,7 +1333,7 @@
 .meetingApp .tab.active {
   background: var(--soft);
   color: var(--green);
-  border-color: #6654e6;
+  border-color: var(--green);
 }
 .meetingApp .two {
   grid-template-columns: minmax(0, 1fr) minmax(300px, 36%);
@@ -1369,7 +1369,7 @@
   font-size: 11px;
   background: transparent;
   border: 0;
-  border-left: 2px solid #d9d4ed;
+  border-left: 2px solid var(--line);
   border-radius: 0;
   padding: 8px 13px;
   margin-top: 16px;
@@ -1403,8 +1403,8 @@
   line-height: 1.85;
 }
 .meetingApp .time {
-  color: #736e85;
-  background: #f3f2f6;
+  color: var(--muted);
+  background: var(--background);
 }
 .chapters {
   border-top: 1px solid var(--line);
@@ -1439,12 +1439,12 @@
 }
 .chapters button > span {
   flex-shrink: 0;
-  background: #f1f0f4;
+  background: var(--background);
   border-radius: 4px;
   font-size: 10px;
   padding: 0 4px;
   line-height: 1.8;
-  color: #807b91;
+  color: var(--muted);
 }
 .chapters button > strong {
   font-size: 11px;

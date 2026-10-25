@@ -66,3 +66,7 @@ meeting-chat.tsx→chat-answer.ts (nettoyage présentation/copie groupesuN) ; An
 components/ui/confirmation.tsx→useConfirmation promesse+dialogue action nommé, confirmation.module.css ; repose Modal partagé (modal.tsx/CSS), bouclefocus explicite. MeetingContent app.tsx l’utilise retranscription/suppression ; SpeakerTools pour séparation. TestsUIaudit3actions +E2E/importrecovery adaptés aux rôlesdialog/boutons au lieuévénementswindowdialog.
 
 ReportAnalysisRequest.num_speakers1..8 →routes.analyze détecte écheccourant réparable, persiste speaker_analysis_request(job_id/source_version/num_speakers), phasejobsdiarize_initial. worker._initial_speaker_labels relitnombreliéaujob, versionnesourceavantrapport ; autoouexplicitretry mêmesgardeversions. app.tsx afficheRelancerl’analyse etchampoptionneluniquement siéchecsourcecourante+audioaccessible/disponible.
+
+## Palette commune
+
+`frontend/src/app/theme.css` définit les couleurs sémantiques clair/sombre et les alias historiques `--green`/`--green-dark` vers le violet. `globals.css` importe cette source. Compte et administration héritent de ces couleurs ; les variables `--a-*` ne sont que des alias. `frontend/tests/memora-theme-audit.mjs`, appelé par l’audit UI isolé, vérifie les routes publiques et connectées dans quatre vues.

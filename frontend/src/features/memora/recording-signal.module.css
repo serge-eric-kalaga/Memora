@@ -41,7 +41,7 @@
 }
 .signal button {
   margin-top: 10px;
-  border: 1px solid #387d78;
+  border: 1px solid var(--green);
   border-radius: 8px;
   padding: 8px 12px;
   background: var(--surface);

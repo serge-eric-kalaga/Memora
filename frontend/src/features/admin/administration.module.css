@@ -1,37 +1,20 @@
 /* Styles chargés avec l’écran, indépendants du CSS global et de son cache HMR. */
 .root {
-  --a-bg: #ffffff;
-  --a-subtle: #f8faf8;
-  --a-text: #172c25;
-  --a-muted: #6b7872;
-  --a-border: #e5e9e7;
-  --a-accent: #1c6650;
-  --a-selected: #eef3ed;
-  --a-good: #17805b;
-  --a-good-bg: #eaf7f1;
-  --ink: var(--a-text);
-  --muted: var(--a-muted);
-  --line: var(--a-border);
-  --surface: var(--a-bg);
-  --soft: var(--a-selected);
-  --green: var(--a-accent);
-  --green-dark: #124e3d;
+  --a-bg: var(--surface);
+  --a-subtle: var(--background);
+  --a-text: var(--ink);
+  --a-muted: var(--muted);
+  --a-border: var(--line);
+  --a-accent: var(--green);
+  --a-selected: var(--soft);
+  --a-good: var(--success);
+  --a-good-bg: var(--success-bg);
   color: var(--a-text);
   max-width: 1440px;
   padding: 32px 0 48px;
   font-size: 13px;
 }
-:global([data-theme="dark"]) .root {
-  --a-bg: #191f1c;
-  --a-subtle: #141c17;
-  --a-text: #e4eee8;
-  --a-muted: #a5b5ac;
-  --a-border: #303e35;
-  --a-accent: #89d6b3;
-  --a-selected: #25392e;
-  --a-good: #8fd9b9;
-  --a-good-bg: #203b33;
-}
+
 .root :global(.admin-topbar) {
   display: flex;
   align-items: center;

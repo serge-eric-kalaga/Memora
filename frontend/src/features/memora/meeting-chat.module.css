@@ -243,7 +243,7 @@
   display: grid;
   place-items: center;
   background: var(--green);
-  color: #fff;
+  color: var(--on-accent);
   border: 0;
   border-radius: 9px;
   width: 36px;

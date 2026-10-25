@@ -1,26 +1,9 @@
-/* Même vocabulaire visuel que l’administration : surfaces sobres, contours fins et accent vert. */
+/* Même vocabulaire visuel que l’administration : surfaces sobres, contours fins et accent Memora. */
 .root {
-  --surface: #fff;
-  --soft: #eef3ed;
-  --line: #e5e9e7;
-  --ink: #172c25;
-  --muted: #6b7872;
-  --green: #1c6650;
-  --green-dark: #124e3d;
-  --on-accent: #fff;
   color: var(--ink);
   font-size: 13px;
 }
-:global([data-theme="dark"]) .root {
-  --surface: #191f1c;
-  --soft: #25392e;
-  --line: #303e35;
-  --ink: #e4eee8;
-  --muted: #a5b5ac;
-  --green: #89d6b3;
-  --green-dark: #a7e5c8;
-  --on-accent: #12251b;
-}
+
 .root :global(.field) {
   display: grid;
   gap: 7px;

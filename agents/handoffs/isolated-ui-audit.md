@@ -1,8 +1,10 @@
 # Audit UI ciblé
 
-2026-10-25T14:39:31.668Z
+2026-10-25T14:52:26.159Z
 
+- VALIDÉ : Palette commune sur six pages publiques, quatre vues chacune et contrastes vérifiés
 - VALIDÉ : Dashboard desktop sans débordement
+- VALIDÉ : Palette commune dashboard/profil/administration/paramètres et contrastes clair/sombre desktop/mobile
 - VALIDÉ : Dialogue clavier : focus initial, boucle Tab/Shift+Tab, Escape et restauration
 - VALIDÉ : Anglais interface et défaut audio anglais après changement de préférence
 - VALIDÉ : Thème sombre appliqué

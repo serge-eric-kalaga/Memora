@@ -124,3 +124,7 @@ Validation finale navigation/chat : recette réelle22browser+13auditUI PASS120s,
 ## Relance d’analyse et voix
 
 /analyze ne se limite plus au rapport lorsqu’une séparation automatique de la sourcecourante est enéchec : phase durable repriseavant rapport, nombreconnu1..8optionnel, audio/droitsvérifiés. Une révisionhumaine plusrécente n’est pasréétiquetée ; anciennestranscriptions/rapports conservés ; panneaprèslabels reprendrapport sansrefairelabels. Routes.py/worker.py/app.tsx, test_memora_analysis_speakers_retry.py (8cas), scripts/memora-qa-analysis-speakers.py (routeauthstub+moteurslocauxréels). OpenAPI/SDKmisàjour. Preuvesfinalesdans testing.md/state.md.
+
+## Cohérence des couleurs — demande utilisateur25/10
+
+Palette unique de la connexion/inscription aux réunions, profil et administration : `frontend/src/app/theme.css` et modules CSS consommateurs. Validation par `memora-theme-audit.mjs` intégré à l’audit UI isolé ; résultats et limites dans testing.md/state.md. Aucun changement de droits, données ou traitements IA.

@@ -1,4 +1,8 @@
 /** Focused local UI audit; synthetic account only, no settings mutation. */
+import {
+  auditPublicPalette,
+  auditAccountPalette,
+} from "./memora-theme-audit.mjs";
 import { chromium } from "@playwright/test";
 import assert from "node:assert/strict";
 import { readFile, mkdir, writeFile } from "node:fs/promises";
@@ -33,6 +37,10 @@ const pass = (text) => {
   console.log("PASS", text);
 };
 try {
+  await auditPublicPalette(browser, base, artifactPath);
+  pass(
+    "Palette commune sur six pages publiques, quatre vues chacune et contrastes vérifiés",
+  );
   await page.goto(base + "/connexion");
   await page.locator("input[name=username]").fill(account.username);
   await page.locator("input[name=password]").fill(account.password);
@@ -55,6 +63,10 @@ try {
     fullPage: true,
   });
   pass("Dashboard desktop sans débordement");
+  await auditAccountPalette(page, base, artifactPath);
+  pass(
+    "Palette commune dashboard/profil/administration/paramètres et contrastes clair/sombre desktop/mobile",
+  );
   const create = page.getByRole("button", {
     name: "Nouvelle réunion",
     exact: true,

@@ -1,0 +1,52 @@
+/* Shared Memora palette: every page inherits these semantic colors. */
+:root {
+  color-scheme: light;
+  --ink: #232336;
+  --muted: #696a80;
+  --accent: #6550df;
+  --accent-hover: #503bca;
+  --green: var(--accent);
+  --green-dark: var(--accent-hover);
+  --on-accent: #fff;
+  --line: #e8e8f0;
+  --surface: #fff;
+  --background: #f7f8fb;
+  --soft: #f2efff;
+  --focus-ring: var(--accent);
+  --selection: #e4ddff;
+  --decor-soft: #eee9ff;
+  --decor-strong: #d8cff6;
+  --header-bg: #f7f8fbf5;
+  --danger: #b42336;
+  --danger-bg: #fff1f2;
+  --danger-line: #efc3cb;
+  --success: #287757;
+  --success-bg: #eef8f2;
+  --warning: #8a5a16;
+  --warning-bg: #fff7e7;
+  --on-danger: #fff;
+  --danger-solid: #b42336;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ink: #eeedf8;
+  --muted: #b2afc5;
+  --accent: #a495ff;
+  --accent-hover: #b6a9ff;
+  --on-accent: #20183e;
+  --line: #383549;
+  --surface: #211f30;
+  --background: #191824;
+  --soft: #302943;
+  --selection: #4d3e78;
+  --decor-soft: #302943;
+  --decor-strong: #463767;
+  --header-bg: #191824f5;
+  --danger: #ffb4c0;
+  --danger-bg: #3a212b;
+  --danger-line: #74414e;
+  --success: #95d9b5;
+  --success-bg: #19392d;
+  --warning: #f1cd8b;
+  --warning-bg: #3b3022;
+}

@@ -1,7 +1,7 @@
 .block {
-  --code-bg: #f7f9f8;
-  --code-text: #263c35;
-  --code-comment: #6b7d74;
+  --code-bg: var(--background);
+  --code-text: var(--ink);
+  --code-comment: var(--muted);
   --code-keyword: #8051a0;
   --code-string: #21634c;
   --code-number: #9a5624;
@@ -14,9 +14,9 @@
   box-shadow: 0 3px 14px rgb(0 0 0 / 3%);
 }
 :global([data-theme="dark"]) .block {
-  --code-bg: #131e19;
-  --code-text: #d8e5dd;
-  --code-comment: #8b9e92;
+  --code-bg: var(--background);
+  --code-text: var(--ink);
+  --code-comment: var(--muted);
   --code-keyword: #d6b4ed;
   --code-string: #a1d6b4;
   --code-number: #edc291;

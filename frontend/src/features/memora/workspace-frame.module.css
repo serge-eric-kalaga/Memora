@@ -1,12 +1,4 @@
 .theme {
-  --ink: #232336;
-  --muted: #6f7085;
-  --green: #6550df;
-  --green-dark: #503bca;
-  --line: #e8e8f0;
-  --surface: #fff;
-  --background: #f7f8fb;
-  --soft: #f2efff;
   min-height: 100vh;
   background: var(--background);
   color: var(--ink);
@@ -38,8 +30,8 @@
 .mark {
   display: grid;
   place-items: center;
-  background: #6954df;
-  color: #fff;
+  background: var(--green);
+  color: var(--on-accent);
   border-radius: 12px;
   width: 37px;
   height: 37px;
@@ -216,16 +208,7 @@
 .theme :global(.account-stack) {
   color: var(--green);
 }
-:global([data-theme="dark"]) .theme {
-  --ink: #eeedf8;
-  --muted: #a3a1b8;
-  --green: #a495ff;
-  --green-dark: #8978ed;
-  --line: #323044;
-  --surface: #211f30;
-  --background: #191824;
-  --soft: #302943;
-}
+
 :global([data-theme="dark"]) .memoryCard {
   background: #282337;
   border-color: #3a3250;
@@ -314,11 +297,11 @@
 }
 .links a:hover {
   background: #ffffff0a;
-  color: #fff;
+  color: var(--on-accent);
 }
 .links a.active {
   background: #5144d8;
-  color: #fff;
+  color: var(--on-accent);
   font-weight: 550;
 }
 .memoryCard {

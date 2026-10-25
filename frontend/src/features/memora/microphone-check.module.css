@@ -1,9 +1,9 @@
 .panel {
   padding: 22px;
-  border: 1px solid #dedcec;
+  border: 1px solid var(--line);
   border-radius: 14px;
-  background: #faf9fe;
-  color: #25223e;
+  background: var(--surface);
+  color: var(--ink);
   font-size: 14px;
 }
 .heading {
@@ -24,15 +24,15 @@
   border-radius: 20px;
   font-size: 11px;
   white-space: nowrap;
-  background: #eeebfa;
-  color: #5144a5;
+  background: var(--soft);
+  color: var(--green);
 }
 .live {
-  background: #fbe5e9;
-  color: #a32442;
+  background: var(--danger-bg);
+  color: var(--danger);
 }
 .help {
-  color: #68637c;
+  color: var(--muted);
   line-height: 1.6;
   margin: 8px 0 14px;
 }
@@ -45,9 +45,9 @@
   display: block;
   width: 100%;
   min-height: 42px;
-  border: 1px solid #ccc7df;
+  border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fff;
+  background: var(--surface);
   color: inherit;
   padding: 8px 11px;
   font: inherit;
@@ -62,18 +62,18 @@
 .primary {
   min-height: 42px;
   padding: 9px 14px;
-  border: 1px solid #d6d0e8;
+  border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fff;
-  color: #3f375e;
+  background: var(--surface);
+  color: var(--ink);
   cursor: pointer;
   font: inherit;
   font-weight: 550;
 }
 .primary {
-  background: #5144d8;
-  border-color: #5144d8;
-  color: #fff;
+  background: var(--green);
+  border-color: var(--green);
+  color: var(--on-accent);
 }
 .button:disabled,
 .primary:disabled,
@@ -84,14 +84,14 @@
 .button:focus-visible,
 .primary:focus-visible,
 .select:focus-visible {
-  outline: 3px solid #9e95ff;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
 }
 .monitor,
 .sample {
   margin-top: 20px;
   padding-top: 16px;
-  border-top: 1px solid #e3deef;
+  border-top: 1px solid var(--line);
 }
 .monitor label,
 .sampleLabel {
@@ -104,13 +104,13 @@
   height: 20px;
 }
 .warning {
-  color: #805600;
+  color: var(--warning);
   line-height: 1.6;
   margin: 10px 0;
 }
 .error {
-  background: #fff0f1;
-  color: #a6203a;
+  background: var(--danger-bg);
+  color: var(--danger);
   padding: 11px;
   border-radius: 8px;
   line-height: 1.6;
@@ -120,31 +120,7 @@
   width: 100%;
   margin-bottom: 10px;
 }
-:global([data-theme="dark"]) .panel {
-  background: #211e34;
-  color: #efecff;
-  border-color: #45405d;
-}
-:global([data-theme="dark"]) .help {
-  color: #bdb6d3;
-}
-:global([data-theme="dark"]) .select,
-:global([data-theme="dark"]) .button {
-  background: #2d2942;
-  color: #efecff;
-  border-color: #655a83;
-}
-:global([data-theme="dark"]) .monitor,
-:global([data-theme="dark"]) .sample {
-  border-color: #45405d;
-}
-:global([data-theme="dark"]) .warning {
-  color: #f0c571;
-}
-:global([data-theme="dark"]) .error {
-  background: #492733;
-  color: #ffc8d3;
-}
+
 @media (max-width: 540px) {
   .panel {
     padding: 16px;

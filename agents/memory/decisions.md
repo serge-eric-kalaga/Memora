@@ -85,3 +85,7 @@ Chat : corriger le rendu des réponses historiques aussi, sans réécrire la bas
 Remplacer JSconfirm par dialogueHTML stylé commun etpromesse scoped au composant ; annulationdéfaut etsurunmount, actionnommée, variante destructive. Le garde beforeunload est conservé pournepasperdreune capture : une fermeturedepage nepermetpasd’attendreun dialogueReact, lemessagefinal appartient au navigateur. Modalpartagé piègeTabexplicitement aprèspreuveChromiumfuitefocus.
 
 Reprisevoix par/analyze : seulement automatic_diarization.failed liéàsourcecourante, avec droitsaudio+transcription et fichiernonexpiré. Phaseexistante diarize_initial réutilisée commecheckpoint facultatif, paramètres(job/source/nombreconnu) persistésdansJSONmeeting ; aucune migration. Pasde nouvelleASR, de seuilacoustique modifié ou defauxdeuxgroupes pardéfaut. Correctionhumaine changeversion et exclutrepriseimplicite ; réétiquetagevolontaire restedisponiblepar/diarize. Guest sansaudio garderapportseul. Échecréparable ne doitpasêtre masquéparno-oprapportdéjàcourant ; lesrequêtes explicitesIDrépété restentidempotentes et paramètredifférent ne modifiepas jobactif.
+
+## Couleurs partagées25/10
+
+Le violet Memora devient la couleur principale commune à toutes les pages. Une seule palette sémantique (`src/app/theme.css`) pour clair/sombre ; les noms historiques `--green` restent des alias afin de limiter la migration. Les couleurs de succès, erreur et avertissement gardent leur sens ; la coloration syntaxique de la documentation conserve ses catégories. Aucun changement fonctionnel ou de données.

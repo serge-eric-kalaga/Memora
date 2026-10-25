@@ -11,7 +11,7 @@
   overflow-y: auto;
 }
 .dialog::backdrop {
-  background: #09151080;
+  background: #12102780;
   backdrop-filter: blur(3px);
 }
 .header {

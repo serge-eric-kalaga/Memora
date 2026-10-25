@@ -175,7 +175,7 @@
 }
 .error {
   margin: 10px 0 0;
-  color: #b84d4d;
+  color: var(--danger);
   line-height: 1.5;
 }
 @media (max-width: 600px) {

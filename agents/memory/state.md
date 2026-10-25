@@ -2,6 +2,10 @@
 
 Mis à jour 2026-10-25 14:40 UTC, Africa/Ouagadougou. Livraison locale V1 et jalon supplémentaire de précision intégrés. Commits locaux autorisés par l’utilisateur après livraison ; aucun push, achat, déploiement public ou email réel. Lire AGENTS.md → agents/README.md → ce fichier, puis uniquement les preuves utiles. Les notes/fichiers actuels priment sur les anciens points de reprise.
 
+## Harmonisation des couleurs — livrée localement
+
+Palette unique `frontend/src/app/theme.css`, import globals.css ; violet partagé par pages publiques, compte, administration, réunions, chat et dialogues. Clair/sombre, couleurs sémantiques conservées. Aliases historiques --green/--green-dark évitent migration inutile ; aucune palette verte privée. Correction transition de bouton gardant ancienne couleur après changement de thème. Lint/types/build PASS, 5 warnings préexistants ; recette isolée19 groupes UI PASS/28,86s/zéroexceptionJS, dont40 vues de palette sur10routes desktop/mobile clair/sombre et contrastes calculés. Captures sélectionnées inspectées. Aucune donnée personnelle ni microphone physique utilisés. Détails testing.md. Activation terminée après garde zéro capture/tâche/audio récent :4HTTP200, empreintes de toutes les tables du domaine inchangées, intégritéOK. Preuve privée .memora/colors-activation.json. Actualiser avant de commencer une nouvelle capture. Commit local sans coauteur ni push.
+
 ## Relance analyse et séparation échouée — livrée localement
 
 /analyze reprend désormais phase durable diarize_initial si automatic_diarization.failed concerne sourcecourante et audio/transcription accessibles+audio disponible. num_speakers1..8 facultatif via nouveau ReportAnalysisRequest ; connu fourni seulement pour cette reprise, jamais pour écraser une version corrigée. Paramètres liésaujob/source, concurrencecontrôlée, sourceASR pasretranscrite, versionsrapport/transcription conservées. Rapportseul resteautorisé sansaudio, requêteexplicitevoix refusée sansdroits/fichier. no-bodyidempotence ne masqueplusune repriseéligible aprèséchecvoix.

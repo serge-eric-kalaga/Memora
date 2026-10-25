@@ -304,3 +304,7 @@ Ouvrez l’onglet Chat IA d’une réunion : discussion en zone principale, ques
 Quand la séparation automatique a échoué sur la transcription courante et que l’audio est disponible, « Relancer l’analyse » réessaie d’abord de distinguer les intervenants, puis génère le rapport sur la nouvelle version. Le nombre d’intervenants connu peut être indiqué (1 à8) ; laissez le champ vide pour une estimation automatique, qui peut encore échouer. Les anciennes transcriptions et les anciens rapports restent dans l’historique.
 
 Une correction manuelle plus récente n’est pas réétiquetée automatiquement ; pour remplacer volontairement ces attributions, utilisez la séparation dédiée et sa confirmation. Sans audio disponible ou autorisé, seule la régénération du rapport demeure possible. Une défaillance des voix ne supprime pas la transcription et reste signalée ; elle ne constitue jamais une preuve qu’une seule personne a parlé.
+
+## Couleurs et thèmes
+
+Les pages de connexion, inscription, récupération du compte, profil, administration et réunions partagent la palette violette de Memora, en clair et en sombre. Le sélecteur de thème reste dans l’en-tête. Les couleurs sont centralisées dans `frontend/src/app/theme.css` : modifier les variables sémantiques à cet endroit plutôt que créer une palette par écran. Les couleurs de succès, erreur et avertissement sont distinctes des accents de navigation.
