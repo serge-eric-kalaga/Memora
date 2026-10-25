@@ -2,6 +2,12 @@
 
 Mis à jour 2026-10-25 12:20 UTC, Africa/Ouagadougou. Livraison locale V1 et jalon supplémentaire de précision intégrés. Commits locaux autorisés par l’utilisateur après livraison ; aucun push, achat, déploiement public ou email réel. Lire AGENTS.md → agents/README.md → ce fichier, puis uniquement les preuves utiles. Les notes/fichiers actuels priment sur les anciens points de reprise.
 
+## Texte de l’enregistreur — ajustement utilisateur
+
+Les paragraphes techniques permanents sont remplacés par un court message utilisateur adapté à l’état (prêt, capture, pause, sauvegarde, import, interruption, transmis pour analyse), en FR/EN. Conseils d’enregistrement/import repliés par défaut : limites pertinentes et précautions toujours accessibles. Les alertes réelles restent visibles ; hook continuité conservé sans afficher ses détails. app.tsx et CSS seulement, aucune logique capture/backend modifiée.
+
+Recette UI isolée12contrôles PASS20,97s, dont message prêt/conseils fermés→ouverts→fermés et absence de microphone ouvert ; langues/thèmes/mobile et autres formulaires vérifiés. Première tentative sans chemin Chromium, relancée avec exécutable existant sans téléchargement. Lint/types/build final PASS après correction unité EN MB. Frontend seul actualisé après garde aucune capture/écriture audio récente,4HTTP200 ; backend/Ollama inchangés. Nouvelle demande en cours : séparation automatique des voix pour nouveaux enregistrements, worker en audit/implémentation par qa_local ; ne pas confondre avec simple renommage des voix inconnues ni retraiter des réunions existantes automatiquement.
+
 ## Onde défilante et continuité de capture — livrées localement
 
 Onde historique300pics réels défilant droite→gauche, sans chiffres techniques visibles ; pause figée et reprise conservée. RecordingSignal ne possède pas les pistes. Continuity hook : changement de visibilité sans pause/stop, flush fragment, wake lock écran facultatif et heartbeat30s. Arrêt inattendu marqué interrupted, fragments conservés.

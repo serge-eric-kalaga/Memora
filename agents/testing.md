@@ -177,3 +177,10 @@ Première recette UI : confirmation et historique réels PASS, puis sélecteur `
 - Lint zéro erreur (avertissements tests), types/build, contrat OpenAPI et SDK généré/check PASS. Recette navigateur intégrée réelle finale :19jalons navigateur +11contrôles UI PASS, environ108s, log continuity-isolated-browser.log ; ports et services temporaires fermés. Aucun test de sommeil forcé, capot fermé, microphone physique ou Safari/iOS ; ces situations ne sont pas garanties.
 
 Activation capture-continuité :4HTTP200 après garde0jobs/aucun audio récent ; intégritéOK et empreintes de toutes tables domaine inchangées. Preuve privée .memora/capture-continuity-activation.json. Aucun retraitement personnel.
+
+
+## Textes utilisateur de l’enregistreur
+
+Messages courts par état FR/EN et conseils repliés par défaut. Recette UI isolée12PASS/4stages20,97s (`recorder-copy-ui-audit.log`) : message prêt, conseils fermés par défaut puis ouverture/fermeture, aucun micro physique ni acquisition automatique ; autres vérifications langues/thème/mobile maintenues. Première tentative arrêtée faute de chemin Chromium explicite, relance avec l’exécutable existant réussie. Vérifications lint/types/build du texte dans recorder-copy-*.log ; aucun changement de capture ni backend. Unité EN MB corrigée après recette, vérifiée par compilation finale.
+
+Textes enregistreur activés localement : lint/types/buildPASS, frontend seul redémarré après garde capture,4HTTP200 ; aucun changement backend ni microphone ouvert.

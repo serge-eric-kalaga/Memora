@@ -439,6 +439,30 @@ try {
         ),
         false,
       );
+      await page
+        .getByText(
+          "Prêt à commencer ? Prévenez les participants, puis lancez l’enregistrement.",
+          { exact: true },
+        )
+        .waitFor();
+      const tips = page
+        .locator("details")
+        .filter({
+          has: page.getByText("Conseils pour enregistrer", { exact: true }),
+        });
+      assert.equal(await tips.getAttribute("open"), null);
+      await page
+        .getByText("Conseils pour enregistrer", { exact: true })
+        .click();
+      await tips.getByText(/Durée maximale d’enregistrement/).waitFor();
+      assert.match(await tips.innerText(), /120 min/);
+      await page
+        .getByText("Conseils pour enregistrer", { exact: true })
+        .click();
+      assert.equal(await tips.getAttribute("open"), null);
+      pass(
+        "Message utilisateur clair et conseils repliés accessibles sans ouvrir le microphone",
+      );
       await page.screenshot({
         path: artifactPath("logs", "audit-microphone-mobile.png"),
         fullPage: true,

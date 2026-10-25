@@ -1938,7 +1938,7 @@ function Recorder({
     lastTick = useRef(0),
     fileInput = useRef<HTMLInputElement>(null),
     importController = useRef<AbortController | null>(null);
-  const sleepProtection = useRecordingContinuity(
+  useRecordingContinuity(
     meeting.id,
     state,
     recorder,
@@ -2272,14 +2272,79 @@ function Recorder({
             ? tr("Prenez votre temps.")
             : tr("Chaque échange compte.")}
       </h2>
-      <p className={s.muted}>
-        {tr(
-          "Informez les participants. Le microphone est activé uniquement lorsque vous cliquez sur Enregistrer. Durée maximale :",
-        )}{" "}
-        {meeting.settings?.max_duration_minutes || 120}
-        {tr("min ; import :")} {meeting.settings?.max_upload_mb || 250}
-        {tr("Mo.")}
+      <p className={s.recorderMessage}>
+        {state === "recording"
+          ? language === "en"
+            ? "Your meeting is being recorded. You can pause at any time."
+            : "Votre réunion est en cours d’enregistrement. Vous pouvez mettre en pause à tout moment."
+          : state === "paused"
+            ? language === "en"
+              ? "Recording is paused. Resume whenever you’re ready."
+              : "L’enregistrement est en pause. Reprenez quand vous êtes prêt."
+            : state === "saving"
+              ? language === "en"
+                ? "Saving your audio. Please keep this page open."
+                : "Nous sauvegardons votre audio. Gardez cette page ouverte encore un instant."
+              : state === "uploading"
+                ? language === "en"
+                  ? "Your audio is being imported. You can follow its progress below."
+                  : "Votre audio est en cours d’import. Suivez son avancement ci-dessous."
+                : state === "interrupted"
+                  ? language === "en"
+                    ? "The recording or import was interrupted. Follow the instructions below to continue."
+                    : "L’enregistrement ou l’import a été interrompu. Suivez les indications ci-dessous pour poursuivre."
+                  : state === "done"
+                    ? language === "en"
+                      ? "Your audio has been sent for analysis."
+                      : "Votre audio a été transmis pour analyse."
+                    : meeting.mode === "import"
+                      ? language === "en"
+                        ? "Add your meeting audio to find its key takeaways."
+                        : "Ajoutez l’audio de votre réunion pour en retrouver l’essentiel."
+                      : language === "en"
+                        ? "Ready to begin? Let everyone know, then start recording."
+                        : "Prêt à commencer ? Prévenez les participants, puis lancez l’enregistrement."}
       </p>
+      <details className={s.recorderHelp}>
+        <summary>
+          {language === "en"
+            ? meeting.mode === "import"
+              ? "Import tips"
+              : "Recording tips"
+            : meeting.mode === "import"
+              ? "Conseils pour importer un audio"
+              : "Conseils pour enregistrer"}
+        </summary>
+        {meeting.mode === "import" ? (
+          <p>
+            {language === "en"
+              ? "Maximum file size:"
+              : "Taille maximale du fichier :"}{" "}
+            {meeting.settings?.max_upload_mb || 250}{" "}
+            {language === "en" ? "MB" : "Mo"}. MP3, WAV, M4A, MP4, OGG, WebM,
+            FLAC, AAC.
+          </p>
+        ) : (
+          <>
+            <p>
+              {language === "en"
+                ? "Let participants know before recording. Your microphone starts only when you select Record."
+                : "Informez les participants avant de commencer. Le microphone s’active uniquement lorsque vous choisissez Enregistrer."}
+            </p>
+            <p>
+              {language === "en"
+                ? "Keep this page open. You can switch tabs; avoid putting your computer to sleep or closing its lid during the meeting."
+                : "Gardez cette page ouverte. Vous pouvez changer d’onglet ; évitez de mettre l’ordinateur en veille ou de fermer son capot pendant la réunion."}
+            </p>
+            <p>
+              {language === "en"
+                ? "Maximum recording time:"
+                : "Durée maximale d’enregistrement :"}{" "}
+              {meeting.settings?.max_duration_minutes || 120} min.
+            </p>
+          </>
+        )}
+      </details>
       {["idle", "interrupted"].includes(state) && (
         <div style={{ maxWidth: 330, margin: "20px auto", textAlign: "left" }}>
           <AudioLanguage
@@ -2287,13 +2352,6 @@ function Recorder({
             onChange={setCaptureLanguage}
           />
         </div>
-      )}
-      {meeting.mode === "import" && (
-        <p className={s.muted}>
-          {tr(
-            "Formats proposés : MP3, WAV, M4A, MP4, OGG, WebM, FLAC et AAC. Le contenu réel est vérifié avant traitement.",
-          )}
-        </p>
       )}
       {meeting.mode !== "import" && chunkCount === 0 && (
         <MicrophoneCheck
@@ -2309,21 +2367,6 @@ function Recorder({
         <div className={s.notice} role="status">
           {tr(warning)}
         </div>
-      )}
-      {meeting.mode !== "import" && (
-        <p className={s.muted}>
-          {language === "en"
-            ? "You can switch tabs without stopping the recording. Keep the browser open; forced sleep or closing the lid may interrupt the microphone."
-            : "Vous pouvez changer d’onglet sans arrêter l’enregistrement. Gardez le navigateur ouvert ; une veille forcée ou la fermeture du capot peut couper le microphone."}
-          {sleepProtection === "native" &&
-            (language === "en"
-              ? " Automatic sleep is prevented during this recording."
-              : " La veille automatique est empêchée pendant cet enregistrement.")}
-          {sleepProtection === "screen" &&
-            (language === "en"
-              ? " The screen stays awake while this page is visible."
-              : " L’écran reste éveillé tant que cette page est visible.")}
-        </p>
       )}
       {meeting.mode !== "import" && (
         <div className={s.timer}>
