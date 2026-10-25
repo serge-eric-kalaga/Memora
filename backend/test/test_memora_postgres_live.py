@@ -260,3 +260,52 @@ def test_first_upload_chunk_and_aggregate_unpacking(domain, monkeypatch):
         assert count == 2
         assert total == len(b"synthetic-first-second")
     assert (store.ROOT / mid / "audio.bin").read_bytes() == b"synthetic-first-second"
+
+
+def test_notifications_are_commit_scoped_private_and_rollback_safe(domain):
+    import psycopg
+    from psycopg import sql
+    from api.memora.realtime import channel
+
+    owner_scope = channel("u", "realtime-test-owner")
+    meeting_scope = channel("m", "realtime-test-meeting")
+    foreign_scope = channel("u", "another-test-owner")
+    with psycopg.connect(URL, autocommit=True) as listener:
+        for scope in (owner_scope, meeting_scope, foreign_scope):
+            listener.execute(sql.SQL("LISTEN {}").format(sql.Identifier(scope)))
+        with store.db() as c:
+            c.execute(
+                "INSERT INTO meetings VALUES(?,?,?)",
+                (
+                    "realtime-test-meeting",
+                    42,
+                    json.dumps(
+                        {
+                            "owner_uid": "realtime-test-owner",
+                            "version": 1,
+                            "title": "Synthetic private title",
+                        }
+                    ),
+                ),
+            )
+            assert list(listener.notifies(timeout=0.05, stop_after=1)) == []
+        notices = list(listener.notifies(timeout=0.3, stop_after=2))
+        assert {n.channel for n in notices} == {owner_scope, meeting_scope}
+        assert {n.payload for n in notices} == {"refresh"}
+        try:
+            with store.db() as c:
+                m = store.meeting(c, "realtime-test-meeting")
+                m["title"] = "Rolled back"
+                store.save(c, m)
+                raise RuntimeError("Synthetic rollback")
+        except RuntimeError:
+            pass
+        assert list(listener.notifies(timeout=0.1, stop_after=1)) == []
+        # Changes made by the separate worker connection use the same transport.
+        with store.db() as c:
+            c.execute(
+                "INSERT INTO mail(id,owner,owner_uid,state) VALUES(?,?,?,?)",
+                ("realtime-mail", 42, "realtime-test-owner", "queued"),
+            )
+        notice = next(listener.notifies(timeout=0.3, stop_after=1))
+        assert notice.channel == owner_scope and notice.payload == "refresh"

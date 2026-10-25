@@ -2441,6 +2441,34 @@ export type VerifyHealthApiHealthcheckGetResponses = {
 
 export type VerifyHealthApiHealthcheckGetResponse = VerifyHealthApiHealthcheckGetResponses[keyof VerifyHealthApiHealthcheckGetResponses];
 
+export type EventStreamApiMemoraEventsGetData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Meeting
+         */
+        meeting?: string | null;
+    };
+    url: '/api/memora/events';
+};
+
+export type EventStreamApiMemoraEventsGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type EventStreamApiMemoraEventsGetError = EventStreamApiMemoraEventsGetErrors[keyof EventStreamApiMemoraEventsGetErrors];
+
+export type EventStreamApiMemoraEventsGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
+
 export type MailStatusApiMemoraMailGetData = {
     body?: never;
     path?: never;

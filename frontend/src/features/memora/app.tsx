@@ -1,4 +1,5 @@
 "use client";
+import { useLiveUpdates } from "./use-live-updates";
 import { useConfirmation } from "@/components/ui/confirmation";
 import { ExportButton } from "./export-button";
 import { MeetingChat } from "./meeting-chat";
@@ -250,19 +251,14 @@ function DashboardContent() {
       setLoading(false);
     }
   }, []);
-  useEffect(() => {
-    queueMicrotask(() => void load());
-    const timer = setInterval(() => {
-      void load();
-      void api<typeof notices>("notifications")
-        .then(setNotices)
-        .catch(() => {});
-    }, 5000);
-    void api<typeof notices>("notifications")
-      .then(setNotices)
-      .catch(() => {});
-    return () => clearInterval(timer);
+  const refreshDashboard = useCallback(() => {
+    void load();
+    void api<typeof notices>("notifications").then(setNotices).catch(() => {});
   }, [load]);
+  useEffect(() => {
+    queueMicrotask(refreshDashboard);
+  }, [refreshDashboard]);
+  useLiveUpdates(refreshDashboard);
   async function createMeeting(mode: string) {
     setBusy(true);
     try {
@@ -595,17 +591,21 @@ function MeetingContent({
     [audioUrl, setAudioUrl] = useState(""),
     [audioExtension, setAudioExtension] = useState("bin");
   const audio = useRef<HTMLAudioElement>(null);
+  const loadGeneration = useRef(0);
   const getAudio = useCallback(() => audio.current, []);
   const load = useCallback(async () => {
+    const generation = ++loadGeneration.current;
     try {
-      setMeeting(
-        await api<Meeting>(
-          `meetings/${id}`,
-          {},
-          { token: access.token, password: access.password },
-        ),
+      const next = await api<Meeting>(
+        `meetings/${id}`,
+        {},
+        { token: access.token, password: access.password },
       );
+      if (generation !== loadGeneration.current) return;
+      setMeeting(next);
+      setError("");
     } catch (e) {
+      if (generation !== loadGeneration.current) return;
       if (
         access.token &&
         e instanceof ApiError &&
@@ -620,9 +620,9 @@ function MeetingContent({
   }, [id, access.token, access.password]);
   useEffect(() => {
     queueMicrotask(() => void load());
-    const timer = setInterval(() => void load(), 3500);
-    return () => clearInterval(timer);
+    return () => { loadGeneration.current += 1; };
   }, [load]);
+  useLiveUpdates(() => void load(), id, access);
   useEffect(() => {
     if (!meeting?.audio_available || !meeting.duration) return;
     const controller = new AbortController();
@@ -2412,9 +2412,8 @@ function MailStatus() {
   );
   useEffect(() => {
     void load();
-    const timer = setInterval(() => void load(), 4000);
-    return () => clearInterval(timer);
   }, [load]);
+  useLiveUpdates(() => void load());
   return (
     <>
       <p className={s.muted}>

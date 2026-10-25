@@ -12,7 +12,7 @@ Depuis la racine du projet :
 ./scripts/memora-stop.sh
 ```
 
-Ces trois commandes délèguent aux scripts `memora-docker-*`. Ceux-ci préparent la configuration privée, vérifient la base PostgreSQL importée, gèrent Docker et démarrent le compagnon IA natif. `memora-docker-bridge.py`, `memora-inference-host.py` et `memora-postgres-check.py` sont donc nécessaires au fonctionnement actuel sur ce Mac. L’arrêt conserve les volumes et les données.
+Ces trois commandes délèguent aux scripts `memora-docker-*`. Ceux-ci préparent la configuration privée, vérifient la base PostgreSQL importée, gèrent les cinq services Docker (dont le worker indépendant) et démarrent le compagnon IA natif. `memora-docker-bridge.py`, `memora-inference-host.py` et `memora-postgres-check.py` sont donc nécessaires au fonctionnement actuel sur ce Mac. L’arrêt conserve les volumes et les données.
 
 ## Installation et maintenance ponctuelles
 

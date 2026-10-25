@@ -163,3 +163,7 @@ class Connection:
             )
         for name in ("006_job_checkpoints.sql", "007_human_review.sql"):
             self.executescript((migrations / name).read_text())
+
+        # PostgreSQL-only transport triggers, without changing stored user data.
+        # Execute directly: PL/pgSQL dollar-quoted functions are not SQLite SQL.
+        self.connection.execute((migrations.parent / "realtime.sql").read_text())

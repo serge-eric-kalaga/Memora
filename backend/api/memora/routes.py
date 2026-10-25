@@ -11,7 +11,7 @@ import time
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import FileResponse, Response
+from fastapi.responses import FileResponse, Response, StreamingResponse
 from starlette.concurrency import run_in_threadpool
 import threading
 from pydantic import BaseModel, Field, EmailStr
@@ -1707,3 +1707,62 @@ def update_settings(body: Settings, user=AUTH_USER):
         c.execute("UPDATE config SET data=? WHERE id=1", (body.model_dump_json(),))
         s.audit(c, f"user:{user.id}", None, "settings_updated:future_meetings_only")
     return body.model_dump()
+
+
+@router.get("/events")
+async def event_stream(request: Request, meeting: str | None = None):
+    """One-way updates; tokens stay in headers, never in a stream URL."""
+    from . import realtime
+    from api.database import get_db, User
+    from api.services.jwt import getPayload
+
+    def owner_identity():
+        auth = request.headers.get("authorization", "")
+        if not auth.startswith("Bearer "):
+            error(401, "Connexion requise.")
+        gen = get_db()
+        db = next(gen)
+        try:
+            payload = getPayload(request, auth[7:], db)
+            return User.get(db=db, username=payload["username"]).account_uid
+        finally:
+            gen.close()
+
+    if meeting:
+        await access(request, meeting)
+        scope = realtime.channel("m", meeting)
+
+        async def authorize():
+            await access(request, meeting)
+    else:
+        identity = await run_in_threadpool(owner_identity)
+        scope = realtime.channel("u", identity)
+
+        async def authorize():
+            if await run_in_threadpool(owner_identity) != identity:
+                error(401, "Session expirée.")
+
+    # Enter before returning headers so unavailable PostgreSQL gives HTTP 503,
+    # allowing a bounded client fallback rather than a misleading empty stream.
+    subscription = realtime.subscribe(scope)
+    try:
+        connection = await subscription.__aenter__()
+    except HTTPException:
+        raise
+    except Exception:  # noqa: BLE001 - do not reveal connection URLs
+        error(503, "Temps réel indisponible ; actualisation de secours.")
+
+    async def stream():
+        try:
+            async for frame in realtime.events(
+                connection, authorize, request.is_disconnected
+            ):
+                yield frame
+        finally:
+            await subscription.__aexit__(None, None, None)
+
+    return StreamingResponse(
+        stream(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "private, no-store", "X-Accel-Buffering": "no"},
+    )

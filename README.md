@@ -16,6 +16,7 @@ La V1 fonctionne localement avec **Docker Compose et PostgreSQL**. Sur la config
 - [Démarrer une installation déjà préparée](#démarrer-une-installation-déjà-préparée)
 - [Première installation et import PostgreSQL](#première-installation-et-import-postgresql)
 - [Essayer Memora](#essayer-memora)
+- [Temps réel et traitements durables](#temps-réel-et-traitements-durables)
 - [IA locale et choix de langue](#ia-locale-et-choix-de-langue)
 - [Configuration](#configuration)
 - [Données, sauvegardes et mises à jour](#données-sauvegardes-et-mises-à-jour)
@@ -51,7 +52,8 @@ Navigateur
 Next.js — interface et relais vers l’API           Docker : 127.0.0.1:3000
     │
     ▼
-FastAPI — authentification, réunions, worker       Docker : 127.0.0.1:8080
+FastAPI — authentification, réunions et flux SSE   Docker : 127.0.0.1:8080
+    ├── Worker indépendant — file persistante et IA
     ├── PostgreSQL 16 — comptes et données métier  Docker : 127.0.0.1:5433
     ├── Mailpit — capture des emails de test       Docker : 127.0.0.1:8025
     ├── Fichiers audio — stockage local persistant
@@ -59,7 +61,7 @@ FastAPI — authentification, réunions, worker       Docker : 127.0.0.1:8080
     └── Ollama — rapports et chat                  Hôte   : 127.0.0.1:11434
 ```
 
-Les quatre services Compose sont `frontend`, `backend`, `postgres` et `mailpit`. Le worker de traitement appartient au backend. PostgreSQL utilise le schéma `public` pour les comptes et le schéma `memora` pour les réunions, versions, tâches et partages.
+Les cinq services Compose sont `frontend`, `backend`, `worker`, `postgres` et `mailpit`. Le worker utilise la même image Python que l’API mais s’exécute dans un conteneur indépendant. Un redémarrage de l’API ne redémarre pas ce processus de calcul. PostgreSQL utilise le schéma `public` pour les comptes et le schéma `memora` pour les réunions, versions, tâches et partages.
 
 **Pourquoi une partie native ?** MLX exploite le GPU Apple et ne fonctionne pas dans les conteneurs Linux de Docker Desktop. Le lanceur gère donc un compagnon natif authentifié. Les conteneurs le joignent, ainsi qu’Ollama, via `host.docker.internal` : leur `localhost` désignerait le conteneur lui-même.
 
@@ -175,6 +177,27 @@ Dans les onglets Rapport et Transcription, **Exporter** télécharge la version 
 
 Les emails de cette installation sont visibles dans Mailpit. Pour une recette, utiliser des adresses synthétiques ; cette capture ne prouve pas une délivrabilité sur Internet.
 
+## Temps réel et traitements durables
+
+Le tableau de bord, les notifications, la page réunion et l’état des emails reçoivent les changements par **SSE** (Server-Sent Events). Le navigateur garde une connexion HTTP ouverte ; PostgreSQL signale les changements validés via `LISTEN/NOTIFY`, puis le navigateur recharge les données autorisées concernées. En fonctionnement normal, il n’interroge plus ces écrans toutes les quelques secondes.
+
+Ce flux à sens unique répond au besoin d’afficher les résultats des traitements. Les créations, corrections et fragments audio restent des requêtes HTTP avec validation et accusé de réception. Un WebSocket bidirectionnel n’est pas nécessaire pour ce parcours. Les battements du flux ne déclenchent pas de GET de données.
+
+La connexion est partagée entre les consommateurs du même périmètre dans un onglet. Après coupure, le client se reconnecte avec temporisation progressive et recharge l’état courant pour récupérer les événements manqués. Si le flux est indisponible, une actualisation de secours toutes les 15 secondes reste active jusqu’à son rétablissement. Les permissions sont revérifiées à chaque événement et au plus tard au battement suivant (15 secondes) ; chaque requête de données reste elle-même autorisée côté serveur.
+
+Le service Docker **`worker`** prend en charge la transcription provisoire/finale, la séparation des voix, la génération des rapports, les emails capturés et la rétention. Les tâches et points de reprise sont enregistrés dans PostgreSQL, indépendamment du navigateur. Un verrou sur le volume de données empêche deux workers locaux de traiter la même file simultanément.
+
+- **Coupure réseau du navigateur** : les tâches déjà reçues continuent côté serveur. Les fragments d’enregistrement encore locaux doivent être retransmis après reconnexion.
+- **Redémarrage de l’API** : le worker poursuit son calcul ; l’API ne remet pas ses tâches actives en file.
+- **Arrêt brutal du worker** : Docker le redémarre et les tâches interrompues reprennent au dernier checkpoint validé. Une phase non validée peut être recalculée ; une source déjà publiée et les rapports précédents sont conservés.
+- **Indisponibilité de PostgreSQL** : le worker réessaie ses opérations de stockage et conserve sa tâche en cours ; une reprise après redémarrage utilise la file persistante.
+- **Erreur du modèle** : l’échec reste visible et relançable, sans boucle de tentatives illimitée masquant le problème.
+- **Machine éteinte ou réellement en veille** : le calcul est suspendu ; il reprend lorsque la machine et les services redémarrent. Aucun logiciel local ne peut continuer à calculer sur une machine arrêtée.
+
+Cette V1 conserve la file PostgreSQL existante plutôt que d’ajouter Celery et un broker Redis. Elle est prévue pour **un worker de calcul** sur cette installation, pas pour une ferme distribuée. Le **chat IA reste une requête synchrone** : son historique est sauvegardé après réponse, mais une génération de chat interrompue par un arrêt de l’API n’est pas une tâche durable automatiquement reprise.
+
+Pour les détails du transport, des limites et des tests, voir [Temps réel et worker](docs/MEMORA.md#temps-réel-et-worker-docker-indépendant).
+
 ## IA locale et choix de langue
 
 | Rôle | Configuration retenue sur ce Mac | Points à connaître |
@@ -279,6 +302,7 @@ Les recettes doivent utiliser des comptes et audios synthétiques, avec bases et
 ```sh
 backend/.venv/bin/python scripts/memora-test.py
 backend/.venv/bin/python -m unittest discover -s scripts/tests
+(cd frontend && node --test tests/memora-realtime.test.mjs)
 backend/.venv/bin/ruff check --config backend/pyproject.toml scripts
 ```
 
@@ -341,7 +365,7 @@ Les contrôles isolés ne prouvent pas le fonctionnement du microphone physique,
 Pour consulter les journaux des services sans modifier les données :
 
 ```sh
-docker compose --env-file .memora/docker/compose.env logs --tail=100 backend frontend
+docker compose --env-file .memora/docker/compose.env logs --tail=100 backend worker frontend
 ```
 
 Inspecter les journaux localement et masquer tout contenu sensible avant de les partager.

@@ -48,7 +48,7 @@ def db():
         con.close()
 
 
-def init():
+def init(*, recover_jobs=True):
     with db() as c:
         if getattr(c, "dialect", None) == "postgresql":
             c.initialize_schema(Path(__file__).parent / "migrations")
@@ -100,7 +100,10 @@ def init():
             )
         c.execute("INSERT OR IGNORE INTO config VALUES(1,?)", (json.dumps(DEFAULTS),))
         c.commit()
-        # Startup runs before the worker; take the writer lock for recovery and
+        if not recover_jobs:
+            return
+        # Only the worker holding its lifetime lock may recover active jobs.
+        # Take the writer lock for recovery and
         # reconcile only metadata with no active job, never launch inference.
         c.execute("BEGIN IMMEDIATE")
         c.execute(

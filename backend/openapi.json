@@ -3730,6 +3730,54 @@
         ]
       }
     },
+    "/api/memora/events": {
+      "get": {
+        "description": "One-way updates; tokens stay in headers, never in a stream URL.",
+        "operationId": "event_stream_api_memora_events_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "meeting",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Meeting"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Event Stream",
+        "tags": [
+          "Memora"
+        ]
+      }
+    },
     "/api/memora/mail": {
       "get": {
         "operationId": "mail_status_api_memora_mail_get",

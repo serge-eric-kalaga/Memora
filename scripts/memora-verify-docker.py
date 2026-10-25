@@ -111,6 +111,7 @@ def main():
             MEMORA_INFERENCE_URL="http://host.docker.internal:18091",
             MEMORA_OLLAMA_URL="http://host.docker.internal:11434",
             INITIALISE_DATABASE="false",
+            MEMORA_DISABLE_WORKER="1",
             MEMORA_DOCKER_LOCAL="1",
             CACHE_ENABLED="false",
             RATE_LIMIT_ENABLED="false",
@@ -166,6 +167,11 @@ def main():
                 "protocol": "tcp",
             }
         ]
+        # Isolate every process: never let the worker inherit production mounts
+        # or credentials from the source Compose configuration.
+        services["worker"]["environment"] = dict(env)
+        services["worker"]["volumes"] = list(services["backend"]["volumes"])
+        services["worker"]["ports"] = []
         services["frontend"]["environment"].update(APP_ORIGIN="http://127.0.0.1:13000")
         services["frontend"]["ports"] = [
             {
@@ -209,7 +215,7 @@ def main():
                 time.sleep(0.5)
             else:
                 raise RuntimeError("Synthetic bridge timeout")
-        command(dc + ["up", "-d", "--wait", "backend", "frontend"])
+        command(dc + ["up", "-d", "--wait", "backend", "worker", "frontend"])
         pass_step("Docker API/frontend/PostgreSQL/Mailpit isolated and healthy")
         account = {
             "username": "synthetic_docker_qa",
@@ -253,7 +259,16 @@ def main():
         )
         # The existing audit imports only repository synthetic WAVs, then verifies
         # report/transcript/chat/UI/versions/sharing/downloads through the real BFF.
-        for script in (("memora-ui-audit.mjs",) if args.ui_audit_only else ("memora-e2e.mjs", "memora-ui-audit.mjs")):
+        browser_scripts = (
+            ("memora-ui-audit.mjs", "memora-realtime-browser.mjs")
+            if args.ui_audit_only
+            else (
+                "memora-e2e.mjs",
+                "memora-ui-audit.mjs",
+                "memora-realtime-browser.mjs",
+            )
+        )
+        for script in browser_scripts:
             with (LOGS / ("docker-" + script + ".log")).open("w") as output:
                 subprocess.run(
                     ["node", str(ROOT / "frontend/tests" / script)],

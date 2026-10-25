@@ -8,6 +8,7 @@ import json
 import logging
 import os
 import smtplib
+import sqlite3
 import threading
 import time
 from email.message import EmailMessage
@@ -536,38 +537,73 @@ def fail_job(job, error):
             s.save(c, m)
 
 
+def database_unavailable(error):
+    """Only connection/transaction faults retry automatically; model failures stay visible."""
+    if isinstance(error, sqlite3.OperationalError):
+        return True
+    try:
+        import psycopg
+
+        return isinstance(error, (psycopg.OperationalError, psycopg.InterfaceError))
+    except ImportError:
+        return False
+
+
 def loop():
+    # Keep the claimed job until its final transaction commits. A database outage
+    # must not strand it in running or restart ASR after a committed checkpoint.
+    job = None
+    outcome = None
     while not stop.wait(1):
-        with s.db() as c:
-            c.execute("BEGIN IMMEDIATE")
-            row = c.execute(
-                "SELECT * FROM jobs WHERE state='queued' ORDER BY created LIMIT 1"
-            ).fetchone()
-            job = dict(row) if row else None
+        try:
+            if job is None:
+                with s.db() as c:
+                    c.execute("BEGIN IMMEDIATE")
+                    row = c.execute(
+                        "SELECT * FROM jobs WHERE state='queued' ORDER BY created LIMIT 1"
+                    ).fetchone()
+                    claimed = dict(row) if row else None
+                    if claimed:
+                        c.execute(
+                            "UPDATE jobs SET state='running' WHERE id=?",
+                            (claimed["id"],),
+                        )
+                    # Keep ownership even if commit acknowledgement is lost.
+                    job = claimed
             if job:
-                c.execute("UPDATE jobs SET state='running' WHERE id=?", (job["id"],))
-        if job:
-            try:
-                process(job)
-                state, error = "done", None
-            except Exception as exc:
-                state = "failed"
-                error = (
-                    str(exc)
-                    if isinstance(exc, ai.ProcessingError)
-                    else f"{type(exc).__name__} : service IA indisponible. Réessayez."
-                )
-                fail_job(job, error)
-            with s.db() as c:
-                c.execute(
-                    "UPDATE jobs SET state=?,error=?,finished=? WHERE id=?",
-                    (state, error, time.time(), job["id"]),
-                )
+                if outcome is None:
+                    try:
+                        process(job)
+                        state, error = "done", None
+                    except Exception as exc:
+                        if database_unavailable(exc):
+                            raise
+                        state = "failed"
+                        error = (
+                            str(exc)
+                            if isinstance(exc, ai.ProcessingError)
+                            else f"{type(exc).__name__} : service IA indisponible. Réessayez."
+                        )
+                        fail_job(job, error)
+                    outcome = (state, error)
+                state, error = outcome
+                with s.db() as c:
+                    c.execute(
+                        "UPDATE jobs SET state=?,error=?,finished=? WHERE id=?",
+                        (state, error, time.time(), job["id"]),
+                    )
+                job = None
+                outcome = None
+        except Exception as exc:  # noqa: BLE001 - retry storage faults without leaking data
+            maintenance_failure("job_tick", exc)
         maintenance()
 
 
-def start():
+def acquire_worker_lock():
+    """Shared data-volume lock: acquire before recovery and retain until exit."""
     global _lock_file
+    if _lock_file is not None:
+        raise RuntimeError("Un worker Memora est déjà démarré dans ce processus.")
     s.ROOT.mkdir(parents=True, exist_ok=True)
     candidate = (s.ROOT / "worker.lock").open("a")
     try:
@@ -578,7 +614,22 @@ def start():
             "Un worker Memora utilise déjà ce stockage. Démarrez une seule instance locale."
         ) from exc
     _lock_file = candidate
-    s.init()
+
+
+def release_worker_lock():
+    global _lock_file
+    if _lock_file is not None:
+        _lock_file.close()
+        _lock_file = None
+
+
+def start():
+    acquire_worker_lock()
+    try:
+        s.init()
+    except BaseException:
+        release_worker_lock()
+        raise
     stop.clear()
     t = threading.Thread(target=loop, name="memora-worker", daemon=True)
     t.start()

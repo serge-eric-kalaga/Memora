@@ -23,12 +23,14 @@ async function handle(
         "notifications",
         "health",
         "mail",
+        "events",
       ].includes(parts[0])
     )
       return NextResponse.json(
         { message: "Route introuvable" },
         { status: 404 },
       );
+    const isEvents = request.method === "GET" && parts.length === 1 && parts[0] === "events";
     const headers = new Headers();
     for (const name of [
       "content-type",
@@ -57,7 +59,7 @@ async function handle(
         body,
         cache: "no-store",
         redirect: "error",
-        signal: AbortSignal.timeout(
+        signal: isEvents ? request.signal : AbortSignal.timeout(
           proxyTimeoutMs(
             request.method,
             parts,
@@ -70,6 +72,7 @@ async function handle(
       "cache-control": "private, no-store",
       "x-content-type-options": "nosniff",
     });
+    if (isEvents) output.set("x-accel-buffering", "no");
     for (const name of [
       "content-type",
       "content-length",
