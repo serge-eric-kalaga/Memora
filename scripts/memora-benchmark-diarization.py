@@ -7,9 +7,9 @@ Reference activity is deterministic per-source RMS>-45dBFS, not model VAD.
 
 import argparse
 import hashlib
-import importlib.util
 import json
 import subprocess
+import sys
 import time
 import wave
 from pathlib import Path
@@ -256,9 +256,10 @@ def main():
     if args.output.exists():
         raise ValueError("Refusing to overwrite evidence")
     path = ROOT / "backend/api/memora/diarization.py"
-    spec = importlib.util.spec_from_file_location("diarization_probe", path)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+    # Use the package context: the native bridge and ECAPA adapters use relative
+    # imports, as they do in the application worker.
+    sys.path.insert(0, str(ROOT / "backend/api"))
+    from memora import diarization as module
     if args.cluster_distance is not None:
         module._CLUSTER_DISTANCE = args.cluster_distance
     reference_path = args.references

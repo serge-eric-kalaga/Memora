@@ -57,6 +57,7 @@ Thumbs.db
 !/docs/
 /docs/*
 !/docs/MEMORA.md
+!/docs/DIARIZATION_RESEARCH.md
 
 # Anciennes données locales conservées après retrait des services du template.
 /monitoring/
