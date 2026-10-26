@@ -313,7 +313,46 @@ Les pages de connexion, inscription, récupération du compte, profil, administr
 
 ## Intervenants : moteur ECAPA local et limites
 
-Sur macOS Apple Silicon, les nouvelles installations choisissent `MEMORA_DIARIZATION_ENGINE=ecapa-tdnn`. Le modèle officiel [SpeechBrain ECAPA-TDNN](https://huggingface.co/speechbrain/spkrec-ecapa-voxceleb) est annoncé sous licence Apache-2.0, révision `0f99f2d0ebe89ac095bcc5903c4dd8f72b367286`, poids d’embedding de 83,3 Mo. `MEMORA_ECAPA_MODEL_DIR` désigne son répertoire local. Préparation : `backend/.venv/bin/python scripts/memora-prepare-ecapa.py` ; contrôle hors réseau : même commande avec `--check-only`. `--from-file` permet de réutiliser une copie dont le SHA256 correspond exactement au modèle officiel. Les dépendances sont verrouillées dans backend/uv.lock ; le script install prépare uniquement le moteur choisi. Aucun téléchargement pendant une réunion, aucun fournisseur externe de secours.
+Sur macOS Apple Silicon, les nouvelles installations choisissent `MEMORA_DIARIZATION_ENGINE=ecapa-segmented` (voir ci-dessous). Le modèle officiel [SpeechBrain ECAPA-TDNN](https://huggingface.co/speechbrain/spkrec-ecapa-voxceleb) est annoncé sous licence Apache-2.0, révision `0f99f2d0ebe89ac095bcc5903c4dd8f72b367286`, poids d’embedding de 83,3 Mo. `MEMORA_ECAPA_MODEL_DIR` désigne son répertoire local. Préparation : `backend/.venv/bin/python scripts/memora-prepare-ecapa.py` ; contrôle hors réseau : même commande avec `--check-only`. `--from-file` permet de réutiliser une copie dont le SHA256 correspond exactement au modèle officiel. Les dépendances sont verrouillées dans backend/uv.lock ; le script install prépare uniquement le moteur choisi. Aucun téléchargement pendant une réunion, aucun fournisseur externe de secours.
+
+### Séparation des voix sans compte
+
+`ecapa-segmented` utilise ECAPA validé, puis une segmentation neuronale en cas de
+comptage acoustique instable. Il ne requiert aucun compte et traite les audios sur
+la machine. Les anciens choix `ecapa-tdnn` et `resemblyzer` restent explicites et
+leurs modèles sont conservés. Le générateur ne réécrit pas une configuration existante.
+
+```sh
+backend/.venv/bin/python scripts/memora-prepare-ecapa.py
+backend/.venv/bin/python scripts/memora-prepare-segmentation.py
+backend/.venv/bin/python scripts/memora-prepare-segmentation.py --check-only
+```
+
+Dans `.memora/backend.env`, choisir `MEMORA_DIARIZATION_ENGINE=ecapa-segmented`.
+`MEMORA_SEGMENTATION_MODEL_DIR` désigne par défaut `.memora/models/segmentation-3.0`.
+La distribution publique MIT pèse 6,96 Mo et le modèle installé 5,99 Mo ; son script
+conserve licence, attribution et empreintes. Aucun accès au réseau pendant le calcul.
+Le compagnon natif doit être redémarré **hors enregistrement et hors traitement**
+pour charger ce changement ; la configuration Docker est régénérée au démarrage habituel.
+
+Pour une réunion déjà enregistrée, ouvrir Transcription → Gérer les intervenants →
+Séparation locale des voix, puis lancer la séparation. Laisser le nombre vide pour
+l'estimation automatique, ou fournir le nombre réellement connu. La transcription
+est conservée dans l'historique, et le rapport est ensuite à régénérer. Le nouveau
+moteur ne renomme aucune réunion historique sans cette action.
+
+Limites : calcul borné à deux heures et huit groupes ; les voix proches, le bruit,
+les réponses très courtes et les changements de canal peuvent encore provoquer une
+fusion, une fragmentation ou un refus d'attribution. Les activités simultanées
+peuvent être détectées, sans séparation des pistes audio. Aucun score de confiance
+calibré n'est fourni. Voir les [mesures et échecs connus](DIARIZATION_RESEARCH.md).
+
+Recette isolée avec choix explicite du moteur :
+`backend/.venv/bin/python scripts/memora-verify-docker.py --diarization-engine ecapa-segmented`.
+Le script ne change pas le moteur de l'application active. Le benchmark
+`memora-qa-speaker-consistency.py --engine ecapa-segmented --include-holdout` conserve
+un critère strict : il termine en échec si un cas est mal compté ou sans attribution,
+même si l'application sait présenter cette incertitude et permettre une reprise.
 
 L’architecture est instanciée par le code SpeechBrain installé et les poids sont lus avec `weights_only=True` ; aucun YAML distant ou code fourni par le modèle n’est exécuté. L’inférence reste CPU, deux threads par défaut. Les fenêtres de comparaison ECAPA durent 3,2 s, avec des cellules horodatées de 0,4 s conservées. Le seuil de distance cosinus de 0,55 est propre à ce modèle et a été choisi sur un corpus synthétique ; il ne s’applique pas à Resemblyzer. Si une estimation de plusieurs voix contredit la comparaison de 1,6 s, le moteur s’abstient et conserve la transcription sans inventer des numéros. Une estimation concordante peut encore être fausse. Les courtes prises de parole, le bruit, les changements de microphone et les voix simultanées restent difficiles.
 

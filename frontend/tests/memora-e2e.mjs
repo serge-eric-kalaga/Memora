@@ -73,10 +73,12 @@ async function automaticSpeakers() {
   assert.equal(meeting.report_version, meeting.version);
   assert.equal(
     meeting.diarization.engine,
-    process.env.MEMORA_DIARIZATION_ENGINE === "ecapa-tdnn"
+    ["ecapa-tdnn", "ecapa-segmented"].includes(process.env.MEMORA_DIARIZATION_ENGINE)
       ? "ecapa-silero-ahc-v1"
       : "resemblyzer-silero-ahc-v2",
   );
+  if (process.env.MEMORA_DIARIZATION_ENGINE === "ecapa-segmented")
+    assert.equal(meeting.diarization.strategy, "validated-ecapa-then-segmentation-v1");
   const labeled = meeting.segments.filter((segment) => segment.speaker_id);
   assert.ok(
     labeled.length > 0,

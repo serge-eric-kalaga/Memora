@@ -31,6 +31,7 @@ Ces trois commandes délèguent aux lanceurs `memora-docker-start.sh`, `memora-d
 | `memora-demo.py` | Préparer un compte synthétique de démonstration ; ses identifiants restent privés. |
 | `memora-download-mlx.py` | Préparer et vérifier les poids Whisper MLX épinglés. |
 | `memora-prepare-ecapa.py` | Préparer et vérifier les poids du moteur de séparation ECAPA. |
+| `memora-prepare-segmentation.py` | Préparer les poids MIT ONNX de segmentation, distribués publiquement sans compte ; `--check-only` vérifie les fichiers hors réseau. |
 | `memora-prepare-diarization.py` | Préparer les poids de l’alternative Resemblyzer, encore configurable. |
 | `memora-download-parakeet.py`, `memora-download-large-v3.py` | Préparer les modèles alternatifs si explicitement sélectionnés dans la configuration. L’installateur les utilise encore ; ils ne sont pas nécessaires au démarrage quotidien. |
 

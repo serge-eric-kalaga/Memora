@@ -38,7 +38,7 @@ def test_new_darwin_arm_uses_language_conditioned_french_route(tmp_path):
     env = values(path)
     assert env["MEMORA_ASR_ENGINE"] == env["MEMORA_LIVE_ASR_ENGINE"] == "mlx-whisper"
     assert env["MEMORA_FRENCH_ASR_ENGINE"] == "mlx-whisper"
-    assert env["MEMORA_DIARIZATION_ENGINE"] == "ecapa-tdnn"
+    assert env["MEMORA_DIARIZATION_ENGINE"] == "ecapa-segmented"
     assert env["MEMORA_ECAPA_MODEL_DIR"] == str(
         folder / ".memora/models/ecapa-voxceleb"
     )

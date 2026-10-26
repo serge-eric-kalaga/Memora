@@ -1,7 +1,63 @@
 # Séparation des intervenants — recherche du 26 octobre 2026
 
-Statut : audit et recherche effectués ; aucun nouveau moteur activé. Les résultats
-publiés par un fournisseur ne sont pas des résultats mesurés dans Memora.
+Statut : recherche suivie d'une implémentation locale `ecapa-segmented`, avec
+validation ci-dessous. L'activation de cette installation est consignée dans la
+mémoire locale. Les résultats publiés par un fournisseur ne sont pas des résultats
+mesurés dans Memora.
+
+## Solution sans compte retenue après comparaison
+
+Le choix utilisateur exclut un compte Hugging Face obligatoire. Community-1 n'a
+donc pas été téléchargé. Les essais NVIDIA natifs, sherpa/TitaNet, WeSpeaker et
+ERes2Net restent des expériences isolées : un bon comptage cachait parfois des
+confusions temporelles ou des fusions de voix. Ils ne remplacent pas le moteur actif.
+
+Le mode **`ecapa-segmented`** conserve ECAPA lorsque les deux tailles de contexte
+produisent un comptage cohérent. En cas de trop nombreux groupes ou d'estimations
+contradictoires, il utilise une segmentation neuronale ONNX avant de calculer
+les empreintes ECAPA. Des fenêtres de 10 secondes, décalées de 5 secondes,
+détectent jusqu'à trois activités vocales locales ; les embeddings sont extraits
+de la parole exclusive, sans chevauchement. Le regroupement global peut produire
+jusqu'à huit intervenants. Deux seuils vérifient la stabilité du résultat ; un
+résultat instable reste un échec vérifiable, jamais un comptage arbitrairement forcé.
+
+Ce recours est explicite dans la configuration et dans les métadonnées
+`strategy`/`engine`/`recovery_reason`. Les erreurs d'intégrité, les services absents
+et les fichiers invalides ne déclenchent pas un remplacement silencieux.
+La transcription, ses horodatages et ses identifiants restent inchangés. Les
+segments couvrant plusieurs voix ou trop peu de parole peuvent rester sans nom.
+La détection des activités simultanées ne sépare pas les pistes audio.
+
+Le modèle de segmentation est la [distribution ONNX publique officielle de
+sherpa-onnx](https://k2-fsa.github.io/sherpa/onnx/speaker-diarization/models.html),
+convertie depuis segmentation-3.0 et accompagnée de sa licence MIT. Cette chaîne
+ne dépend pas de la bibliothèque pyannote ni de sherpa-onnx à l'exécution :
+ONNX Runtime et ECAPA sont déjà présents. Le script de préparation fixe le SHA256
+de l'archive et des poids ; les licences et les sources sont conservées sur disque.
+
+## Résultats et limites de la solution intégrée
+
+Les 32 cas synthétiques de référence et de variantes de canal/volume sont comptés
+correctement. Les 16 relances explicites avec un seul intervenant sont également
+vérifiées. Sur une réserve supplémentaire de 12 cas figés : 10 comptages corrects,
+une fausse séparation d'un monologue soumis à un changement de canal et au bruit,
+et une abstention sur trois voix avec changement de canal et bruit. Le contrôle
+strict `--include-holdout` reste donc **en échec**, sans suppression de ces cas ni
+assouplissement de son assertion. Cela interdit une affirmation de résolution
+universelle ou un score général de précision. Une validation locale autorisée
+distincte est conservée exclusivement dans le dossier privé ; aucun score public
+n'en est déduit.
+
+Les références synthétiques définissent l'activité par énergie, et les pauses
+remplies par la diarisation contribuent aux fausses alarmes du DER. Un nombre
+exact d'intervenants ne suffit pas à prouver l'attribution correcte des passages.
+Conserver la décomposition omissions/fausses alarmes/confusions et l'écoute humaine
+pour les passages incertains. Ni les seuils ni le nombre de groupes ne permettent
+d'identifier nominativement une personne.
+
+Installation et utilisation : voir [le guide Memora](MEMORA.md#séparation-des-voix-sans-compte).
+Les anciens résultats ne sont pas retraités automatiquement. Une nouvelle séparation
+est publiée dans une nouvelle version, puis le rapport doit être régénéré.
 
 ## Diagnostic vérifié dans le code
 

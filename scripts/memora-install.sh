@@ -68,9 +68,12 @@ fi
 # ECAPA is optional and explicitly selected; there is no silent provider fallback.
 memora_speaker_engine=$(backend/.venv/bin/python -c 'from dotenv import dotenv_values; print(dotenv_values(".memora/backend.env").get("MEMORA_DIARIZATION_ENGINE", "resemblyzer"))')
 case "$memora_speaker_engine" in
-  ecapa-tdnn)
+  ecapa-tdnn|ecapa-segmented)
     memora_ecapa_path=$(backend/.venv/bin/python -c 'from pathlib import Path; from dotenv import dotenv_values; print(dotenv_values(".memora/backend.env").get("MEMORA_ECAPA_MODEL_DIR") or Path(".memora/models/ecapa-voxceleb").resolve())')
     MEMORA_ECAPA_MODEL_DIR="$memora_ecapa_path" backend/.venv/bin/python scripts/memora-prepare-ecapa.py
+    if [ "$memora_speaker_engine" = "ecapa-segmented" ]; then
+      backend/.venv/bin/python scripts/memora-prepare-segmentation.py
+    fi
     ;;
   resemblyzer) ;;
   *) echo "Moteur de séparation inconnu ; aucune substitution automatique." >&2; exit 1 ;;

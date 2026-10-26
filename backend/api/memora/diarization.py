@@ -34,6 +34,10 @@ class DiarizationError(ValueError):
     """Safe operator-facing failure without paths, audio text or secrets."""
 
 
+class UncertainSpeakerCount(DiarizationError):
+    """Acoustic grouping is unstable; a separately verified strategy may retry."""
+
+
 def model_dir():
     return Path(
         os.environ.get(
@@ -48,9 +52,16 @@ def availability():
 
     if inference_bridge.configured():
         return inference_bridge.availability()
-    if engine_name() == "ecapa-tdnn":
+    if engine_name() in {"ecapa-tdnn", "ecapa-segmented"}:
         from . import diarization_ecapa
 
+        if engine_name() == "ecapa-segmented":
+            from . import diarization_segmented
+
+            try:
+                diarization_segmented.verified_segmentation()
+            except DiarizationError as exc:
+                return {"available": False, "reason": str(exc)}
         return diarization_ecapa.availability()
     if engine_name() != "resemblyzer":
         return {
@@ -90,7 +101,7 @@ def available():
 
 
 def _verified_weights():
-    if engine_name() == "ecapa-tdnn":
+    if engine_name() in {"ecapa-tdnn", "ecapa-segmented"}:
         from . import diarization_ecapa
 
         try:
@@ -173,7 +184,7 @@ def _cluster(embeddings, num_speakers=None, max_speakers=8, distance=None):
         )
     groups = sorted(set(labels))
     if len(groups) > max_speakers:
-        raise DiarizationError(
+        raise UncertainSpeakerCount(
             "Trop de groupes vocaux incertains ont été détectés ; vérifiez l’audio ou précisez le nombre d’intervenants."
         )
     centers = np.stack([anchors[labels == group].mean(axis=0) for group in groups])
@@ -243,7 +254,7 @@ def _validate_automatic_count(
         or _cluster(embeddings, max_speakers=max_speakers, distance=distance)[3]
         != count
     ):
-        raise DiarizationError(
+        raise UncertainSpeakerCount(
             "Le nombre d’intervenants est incertain : les comparaisons de voix se contredisent. Précisez le nombre connu pour reprendre la séparation."
         )
 
@@ -326,7 +337,10 @@ def diarize(audio_path, segments, *, num_speakers=None, max_speakers=8):
     if inference_bridge.configured():
         try:
             return inference_bridge.diarize(
-                audio_path, segments, num_speakers=num_speakers, max_speakers=max_speakers
+                audio_path,
+                segments,
+                num_speakers=num_speakers,
+                max_speakers=max_speakers,
             )
         except inference_bridge.BridgeError as exc:
             raise DiarizationError(str(exc)) from None
@@ -337,128 +351,155 @@ def diarize(audio_path, segments, *, num_speakers=None, max_speakers=8):
             "Le nombre d’intervenants doit être compris entre1 et32."
         )
     with _LOCK:
-        weights, digest = _verified_weights()
-        ecapa = engine_name() == "ecapa-tdnn"
-        window_seconds = 3.2 if ecapa else _WINDOW_SECONDS
-        validation_window = 1.6 if ecapa else _VALIDATION_WINDOW_SECONDS
-        distance = 0.55 if ecapa else _CLUSTER_DISTANCE
-        audio = _decode(audio_path)
-        if len(audio) > 2 * 3600 * _RATE:
-            raise DiarizationError(
-                "La séparation locale des voix est limitée à deux heures par traitement."
+        segmented = engine_name() == "ecapa-segmented"
+        if segmented:
+            from . import diarization_segmented
+
+            # Missing or corrupt assets must fail, never trigger a silent fallback.
+            diarization_segmented.verified_segmentation()
+        try:
+            result = _diarize_embeddings(
+                audio_path,
+                segments,
+                num_speakers=num_speakers,
+                max_speakers=max_speakers,
+                ecapa=engine_name() in {"ecapa-tdnn", "ecapa-segmented"},
             )
-        regions = _regions(audio)
-        cells = list(_cells(regions, window_seconds))
-        metadata = {
-            "engine": "ecapa-silero-ahc-v1" if ecapa else "resemblyzer-silero-ahc-v2",
-            "package_version": "1.1.2" if ecapa else "0.1.4",
-            "model_sha256": digest,
-            "device": "cpu",
-            "confidence_calibrated": False,
-            "overlap_supported": False,
-            "window_seconds": window_seconds,
-            "cluster_distance": distance,
-            "hop_seconds": _HOP_SECONDS,
-            "warnings": [
-                "Les étiquettes distinguent des groupes de voix, pas des identités. Les paroles simultanées ne sont pas séparées.",
-                "Les voix proches, passages courts et bruits peuvent entraîner fusion ou fragmentation ; vérification humaine nécessaire.",
-            ],
-        }
-        provenance = {
-            key: metadata[key] for key in ("engine", "package_version", "model_sha256")
-        }
-        if not cells:
-            metadata["speaker_count"] = 0
-            return {
-                "segments": assign_speakers(segments, [], provenance),
-                "turns": [],
-                "metadata": metadata,
-            }
-        with _cpu_threads() as thread_count:
-            metadata["cpu_threads"] = thread_count
-            if ecapa:
-                from .diarization_ecapa import Encoder
+        except UncertainSpeakerCount:
+            if not segmented:
+                raise
+            result = diarization_segmented.diarize(
+                audio_path,
+                segments,
+                num_speakers=num_speakers,
+                max_speakers=max_speakers,
+            )
+            result["metadata"]["recovery_reason"] = "unstable_voice_clustering"
+        if segmented:
+            result["metadata"]["strategy"] = "validated-ecapa-then-segmentation-v1"
+        return result
 
-                encoder = Encoder(weights)
-            else:
-                from resemblyzer import VoiceEncoder
 
-                encoder = VoiceEncoder(
-                    device="cpu", verbose=False, weights_fpath=weights
-                )
-            embeddings, included = [], []
-            try:
-                cache = {}
-                embeddings, included = _embed_cells(encoder, audio, cells, cache)
-                if embeddings:
-                    labels, similarities, margins, count = _cluster(
-                        embeddings, num_speakers, max_speakers, distance
-                    )
-                    if num_speakers is None:
-                        _validate_automatic_count(
-                            encoder,
-                            audio,
-                            regions,
-                            count,
-                            cache,
-                            max_speakers,
-                            window_seconds=validation_window,
-                            distance=distance,
-                        )
-                    metadata["count_policy"] = (
-                        "explicit" if num_speakers is not None else "multiscale-veto-v1"
-                    )
-                    metadata["count_validation_windows"] = (
-                        [window_seconds, validation_window]
-                        if num_speakers is None and count > 1
-                        else []
-                    )
-            finally:
-                del encoder
-                gc.collect()
-        if not embeddings:
-            metadata["speaker_count"] = 0
-            return {
-                "segments": assign_speakers(segments, [], provenance),
-                "turns": [],
-                "metadata": metadata,
-            }
-        stable = {}
-        turns = []
-        for cell, label, similarity, margin in zip(
-            included, labels, similarities, margins, strict=True
-        ):
-            if int(label) not in stable:
-                stable[int(label)] = f"SPEAKER_{len(stable):02d}"
-            uncertain = bool(similarity < 0.65 or margin < 0.025)
-            ident = None if uncertain else stable[int(label)]
-            turn = {
-                "start": round(cell[0] / _RATE, 4),
-                "end": round(cell[1] / _RATE, 4),
-                "speaker_id": ident,
-                "speaker": f"Intervenant {int(ident.rsplit('_', 1)[1]) + 1}"
-                if ident
-                else _UNKNOWN,
-                "uncertain": uncertain,
-                "similarity": round(float(similarity), 4),
-                "confidence": None,
-            }
-            if (
-                turns
-                and turns[-1]["speaker_id"] == ident
-                and abs(turns[-1]["end"] - turn["start"]) < 0.002
-                and turns[-1]["uncertain"] == uncertain
-            ):
-                turns[-1]["end"] = turn["end"]
-                turns[-1]["similarity"] = min(
-                    turns[-1]["similarity"], turn["similarity"]
-                )
-            else:
-                turns.append(turn)
-        metadata["speaker_count"] = count
-        metadata["anchor_clustering_limit"] = 600
+def _diarize_embeddings(
+    audio_path, segments, *, num_speakers=None, max_speakers=8, ecapa=False
+):
+    weights, digest = _verified_weights()
+    window_seconds = 3.2 if ecapa else _WINDOW_SECONDS
+    validation_window = 1.6 if ecapa else _VALIDATION_WINDOW_SECONDS
+    distance = 0.55 if ecapa else _CLUSTER_DISTANCE
+    audio = _decode(audio_path)
+    if len(audio) > 2 * 3600 * _RATE:
+        raise DiarizationError(
+            "La séparation locale des voix est limitée à deux heures par traitement."
+        )
+    regions = _regions(audio)
+    cells = list(_cells(regions, window_seconds))
+    metadata = {
+        "engine": "ecapa-silero-ahc-v1" if ecapa else "resemblyzer-silero-ahc-v2",
+        "package_version": "1.1.2" if ecapa else "0.1.4",
+        "model_sha256": digest,
+        "device": "cpu",
+        "confidence_calibrated": False,
+        "overlap_supported": False,
+        "window_seconds": window_seconds,
+        "cluster_distance": distance,
+        "hop_seconds": _HOP_SECONDS,
+        "warnings": [
+            "Les étiquettes distinguent des groupes de voix, pas des identités. Les paroles simultanées ne sont pas séparées.",
+            "Les voix proches, passages courts et bruits peuvent entraîner fusion ou fragmentation ; vérification humaine nécessaire.",
+        ],
+    }
+    provenance = {
+        key: metadata[key] for key in ("engine", "package_version", "model_sha256")
+    }
+    if not cells:
+        metadata["speaker_count"] = 0
         return {
-            "segments": assign_speakers(segments, turns, provenance),
-            "turns": turns,
+            "segments": assign_speakers(segments, [], provenance),
+            "turns": [],
             "metadata": metadata,
         }
+    with _cpu_threads() as thread_count:
+        metadata["cpu_threads"] = thread_count
+        if ecapa:
+            from .diarization_ecapa import Encoder
+
+            encoder = Encoder(weights)
+        else:
+            from resemblyzer import VoiceEncoder
+
+            encoder = VoiceEncoder(device="cpu", verbose=False, weights_fpath=weights)
+        embeddings, included = [], []
+        try:
+            cache = {}
+            embeddings, included = _embed_cells(encoder, audio, cells, cache)
+            if embeddings:
+                labels, similarities, margins, count = _cluster(
+                    embeddings, num_speakers, max_speakers, distance
+                )
+                if num_speakers is None:
+                    _validate_automatic_count(
+                        encoder,
+                        audio,
+                        regions,
+                        count,
+                        cache,
+                        max_speakers,
+                        window_seconds=validation_window,
+                        distance=distance,
+                    )
+                metadata["count_policy"] = (
+                    "explicit" if num_speakers is not None else "multiscale-veto-v1"
+                )
+                metadata["count_validation_windows"] = (
+                    [window_seconds, validation_window]
+                    if num_speakers is None and count > 1
+                    else []
+                )
+        finally:
+            del encoder
+            gc.collect()
+    if not embeddings:
+        metadata["speaker_count"] = 0
+        return {
+            "segments": assign_speakers(segments, [], provenance),
+            "turns": [],
+            "metadata": metadata,
+        }
+    stable = {}
+    turns = []
+    for cell, label, similarity, margin in zip(
+        included, labels, similarities, margins, strict=True
+    ):
+        if int(label) not in stable:
+            stable[int(label)] = f"SPEAKER_{len(stable):02d}"
+        uncertain = bool(similarity < 0.65 or margin < 0.025)
+        ident = None if uncertain else stable[int(label)]
+        turn = {
+            "start": round(cell[0] / _RATE, 4),
+            "end": round(cell[1] / _RATE, 4),
+            "speaker_id": ident,
+            "speaker": f"Intervenant {int(ident.rsplit('_', 1)[1]) + 1}"
+            if ident
+            else _UNKNOWN,
+            "uncertain": uncertain,
+            "similarity": round(float(similarity), 4),
+            "confidence": None,
+        }
+        if (
+            turns
+            and turns[-1]["speaker_id"] == ident
+            and abs(turns[-1]["end"] - turn["start"]) < 0.002
+            and turns[-1]["uncertain"] == uncertain
+        ):
+            turns[-1]["end"] = turn["end"]
+            turns[-1]["similarity"] = min(turns[-1]["similarity"], turn["similarity"])
+        else:
+            turns.append(turn)
+    metadata["speaker_count"] = count
+    metadata["anchor_clustering_limit"] = 600
+    return {
+        "segments": assign_speakers(segments, turns, provenance),
+        "turns": turns,
+        "metadata": metadata,
+    }

@@ -162,6 +162,9 @@ def run_case(engine, bench, case, known=None):
             ),
             total_segments=len(result["segments"]),
             count_policy=result["metadata"].get("count_policy"),
+            engine=result["metadata"]["engine"],
+            strategy=result["metadata"].get("strategy"),
+            recovery_reason=result["metadata"].get("recovery_reason"),
         )
         if case.get("reference_activity"):
             row["metrics"] = bench.score(case, result["turns"], case["duration"])
@@ -180,7 +183,9 @@ def main():
         default=ROOT / ".agents/logs/speaker-consistency-real.json",
     )
     parser.add_argument(
-        "--engine", choices=["resemblyzer", "ecapa-tdnn"], default="resemblyzer"
+        "--engine",
+        choices=["resemblyzer", "ecapa-tdnn", "ecapa-segmented"],
+        default="resemblyzer",
     )
     parser.add_argument("--include-holdout", action="store_true")
     args = parser.parse_args()
@@ -214,6 +219,9 @@ def main():
         "synthetic_only": True,
         "engine": args.engine,
         "code_sha256": hashlib.sha256(engine_path.read_bytes()).hexdigest(),
+        "segmented_code_sha256": hashlib.sha256(
+            (ROOT / "backend/api/memora/diarization_segmented.py").read_bytes()
+        ).hexdigest(),
         "scope": "16 baseline cases, 16 altered-channel monologues, explicit one-speaker recovery",
         "baseline": [],
         "variants_auto": [],
@@ -261,6 +269,14 @@ def main():
             row["status"] == "correct_count" for row in output["variants_known_one"]
         ),
     }
+    if args.engine == "ecapa-segmented":
+        output["checks"]["automatic_variants_count"] = all(
+            row["status"] == "correct_count" for row in output["variants_auto"]
+        )
+        if args.include_holdout:
+            output["checks"]["holdout_count"] = all(
+                row["status"] == "correct_count" for row in output["holdout"]
+            )
     args.output.write_text(json.dumps(output, ensure_ascii=False, indent=2))
     print(json.dumps(output["checks"]), flush=True)
     if not all(output["checks"].values()):

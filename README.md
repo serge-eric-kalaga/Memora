@@ -204,7 +204,7 @@ Pour les détails du transport, des limites et des tests, voir [Temps réel et w
 |---|---|---|
 | Transcription | MLX Whisper, `large-v3-turbo` | Modèle local d’environ 1,61 Go ; le choix français impose `fr` et la tâche de transcription. |
 | Détection de parole | Silero VAD | Repère les portions vocales en conservant leur position dans l’audio. Une voix très faible peut être manquée. |
-| Séparation des intervenants | SpeechBrain ECAPA-TDNN | Poids d’environ 83 Mo, inférence CPU locale ; regroupement de voix, sans identification nominative. |
+| Séparation des intervenants | ECAPA-TDNN avec reprise par segmentation neuronale ONNX | Modèles locaux sans compte requis ; environ 83 Mo + 6 Mo ; groupes vocaux estimés, sans identification nominative. |
 | Rapport et chat | `gemma4:e4b` dans Ollama | Modèle existant sur cette machine ; son absence produit une erreur, sans remplacement par une API externe. |
 | Alternative de transcription | Faster Whisper CPU, choix explicite | Qualité et latence différentes ; pas de basculement silencieux après un échec MLX. |
 
@@ -301,7 +301,7 @@ Les recettes doivent utiliser des comptes et audios synthétiques, avec bases et
 
 ```sh
 backend/.venv/bin/python scripts/memora-test.py
-backend/.venv/bin/python -m unittest discover -s scripts/tests
+backend/.venv/bin/python -m pytest scripts/tests -q
 (cd frontend && node --test tests/memora-realtime.test.mjs)
 backend/.venv/bin/ruff check --config backend/pyproject.toml scripts
 ```

@@ -286,6 +286,7 @@ try {
     );
     // Display-state regression only: no backend data or real job is changed.
     const detailRoute = base + "/mapi/meetings/" + meeting.id;
+    let failureSourceIsCurrent = false;
     await page.route(detailRoute, async (route) => {
       const response = await route.fetch();
       const body = await response.json();
@@ -571,8 +572,18 @@ try {
       const value = body.data || body;
       value.automatic_diarization = {
         state: "failed",
-        source_version: value.version,
+        source_version: failureSourceIsCurrent
+          ? value.version
+          : Math.max(1, value.version - 1),
       };
+      // A failed separation has no successful provenance. Simulate a later text
+      // revision with voices still unassigned, rather than contradictory data.
+      value.diarization = null;
+      value.segments = value.segments.map((segment) => ({
+        ...segment,
+        speaker: "Intervenant non identifié",
+        speaker_id: null,
+      }));
       await route.fulfill({ response, json: body });
     });
     await page.goto(base + "/reunions/" + meeting.id);
@@ -615,6 +626,12 @@ try {
       name: "Relancer l’analyse",
       exact: true,
     });
+    // A report regeneration must not relabel a later human revision. Explicit
+    // speaker separation remains available above; analysis retry is reserved
+    // for a failure on the current source.
+    assert.equal(await analysisCount.count(), 0);
+    failureSourceIsCurrent = true;
+    await page.reload();
     await analysisCount.fill("9");
     assert.ok(await retryAnalysis.isDisabled());
     await analysisCount.fill("2");
@@ -668,6 +685,12 @@ try {
       },
     ]) {
       let calls = 0;
+      if (item.path === "/diarize") {
+        await page.getByRole("button", { name: "Transcription", exact: true }).click();
+        const summary = page.getByText("Gérer les intervenants", { exact: true });
+        if (!(await summary.evaluate((el) => el.closest("details")?.open)))
+          await summary.click();
+      }
       const endpoint = detailRoute + item.path;
       await page.route(endpoint, async (route) => {
         if (route.request().method() !== item.method) return route.continue();

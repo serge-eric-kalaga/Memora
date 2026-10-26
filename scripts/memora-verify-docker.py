@@ -23,6 +23,11 @@ LOGS = ROOT / ".agents/logs"
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--ui-audit-only", action="store_true")
+    parser.add_argument(
+        "--diarization-engine",
+        choices=["resemblyzer", "ecapa-tdnn", "ecapa-segmented"],
+        help="Override only the disposable acceptance stack, never the active app",
+    )
     args = parser.parse_args()
     LOGS.mkdir(parents=True, exist_ok=True)
     for port in (13000, 18080, 18025, 15433, 18091):
@@ -75,6 +80,8 @@ def main():
         }
         native.pop("MEMORA_DATABASE_URL", None)
         native.pop("MEMORA_INFERENCE_URL", None)
+        if args.diarization_engine:
+            native["MEMORA_DIARIZATION_ENGINE"] = args.diarization_engine
         data = folder / "data"
         data.mkdir()
         photos = folder / "uploads"
