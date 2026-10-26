@@ -455,3 +455,22 @@ reste possible ; elle n’établit pas l’identité ni l’exactitude de chaque
 Les [mesures et limites](DIARIZATION_RESEARCH.md) distinguent comptage et attribution.
 Recette Docker isolée avec ce recours :
 `backend/.venv/bin/python scripts/memora-verify-docker.py --diarization-engine ecapa-segmented --community-recovery`.
+
+### Fusion des synthèses et limites de contexte
+
+La fusion conserve tous les textes, références et valeurs renseignées. Le contexte
+transmis au modèle utilise un JSON compact ; seuls les champs de résumé portant
+exactement une valeur par défaut « Non précisé(e) » / « Not specified » sont omis
+à cette étape. Les éléments complets restent dans le rapport final. Aucun texte,
+responsable renseigné, échéance renseignée ou passage source n’est raccourci.
+
+Si les lots ne contiennent que des résumés et sujets, leur assemblage chronologique
+se fait localement : aucun appel supplémentaire au modèle ni limite de contexte
+LLM n’est nécessaire. Les références et limites des lots sont toujours conservées
+et contrôlées. Les décisions, actions et questions ouvertes continuent à passer
+par la réconciliation et la vérification des changements explicites.
+
+Un ensemble d’états actifs réellement trop volumineux reste refusé explicitement ;
+la correction ne relève pas arbitrairement la capacité du modèle et n’autorise
+aucune troncature. Après une erreur de fusion, relancer l’analyse du rapport depuis
+la réunion suffit ; il n’est pas nécessaire de retranscrire l’audio.

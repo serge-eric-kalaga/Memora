@@ -78,23 +78,14 @@ def main():
         # A green browser run against an old local image is not proof of these sources.
         import hashlib
 
-        files = [
-            "diarization.py",
-            "diarization_community.py",
-            "inference_bridge.py",
-            "worker.py",
-        ]
+        files = sorted(path.name for path in (ROOT / "backend/api/memora").glob("*.py"))
         expected = {
             name: hashlib.sha256(
                 (ROOT / "backend/api/memora" / name).read_bytes()
             ).hexdigest()
             for name in files
         }
-        probe = (
-            "import json,hashlib;from pathlib import Path;names="
-            + repr(files)
-            + ";print(json.dumps({n:hashlib.sha256((Path('/app/api/memora')/n).read_bytes()).hexdigest() for n in names}))"
-        )
+        probe = "import json,hashlib;from pathlib import Path;print(json.dumps({p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in Path('/app/api/memora').glob('*.py')}))"
         actual = json.loads(
             subprocess.check_output(
                 [
@@ -118,7 +109,7 @@ def main():
                 "Backend image is stale; run docker compose --env-file .memora/docker/compose.env build backend worker before acceptance"
             )
         print(
-            "Backend image matches the four inference/worker source files", flush=True
+            f"Backend image matches all {len(files)} Memora Python modules", flush=True
         )
         config["name"] = project
         config["volumes"] = {"postgres_data": {}, "mail_data": {}}

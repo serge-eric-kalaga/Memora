@@ -467,7 +467,22 @@ def _status_plan_schema(records, allowed_sources):
 def _report_plan_payload(reports, positions):
     records = _report_candidates(reports)
     active_sources = {s for r in records for s in r["item"]["sources"]}
-    derived = [dict(item) for report in reports for item in report["summary"]]
+    # Default placeholders carry no additional fact. Keep every real value and
+    # all text/references; the full original items remain in the published report.
+    derived = [
+        {
+            key: value
+            for key, value in item.items()
+            if not (
+                key == "owner"
+                and value in ("Non précisé", "Not specified")
+                or key == "deadline"
+                and value in ("Non précisée", "Not specified")
+            )
+        }
+        for report in reports
+        for item in report["summary"]
+    ]
     allowed = active_sources | {s for item in derived for s in item["sources"]}
     metadata = [
         {k: v for k, v in value.items() if k != "text"}
@@ -484,6 +499,7 @@ def _report_plan_payload(reports, positions):
             },
         },
         ensure_ascii=False,
+        separators=(",", ":"),
     )
 
 
@@ -538,6 +554,7 @@ def _verify_proposed_removal(record, assignment, positions, language, context):
             "chronological_context": json.loads(context),
         },
         ensure_ascii=False,
+        separators=(",", ":"),
     )
     if len(payload) > _RECONCILIATION_BUDGET:
         return False
@@ -648,13 +665,37 @@ def _eligible_actions(reports, positions, language):
     return filtered
 
 
+def _descriptive_report(group):
+    """Lossless local union: descriptive facts require no model status plan."""
+    result = Report().model_dump()
+    result["limitations"] = "\n".join(
+        part.get("limitations", "") for part in group if part.get("limitations")
+    )
+    for category in ("summary", "topics"):
+        result[category] = [dict(item) for part in group for item in part[category]]
+    return result
+
+
+def _validate_report_sources(reports, positions):
+    for report in reports:
+        for category in _REPORT_FIELDS:
+            for item in report[category]:
+                if not item["sources"] or not set(item["sources"]) <= positions.keys():
+                    raise ProcessingError(
+                        "Les références de réconciliation ne correspondent pas aux sources autorisées."
+                    )
+
+
 def _reconcile_report_statuses(group, positions, language):
     """Ask for a total status plan, then copy/filter original claims locally.
 
     The model classifies only active lists. Summaries/topics remain chronological
     exact copies, independently of the model's proposed status changes.
     """
+    _validate_report_sources(group, positions)
     records = _report_candidates(group)
+    if not records:
+        return _descriptive_report(group)
     by_id = {record["id"]: record for record in records}
     active_sources = {
         source for record in records for source in record["item"]["sources"]
@@ -671,11 +712,6 @@ def _reconcile_report_statuses(group, positions, language):
         raise ProcessingError(
             "Le plan de réconciliation dépasse le contexte local sans troncature possible."
         )
-    if not records:
-        result = Report().model_dump()
-        for category in ("summary", "topics"):
-            result[category] = [dict(item) for part in group for item in part[category]]
-        return result
     plan = generate(
         f"Langue: {language}. Classe CHAQUE candidat par un statut, sans réécrire ses faits.\n"
         + _RECONCILIATION_RULES
@@ -818,7 +854,10 @@ def reconcile(candidates, segments, language, schema, question=None):
             "Aucune synthèse sourcée disponible pour la réconciliation."
         )
     if schema is Report:
+        _validate_report_sources(candidates, positions)
         candidates = _eligible_actions(candidates, positions, language)
+        if not _report_candidates(candidates):
+            candidates = [_descriptive_report(candidates)]
     payload_fn = _report_plan_payload if schema is Report else _chronological_payload
     while len(candidates) > 1:
         groups, group = [], []
