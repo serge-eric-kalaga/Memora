@@ -54,8 +54,6 @@ def configure_rate_limiting(app, config):
         skip_when=lambda request: (
             request.method == "OPTIONS"
             or request.url.path in {"/metrics", "/api/healthcheck/", "/api/healthcheck"}
-            or request.url.path == "/ws"
-            or request.url.path.startswith("/ws/")
         ),
         on_limit_exceeded=limit_response,
         fail_closed=config.RATE_LIMIT_FAIL_CLOSED,

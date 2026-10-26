@@ -19,7 +19,7 @@ def test_test_database_never_falls_back_to_application_url(tmp_path, source):
     shutil.copyfile(backend / "test" / "__init__.py", tests / "__init__.py")
     environment = {
         **os.environ,
-        "DATABASE_URL": "mysql+pymysql://invalid:invalid@invalid.local/unsafe_application",
+        "DATABASE_URL": "postgresql+psycopg://invalid:invalid@invalid.local/unsafe_application",
         "REDIS_URL": "redis://invalid.local:6379",
         "REDIS_DATABASE_URL": "redis://invalid.local:6379",
         "CACHE_ENABLED": "true",

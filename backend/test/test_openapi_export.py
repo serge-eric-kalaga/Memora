@@ -13,7 +13,7 @@ def test_offline_export_is_deterministic_and_check_rejects_drift(tmp_path):
     output = tmp_path / "openapi.json"
     environment = {
         **os.environ,
-        "DATABASE_URL": "mysql+pymysql://unavailable:unavailable@127.0.0.1:9/unavailable",
+        "DATABASE_URL": "postgresql+psycopg://unavailable:unavailable@127.0.0.1:9/unavailable",
         "APP_NAME": "private-name-must-not-be-exported",
         "JWT_SECRET": "private-value-must-not-be-exported",
     }
@@ -33,7 +33,7 @@ def test_offline_export_is_deterministic_and_check_rejects_drift(tmp_path):
     assert b"private-name-must-not-be-exported" not in first
     assert b"private-value-must-not-be-exported" not in first
     schema = json.loads(first)
-    assert schema["info"]["title"] == "Fullstack API"
+    assert schema["info"]["title"] == "Memora API"
     assert schema["paths"]["/api/auth/login"]["post"]["operationId"] == "authLogin"
     assert (
         "current_password" in schema["components"]["schemas"]["ChangeEmail"]["required"]

@@ -83,3 +83,10 @@ Les outils de qualité peuvent exiger des voix TTS macOS déjà installées, des
 Les journaux et comptes rendus restent dans `.agents/`, ignoré par Git. Les données, modèles, secrets, emails et sauvegardes restent dans `.memora/`, également hors Git. Les recettes ne doivent déclencher ni microphone utilisateur ni email extérieur. Les scripts de migration ne doivent jamais servir de commande de réinitialisation de l’application active.
 
 La suppression des anciens scripts n’efface ni les résultats historiques locaux ni les modèles. Le démarrage, les migrations, les recettes Docker et les outils de qualité conservés gardent leurs chemins existants.
+
+
+## État du compagnon natif après redémarrage du Mac
+
+Docker peut redémarrer ses conteneurs alors que le compagnon natif est encore arrêté. Utiliser `./scripts/memora-start.sh` pour remettre l’ensemble en route. `memora-docker-bridge.py status` vérifie le PID, l’identité HTTP du service et un endpoint authentifié ; un port simplement ouvert ne suffit pas. Le lancement direct est idempotent et reste le mode par défaut (`start --unmanaged` peut le demander explicitement).
+
+Le démarrage automatique à l’ouverture de session n’est pas livré sur ce poste. Un essai de supervision macOS a échoué avant disponibilité ; il a été désactivé et retiré. La commande de démarrage ci-dessus reste la procédure validée après redémarrage.

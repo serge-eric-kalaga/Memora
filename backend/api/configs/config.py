@@ -13,7 +13,6 @@ class SETTINGS(BaseSettings):
     ALGORITHM: str
     DATABASE_URL: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 31536000
-    GOOGLE_API_KEY: str | None = None
     REDIS_DATABASE_URL: str | None = None  # Ancien nom conservé pour compatibilité.
     REDIS_URL: str | None = None
     REDIS_PREFIX: str = "fullstack:dev:v1"

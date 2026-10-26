@@ -48,6 +48,22 @@ test("toutes les clés littérales utilisées par les composants sont traduites"
         true,
         ts.ScriptKind.TSX,
       );
+      // Only i18next's t from useI18n is backed by these catalogues.
+      // Memora components can also define a local t(french, english) helper.
+      let usesCatalogue = false;
+      function findCatalogueBinding(node) {
+        if (
+          ts.isVariableDeclaration(node) &&
+          ts.isObjectBindingPattern(node.name) &&
+          node.name.elements.some((item) => item.name.getText(file) === "t") &&
+          node.initializer &&
+          ts.isCallExpression(node.initializer) &&
+          node.initializer.expression.getText(file) === "useI18n"
+        ) usesCatalogue = true;
+        ts.forEachChild(node, findCatalogueBinding);
+      }
+      findCatalogueBinding(file);
+      if (!usesCatalogue) continue;
       function visit(node) {
         if (
           ts.isCallExpression(node) &&

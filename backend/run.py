@@ -1,5 +1,3 @@
-# from sqlalchemy_utils import create_database, database_exists
-# from api.database import engine
 from api import createApp, SETTINGS
 
 
@@ -20,10 +18,3 @@ with open(log_dir_file, "a"):
 settings = SETTINGS()
 # En production, Alembic prépare le schéma avant le démarrage du serveur.
 app = createApp(settings, initialise_database=settings.INITIALISE_DATABASE)
-
-if __name__ == "__main___":
-    import uvicorn
-
-    uvicorn.run(
-        app, port=80, host="0.0.0.0"
-    )  # , proxy_headers=True)#, root_path="/backend_template" )

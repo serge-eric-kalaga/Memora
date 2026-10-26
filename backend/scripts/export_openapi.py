@@ -11,7 +11,7 @@ def export_openapi(output: Path, *, check: bool = False):
     # Configuration propre à ce processus : aucune valeur privée ne doit influencer l’export.
     os.environ.update(
         {
-            "APP_NAME": "Fullstack API",
+            "APP_NAME": "Memora API",
             "ADMINS_EMAIL": "schema@example.com",
             "SECRET_KEY": "schema-export-only",
             "JWT_SECRET": "schema-export-only",

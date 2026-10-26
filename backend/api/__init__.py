@@ -12,7 +12,6 @@ def createApp(config: SETTINGS, *, initialise_database: bool = True) -> FastAPI:
     from starlette.exceptions import HTTPException as starletteHTTPException
     from api.services.mail import send_app_exception_to_admin
 
-    from api.services import socket
     from api.utility.lifespan import LifeSpan
     from api.configs.logging import logDebug, logInfo, logError
     from api.views import user_router, auth_router, healthcheck_router
@@ -57,11 +56,6 @@ def createApp(config: SETTINGS, *, initialise_database: bool = True) -> FastAPI:
         )
     ).instrument(app).expose(app, tags=["OTHER"])
 
-    # ----mount socket------
-    sm = socket.socketio.ASGIApp(socket.server, socketio_path="/ws/socket.io")
-    app.mount("/ws", sm)
-    app.sio = socket.server
-
     # ------get request from any webpage---------
     app.add_middleware(
         CORSMiddleware,
@@ -88,7 +82,6 @@ def createApp(config: SETTINGS, *, initialise_database: bool = True) -> FastAPI:
         if request.url.path in [
             "/api/healthcheck/",
             "/metrics",
-            "/ws/socket.io/",
         ]:
             do_not_log = True
 

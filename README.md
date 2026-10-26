@@ -63,7 +63,7 @@ FastAPI — authentification, réunions et flux SSE   Docker : 127.0.0.1:8080
 
 Les cinq services Compose sont `frontend`, `backend`, `worker`, `postgres` et `mailpit`. Le worker utilise la même image Python que l’API mais s’exécute dans un conteneur indépendant. Un redémarrage de l’API ne redémarre pas ce processus de calcul. PostgreSQL utilise le schéma `public` pour les comptes et le schéma `memora` pour les réunions, versions, tâches et partages.
 
-**Pourquoi une partie native ?** MLX exploite le GPU Apple et ne fonctionne pas dans les conteneurs Linux de Docker Desktop. Le lanceur gère donc un compagnon natif authentifié. Les conteneurs le joignent, ainsi qu’Ollama, via `host.docker.internal` : leur `localhost` désignerait le conteneur lui-même.
+**Pourquoi une partie native ?** MLX exploite le GPU Apple et ne fonctionne pas dans les conteneurs Linux de Docker Desktop. Le lanceur gère donc un compagnon natif authentifié. Après un redémarrage du Mac, relancer `./scripts/memora-start.sh` : le redémarrage automatique des conteneurs Docker ne démarre pas à lui seul ce processus natif. Les conteneurs le joignent, ainsi qu’Ollama, via `host.docker.internal` : leur `localhost` désignerait le conteneur lui-même.
 
 Les ports publiés par Compose sont liés à l’interface locale. Ollama reste un service indépendant : les scripts Memora ne le réinstallent pas et ne l’arrêtent pas.
 
@@ -353,7 +353,7 @@ Les contrôles isolés ne prouvent pas le fonctionnement du microphone physique,
 |---|---|
 | L’application ou le service de connexion est indisponible | Exécuter `memora-status.sh`, vérifier Docker Desktop puis les journaux du backend et du frontend. Une page Next.js accessible ne prouve pas que l’API fonctionne. |
 | Le lancement indique « Import PostgreSQL non validé » | Reprendre la procédure d’import et lire l’erreur. Ne pas supprimer les données ni fabriquer le fichier de validation. |
-| La transcription échoue | Vérifier le compagnon natif, les chemins et les modèles avec les commandes `--check-only`. Consulter l’état de la réunion avant de relancer. |
+| La transcription échoue ou indique « moteur audio local indisponible » | Exécuter `memora-status.sh`, puis `memora-start.sh` si le compagnon natif est arrêté. Docker peut redémarrer sans ce processus natif. Vérifier ensuite les modèles avec `--check-only`, puis relancer explicitement le traitement échoué. |
 | Le rapport ou le chat échoue | Vérifier Ollama et la présence du modèle configuré avec `ollama list`. Une panne de modèle ne nécessite pas de réimporter l’audio. |
 | Le microphone ne fonctionne pas | Vérifier les permissions du navigateur et du système, sélectionner la bonne entrée puis utiliser la vérification microphone de Memora. |
 | Des fragments restent à sauvegarder | Garder le même profil de navigateur et utiliser la reprise proposée. Pour un import interrompu, sélectionner le même fichier. |

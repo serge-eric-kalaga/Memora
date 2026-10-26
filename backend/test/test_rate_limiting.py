@@ -97,9 +97,10 @@ def test_global_limit_and_exclusions(setup):
     assert client.get("/one").status_code == 200
     assert client.get("/two").status_code == 200
     assert client.get("/three").status_code == 429
-    for path in ("/metrics", "/api/healthcheck/", "/ws/socket.io/"):
+    for path in ("/metrics", "/api/healthcheck/"):
         assert client.get(path).status_code == 200
     assert client.options("/one").status_code != 429
+    assert client.get("/ws/socket.io/").status_code == 429
     assert client.get("/ws-admin").status_code == 429
 
 
