@@ -1,3 +1,22 @@
+/** Text edits do not repair an earlier failed acoustic separation. */
+export function hasUnresolvedSpeakerFailure(meeting: {
+  version: number;
+  automatic_diarization?: { state?: string; source_version?: number };
+  diarization?: object | null;
+  segments: { speaker?: string | null }[];
+}) {
+  const failure = meeting.automatic_diarization;
+  return (
+    failure?.state === "failed" &&
+    typeof failure.source_version === "number" &&
+    failure.source_version <= meeting.version &&
+    !meeting.diarization &&
+    meeting.segments.some(
+      (segment) => speakerLabel(segment.speaker) === "Intervenant",
+    )
+  );
+}
+
 /** Display an honest fallback without assigning unrelated voices to one person. */
 export function speakerLabel(
   value: string | null | undefined,

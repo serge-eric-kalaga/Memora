@@ -10,7 +10,7 @@ import { describeSegmentLanguage } from "./language";
 import { PlaybackTools } from "./playback-tools";
 import { ReportReview } from "./report-review";
 import { SpeakerTools } from "./speaker-tools";
-import { speakerLabel } from "./speaker-label";
+import { hasUnresolvedSpeakerFailure, speakerLabel } from "./speaker-label";
 import { segmentAt } from "./playback";
 import { useI18n } from "@/lib/i18n/use-i18n";
 import {
@@ -1246,11 +1246,7 @@ function MeetingContent({
                       guest={!!access.token}
                       english={language === "en"}
                       canSeparate={!!canAudio}
-                      separationFailed={
-                        meeting.automatic_diarization?.state === "failed" &&
-                        meeting.automatic_diarization.source_version ===
-                          meeting.version
-                      }
+                      separationFailed={hasUnresolvedSpeakerFailure(meeting)}
                       busy={
                         busy ||
                         ["queued", "transcribing", "analyzing"].includes(

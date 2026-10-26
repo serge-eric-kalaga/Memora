@@ -9,9 +9,21 @@ const source = ts.transpileModule(
   ),
   { compilerOptions: { module: ts.ModuleKind.ES2022 } },
 ).outputText;
-const { speakerLabel } = await import(
+const { speakerLabel, hasUnresolvedSpeakerFailure } = await import(
   "data:text/javascript;base64," + Buffer.from(source).toString("base64")
 );
+test("Speaker failure survives text revisions, but not successful separation or complete manual attribution", () => {
+  const meeting = {
+    version: 3,
+    automatic_diarization: { state: "failed", source_version: 1 },
+    segments: [{ speaker: "Intervenant non identifié" }],
+  };
+  assert.equal(hasUnresolvedSpeakerFailure(meeting), true);
+  assert.equal(hasUnresolvedSpeakerFailure({ ...meeting, diarization: { speaker_count: 2 } }), false);
+  assert.equal(hasUnresolvedSpeakerFailure({ ...meeting, segments: [{ speaker: "Alice" }] }), false);
+  assert.equal(hasUnresolvedSpeakerFailure({ ...meeting, automatic_diarization: { state: "completed", source_version: 3 } }), false);
+  assert.equal(hasUnresolvedSpeakerFailure({ ...meeting, version: 0 }), false);
+});
 test("Unassigned labels never fabricate a speaker number", () => {
   for (const label of [
     null,
