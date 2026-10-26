@@ -78,3 +78,15 @@ case "$memora_speaker_engine" in
   resemblyzer) ;;
   *) echo "Moteur de séparation inconnu ; aucune substitution automatique." >&2; exit 1 ;;
 esac
+
+memora_speaker_recovery=$(backend/.venv/bin/python -c 'from dotenv import dotenv_values; print(dotenv_values(".memora/backend.env").get("MEMORA_DIARIZATION_RECOVERY", ""))')
+case "$memora_speaker_recovery" in
+  community-coreml)
+    [ "$memora_speaker_engine" = "ecapa-segmented" ] || { echo "Ce recours nécessite ecapa-segmented." >&2; exit 1; }
+    memora_community_models=$(backend/.venv/bin/python -c 'from pathlib import Path; from dotenv import dotenv_values; print(dotenv_values(".memora/backend.env").get("MEMORA_COMMUNITY_MODEL_DIR") or Path(".memora/models/community-coreml").resolve())')
+    memora_community_tools=$(backend/.venv/bin/python -c 'from pathlib import Path; from dotenv import dotenv_values; print(dotenv_values(".memora/backend.env").get("MEMORA_COMMUNITY_TOOL_DIR") or Path(".memora/tooling/community-coreml").resolve())')
+    MEMORA_COMMUNITY_MODEL_DIR="$memora_community_models" MEMORA_COMMUNITY_TOOL_DIR="$memora_community_tools" backend/.venv/bin/python scripts/memora-prepare-community.py
+    ;;
+  "") ;;
+  *) echo "Recours de séparation inconnu." >&2; exit 1 ;;
+esac

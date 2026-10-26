@@ -24,6 +24,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--ui-audit-only", action="store_true")
     parser.add_argument(
+        "--community-recovery",
+        action="store_true",
+        help="Enable the installed native CoreML/VBx recovery only in this disposable stack",
+    )
+    parser.add_argument(
         "--diarization-engine",
         choices=["resemblyzer", "ecapa-tdnn", "ecapa-segmented"],
         help="Override only the disposable acceptance stack, never the active app",
@@ -70,6 +75,51 @@ def main():
                 cwd=ROOT,
             )
         )
+        # A green browser run against an old local image is not proof of these sources.
+        import hashlib
+
+        files = [
+            "diarization.py",
+            "diarization_community.py",
+            "inference_bridge.py",
+            "worker.py",
+        ]
+        expected = {
+            name: hashlib.sha256(
+                (ROOT / "backend/api/memora" / name).read_bytes()
+            ).hexdigest()
+            for name in files
+        }
+        probe = (
+            "import json,hashlib;from pathlib import Path;names="
+            + repr(files)
+            + ";print(json.dumps({n:hashlib.sha256((Path('/app/api/memora')/n).read_bytes()).hexdigest() for n in names}))"
+        )
+        actual = json.loads(
+            subprocess.check_output(
+                [
+                    "docker",
+                    "run",
+                    "--rm",
+                    "--network",
+                    "none",
+                    "--read-only",
+                    "--entrypoint",
+                    "python",
+                    config["services"]["backend"]["image"],
+                    "-c",
+                    probe,
+                ],
+                cwd=ROOT,
+            )
+        )
+        if actual != expected:
+            raise RuntimeError(
+                "Backend image is stale; run docker compose --env-file .memora/docker/compose.env build backend worker before acceptance"
+            )
+        print(
+            "Backend image matches the four inference/worker source files", flush=True
+        )
         config["name"] = project
         config["volumes"] = {"postgres_data": {}, "mail_data": {}}
         config["networks"] = {"default": {}}
@@ -82,6 +132,8 @@ def main():
         native.pop("MEMORA_INFERENCE_URL", None)
         if args.diarization_engine:
             native["MEMORA_DIARIZATION_ENGINE"] = args.diarization_engine
+        if args.community_recovery:
+            native["MEMORA_DIARIZATION_RECOVERY"] = "community-coreml"
         data = folder / "data"
         data.mkdir()
         photos = folder / "uploads"

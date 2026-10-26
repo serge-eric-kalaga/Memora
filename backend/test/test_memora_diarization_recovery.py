@@ -2,13 +2,18 @@
 
 import pytest
 
-from api.memora import diarization as d, diarization_segmented as segmented
+from api.memora import (
+    diarization as d,
+    diarization_segmented as segmented,
+    diarization_community as community,
+)
 
 
 @pytest.fixture
 def hybrid(monkeypatch):
     monkeypatch.setenv("MEMORA_DIARIZATION_ENGINE", "ecapa-segmented")
     monkeypatch.delenv("MEMORA_INFERENCE_URL", raising=False)
+    monkeypatch.delenv("MEMORA_DIARIZATION_RECOVERY", raising=False)
     monkeypatch.setattr(segmented, "verified_segmentation", lambda: (None, "synthetic"))
 
 
@@ -22,6 +27,48 @@ def test_verified_primary_result_keeps_its_labels_and_provenance(hybrid, monkeyp
     assert d.diarize(None, []) is result
     assert result["metadata"]["strategy"] == "validated-ecapa-then-segmentation-v1"
     assert "recovery_reason" not in result["metadata"]
+
+
+def test_complete_pipeline_only_recovers_two_acoustic_abstentions(hybrid, monkeypatch):
+    monkeypatch.setenv("MEMORA_DIARIZATION_RECOVERY", "community-coreml")
+    monkeypatch.setattr(community, "assets", lambda: (None, None))
+
+    def uncertain(*args, **kwargs):
+        raise d.UncertainSpeakerCount("Synthetic")
+
+    monkeypatch.setattr(d, "_diarize_embeddings", uncertain)
+    monkeypatch.setattr(segmented, "diarize", uncertain)
+    expected = {"segments": [], "metadata": {"engine": "synthetic-complete"}}
+    monkeypatch.setattr(community, "diarize", lambda *a, **kw: expected)
+    assert d.diarize(None, []) is expected
+    assert expected["metadata"]["recovery_reason"] == "unstable_segmented_clustering"
+
+    def integrity(*args, **kwargs):
+        raise d.DiarizationError("Synthetic integrity failure")
+
+    monkeypatch.setattr(segmented, "diarize", integrity)
+    monkeypatch.setattr(
+        community,
+        "diarize",
+        lambda *a, **kw: pytest.fail("No recovery for infrastructure errors"),
+    )
+    with pytest.raises(d.DiarizationError, match="integrity"):
+        d.diarize(None, [])
+
+
+def test_enabled_complete_pipeline_never_overwrites_primary_success(
+    hybrid, monkeypatch
+):
+    monkeypatch.setenv("MEMORA_DIARIZATION_RECOVERY", "community-coreml")
+    monkeypatch.setattr(community, "assets", lambda: (None, None))
+    expected = {"segments": [], "metadata": {"engine": "synthetic-primary"}}
+    monkeypatch.setattr(d, "_diarize_embeddings", lambda *a, **kw: expected)
+    monkeypatch.setattr(
+        community,
+        "diarize",
+        lambda *a, **kw: pytest.fail("No unnecessary model invocation"),
+    )
+    assert d.diarize(None, []) is expected
 
 
 def test_uncertain_count_uses_segmentation_and_records_the_actual_engine(

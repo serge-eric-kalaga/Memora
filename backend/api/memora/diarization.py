@@ -56,10 +56,12 @@ def availability():
         from . import diarization_ecapa
 
         if engine_name() == "ecapa-segmented":
-            from . import diarization_segmented
+            from . import diarization_community, diarization_segmented
 
             try:
                 diarization_segmented.verified_segmentation()
+                if diarization_community.enabled():
+                    diarization_community.assets()
             except DiarizationError as exc:
                 return {"available": False, "reason": str(exc)}
         return diarization_ecapa.availability()
@@ -342,6 +344,8 @@ def diarize(audio_path, segments, *, num_speakers=None, max_speakers=8):
                 num_speakers=num_speakers,
                 max_speakers=max_speakers,
             )
+        except inference_bridge.UncertainSpeakerCount as exc:
+            raise UncertainSpeakerCount(str(exc)) from None
         except inference_bridge.BridgeError as exc:
             raise DiarizationError(str(exc)) from None
     if not 1 <= max_speakers <= 32 or (
@@ -353,10 +357,12 @@ def diarize(audio_path, segments, *, num_speakers=None, max_speakers=8):
     with _LOCK:
         segmented = engine_name() == "ecapa-segmented"
         if segmented:
-            from . import diarization_segmented
+            from . import diarization_community, diarization_segmented
 
             # Missing or corrupt assets must fail, never trigger a silent fallback.
             diarization_segmented.verified_segmentation()
+            if diarization_community.enabled():
+                diarization_community.assets()
         try:
             result = _diarize_embeddings(
                 audio_path,
@@ -368,13 +374,24 @@ def diarize(audio_path, segments, *, num_speakers=None, max_speakers=8):
         except UncertainSpeakerCount:
             if not segmented:
                 raise
-            result = diarization_segmented.diarize(
-                audio_path,
-                segments,
-                num_speakers=num_speakers,
-                max_speakers=max_speakers,
-            )
-            result["metadata"]["recovery_reason"] = "unstable_voice_clustering"
+            try:
+                result = diarization_segmented.diarize(
+                    audio_path,
+                    segments,
+                    num_speakers=num_speakers,
+                    max_speakers=max_speakers,
+                )
+                result["metadata"]["recovery_reason"] = "unstable_voice_clustering"
+            except UncertainSpeakerCount:
+                if not diarization_community.enabled():
+                    raise
+                result = diarization_community.diarize(
+                    audio_path,
+                    segments,
+                    num_speakers=num_speakers,
+                    max_speakers=max_speakers,
+                )
+                result["metadata"]["recovery_reason"] = "unstable_segmented_clustering"
         if segmented:
             result["metadata"]["strategy"] = "validated-ecapa-then-segmentation-v1"
         return result

@@ -18,6 +18,11 @@ from . import ai, store as s
 stop = threading.Event()
 _lock_file = None
 logger = logging.getLogger(__name__)
+_UNCERTAIN_SPEAKERS = (
+    "Identification automatique : le nombre de voix n’a pas pu être déterminé de façon fiable. "
+    "Indiquez le nombre de personnes qui parlent dans Gérer les intervenants pour relancer "
+    "la séparation. La transcription est conservée."
+)
 
 
 def mail_cipher():
@@ -288,6 +293,7 @@ def _initial_speaker_labels(job, segments, version):
         )
     result = None
     warning = ""
+    failure_code = None
     try:
         if not diarization.available():
             raise diarization.DiarizationError("Unavailable local speaker engine")
@@ -308,8 +314,13 @@ def _initial_speaker_labels(job, segments, version):
             for before, after in zip(segments, updated, strict=True)
         ):
             raise ai.ProcessingError("Speaker result changed immutable source")
+    except diarization.UncertainSpeakerCount:
+        result = None
+        failure_code = "speaker_count_uncertain"
+        warning = _UNCERTAIN_SPEAKERS
     except Exception:  # noqa: BLE001 - optional labels cannot discard committed ASR
         result = None
+        failure_code = "speaker_processing_failed"
         warning = "Identification automatique des intervenants indisponible ou non vérifiable. La transcription est conservée ; vous pouvez relancer la séparation ou corriger les noms."
     finally:
         try:
@@ -362,6 +373,7 @@ def _initial_speaker_labels(job, segments, version):
             "state": "completed" if result else "failed",
             "warning": warning,
             "source_version": version,
+            "failure_code": failure_code,
         }
         current.update(state="analyzing")
         s.save(c, current)
@@ -549,6 +561,16 @@ def database_unavailable(error):
         return False
 
 
+def processing_error_message(error):
+    from .diarization import UncertainSpeakerCount
+
+    if isinstance(error, UncertainSpeakerCount):
+        return _UNCERTAIN_SPEAKERS
+    if isinstance(error, ai.ProcessingError):
+        return str(error)
+    return f"{type(error).__name__} : service IA indisponible. Réessayez."
+
+
 def loop():
     # Keep the claimed job until its final transaction commits. A database outage
     # must not strand it in running or restart ASR after a committed checkpoint.
@@ -579,11 +601,7 @@ def loop():
                         if database_unavailable(exc):
                             raise
                         state = "failed"
-                        error = (
-                            str(exc)
-                            if isinstance(exc, ai.ProcessingError)
-                            else f"{type(exc).__name__} : service IA indisponible. Réessayez."
-                        )
+                        error = processing_error_message(exc)
                         fail_job(job, error)
                     outcome = (state, error)
                 state, error = outcome

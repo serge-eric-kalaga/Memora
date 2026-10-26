@@ -31,6 +31,16 @@ REPORT = dict(
 )
 
 
+def test_explicit_separation_uncertainty_is_actionable_without_private_details():
+    message = w.processing_error_message(
+        diarization.UncertainSpeakerCount("private source /private/audio.bin")
+    )
+    assert "nombre de personnes" in message
+    assert "indisponible" not in message
+    assert "private" not in message
+    assert "private" not in w.processing_error_message(RuntimeError("private"))
+
+
 def setup(tmp_path, monkeypatch, new=True, kind="pipeline", initial=0):
     monkeypatch.setattr(s, "ROOT", tmp_path / "auto-speakers")
     s.init()
@@ -128,7 +138,8 @@ def test_existing_snapshot_or_retranscribe_never_automatically_separates(
 
 
 @pytest.mark.parametrize(
-    "failure", ["unavailable", "provider", "mutation", "malformed", "disputed"]
+    "failure",
+    ["unavailable", "provider", "mutation", "malformed", "disputed", "uncertain_count"],
 )
 def test_optional_speaker_failure_preserves_asr_and_warns_report(
     tmp_path, monkeypatch, failure
@@ -136,12 +147,16 @@ def test_optional_speaker_failure_preserves_asr_and_warns_report(
     mid, job, calls = setup(tmp_path, monkeypatch)
     if failure == "unavailable":
         monkeypatch.setattr(diarization, "available", lambda: False)
-    elif failure == "disputed":
+    elif failure in {"disputed", "uncertain_count"}:
         monkeypatch.setattr(
             diarization,
             "diarize",
             lambda *a, **kw: (_ for _ in ()).throw(
-                diarization.DiarizationError("Les comparaisons se contredisent")
+                (
+                    diarization.UncertainSpeakerCount
+                    if failure == "uncertain_count"
+                    else diarization.DiarizationError
+                )("Les comparaisons se contredisent")
             ),
         )
     elif failure == "provider":
@@ -169,6 +184,11 @@ def test_optional_speaker_failure_preserves_asr_and_warns_report(
         assert meeting["version"] == 1 and meeting["state"] == "ready"
         assert s.transcript(c, mid, 1) == SEGMENTS
         assert meeting["automatic_diarization"]["state"] == "failed"
+        assert meeting["automatic_diarization"]["failure_code"] == (
+            "speaker_count_uncertain"
+            if failure == "uncertain_count"
+            else "speaker_processing_failed"
+        )
         assert "sensitive" not in json.dumps(meeting)
         report = json.loads(
             c.execute(

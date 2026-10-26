@@ -130,6 +130,50 @@ def test_bridge_configuration_and_native_delegation(monkeypatch, tmp_path):
     assert calls[1][1]["num_speakers"] == 2
 
 
+def test_host_preserves_acoustic_uncertainty_without_private_exception(
+    bridge, monkeypatch
+):
+    client, audio = bridge
+
+    def uncertain(*args, **kwargs):
+        raise diarization.UncertainSpeakerCount("private audio content /private/path")
+
+    monkeypatch.setattr(diarization, "diarize", uncertain)
+    response = client.post(
+        "/diarize",
+        headers={"Authorization": "Bearer " + "x" * 40},
+        json={"path": str(audio), "segments": []},
+    )
+    assert response.status_code == 409
+    assert response.json() == {"detail": {"code": "speaker_count_uncertain"}}
+
+
+@pytest.mark.parametrize("known_code", [True, False])
+def test_transport_only_accepts_fixed_uncertainty_code(monkeypatch, known_code):
+    import httpx
+
+    monkeypatch.setenv("MEMORA_INFERENCE_URL", "http://127.0.0.1:8091")
+    monkeypatch.setenv("MEMORA_INFERENCE_TOKEN", "x" * 40)
+    client_type = httpx.Client
+    transport = httpx.MockTransport(
+        lambda request: httpx.Response(
+            409,
+            json={"detail": {"code": "speaker_count_uncertain"}}
+            if known_code
+            else {"detail": "private server exception"},
+        )
+    )
+    monkeypatch.setattr(
+        httpx, "Client", lambda **kw: client_type(transport=transport, **kw)
+    )
+    with pytest.raises(inference_bridge.BridgeError) as caught:
+        inference_bridge.request("/diarize", {})
+    assert (
+        isinstance(caught.value, inference_bridge.UncertainSpeakerCount) is known_code
+    )
+    assert "private" not in str(caught.value)
+
+
 def test_capture_awake_bridge_bounded_and_independent(bridge, monkeypatch):
     from api.memora import capture_awake
 

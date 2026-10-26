@@ -10,6 +10,10 @@ class BridgeError(ValueError):
     """Safe failure: never exposes audio, request payloads, tokens or host paths."""
 
 
+class UncertainSpeakerCount(BridgeError):
+    """The reachable local engine could not establish a stable voice count."""
+
+
 def configured():
     return bool(os.environ.get("MEMORA_INFERENCE_URL"))
 
@@ -44,6 +48,24 @@ def request(endpoint, payload=None):
                 headers={"Authorization": "Bearer " + token},
                 json=payload,
             ) as response:
+                if endpoint == "/diarize" and response.status_code == 409:
+                    # A fixed code avoids confusing acoustic uncertainty with an
+                    # outage, without trusting arbitrary server error text.
+                    body = bytearray()
+                    for chunk in response.iter_bytes(chunk_size=1024):
+                        body.extend(chunk)
+                        if len(body) > 1024:
+                            break
+                    if len(body) <= 1024:
+                        import json
+
+                        if json.loads(body) == {
+                            "detail": {"code": "speaker_count_uncertain"}
+                        }:
+                            raise UncertainSpeakerCount(
+                                "Le nombre de voix n’a pas pu être déterminé de façon fiable. "
+                                "Indiquez le nombre de personnes qui parlent pour relancer la séparation."
+                            )
                 response.raise_for_status()
                 body = bytearray()
                 for chunk in response.iter_bytes():

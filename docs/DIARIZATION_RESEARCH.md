@@ -139,3 +139,48 @@ Contraintes locales constatées : seulement 5,4 Gio libres pendant l'audit ; lec
 de la RAM via sysctl refusée dans le sandbox. Aucun téléchargement lourd, installation,
 redémarrage, retraitement de réunion personnelle ou changement de moteur effectué.
 La correction de la diarisation en conditions réelles reste à valider.
+
+## Reprise complète Core ML/VBx après double abstention
+
+Un second contrôle a confirmé une limite du recours par segmentation seule :
+le comptage peut encore varier selon le seuil de regroupement. La sélection ne
+force aucun nombre pour masquer cette contradiction. Le compagnon distingue
+maintenant cette incertitude acoustique (`speaker_count_uncertain`) d’une panne
+HTTP du moteur ; le worker conserve un code stable et un message de reprise,
+sans enregistrer l’exception du modèle ou le contenu audio.
+
+Une option locale supplémentaire, `MEMORA_DIARIZATION_RECOVERY=community-coreml`,
+active **uniquement après les deux abstentions acoustiques** le pipeline offline
+FluidAudio Community-1 : segmentation, WeSpeaker, transformation PLDA et VBx.
+Les succès ECAPA ou segmentation restent inchangés. Les erreurs d’intégrité,
+fichiers invalides ou service indisponible ne déclenchent jamais ce recours.
+
+Distribution examinée : [FluidAudio v0.17.7](https://github.com/FluidInference/FluidAudio/tree/v0.17.7),
+commit `503b4bd1bbf7220882de39fe8ae6716aae4132da`, code Apache-2.0.
+Les [conversions Core ML publiques](https://huggingface.co/FluidInference/speaker-diarization-coreml/tree/7eab74f3463c736418d0eb10296261ae581146c9)
+sont accessibles sans compte ni jeton. Leur périmètre CC-BY-4.0 et les attributions
+pyannote, WeSpeaker, BUT Speech@FIT et Fluid Inference sont conservés dans NOTICE.
+Leur provenance historique est reconstruite, pas entièrement attestée ; les SHA
+figent la distribution examinée, sans constituer une signature de l’auteur.
+Seuls quatre bundles utilisés et les paramètres/licences nécessaires sont installés,
+environ 21 Mo. Aucun checkpoint amont à accès restreint n’est téléchargé.
+
+Le binaire est construit localement avec Swift 6.2+, sur Apple Silicon/macOS 15+.
+Le manifeste de build écarte le composant TTS inutile sans changer les sources
+Swift/C++ du SDK. Le chargement est direct depuis les bundles vérifiés ; le mode
+hors ligne est forcé. Le traitement reste borné à deux heures/huit groupes, avec
+suppression des fichiers PCM temporaires même après erreur. Le hash du binaire
+contrôle l’intégrité locale, pas une signature ni une compilation reproductible
+attestée. Le Docker applicatif appelle ce composant natif privé, comme les moteurs MLX.
+
+Validation réelle du recours intégré : 32/32 comptages automatiques corrects sur
+les corpus principaux et variantes ; 16/16 reprises à une voix connue correctes.
+Sur les 12 cas de réserve déjà utilisés, 11 comptages corrects et une fausse
+séparation d’un monologue avec changement de canal/bruit persistent. Soit 43/44
+comptages automatiques corrects sur ce corpus précis, **pas un score de précision
+d’attribution ni une généralisation**. Le benchmark strict reste en échec (code 1),
+car ce dernier cas n’est pas retiré. Le nouveau recours remplace l’abstention
+restante à trois voix sans modifier les succès antérieurs. Les métriques DER des
+cas ECAPA réussis restent inchangées. Employé seul, FluidAudio fusionne certaines
+voix sur d’autres cas synthétiques : il n’est donc pas choisi comme remplacement
+global. Aucun seuil n’a été ajusté sur l’enregistrement privé autorisé.

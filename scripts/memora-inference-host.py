@@ -95,6 +95,9 @@ def create_app(data_root, token):
         def run():
             try:
                 return function()
+            except diarization.UncertainSpeakerCount:
+                # Stable public code only; never serialize model exceptions.
+                raise HTTPException(409, {"code": "speaker_count_uncertain"}) from None
             except Exception:  # noqa: BLE001 - model errors must never leak private payloads
                 # Never return paths, transcript text, tokens or model internals.
                 raise HTTPException(

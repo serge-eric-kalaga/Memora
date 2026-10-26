@@ -91,3 +91,9 @@ La suppression des anciens scripts n’efface ni les résultats historiques loca
 Docker peut redémarrer ses conteneurs alors que le compagnon natif est encore arrêté. Utiliser `./scripts/memora-start.sh` pour remettre l’ensemble en route. `memora-docker-bridge.py status` vérifie le PID, l’identité HTTP du service et un endpoint authentifié ; un port simplement ouvert ne suffit pas. Le lancement direct est idempotent et reste le mode par défaut (`start --unmanaged` peut le demander explicitement).
 
 Le démarrage automatique à l’ouverture de session n’est pas livré sur ce poste. Un essai de supervision macOS a échoué avant disponibilité ; il a été désactivé et retiré. La commande de démarrage ci-dessus reste la procédure validée après redémarrage.
+
+- `memora-prepare-community.py` : recours de diarisation complet CoreML/VBx,
+  optionnel sur Apple Silicon/macOS15+/Swift6.2+. Sources et modèles publics
+  épinglés, licences conservées, aucun compte ni activation de service.
+  `--check-only` valide hors réseau ; `--from-lab CHEMIN` réutilise les fichiers
+  locaux vérifiés. Les ressources de build sont dans `scripts/resources/community-*`.

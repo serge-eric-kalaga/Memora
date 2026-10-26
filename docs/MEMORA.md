@@ -419,3 +419,39 @@ La supervision de ce compagnon par launchd a été essayée mais n’a pas attei
 Validation du nettoyage : 398 tests backend réussis, 10 ignorés et 3 avertissements (les 5 anciens tests spécifiques Celery/Socket.IO ont disparu avec leurs modules) ; 50 tests de scripts réussis, dont 9 contrôles du lancement natif ; 36 tests unitaires frontend réussis. Lint, types, OpenAPI/SDK, verrou et build Docker réussis. La recette Docker isolée a validé 22 groupes navigateur, 20 groupes d’interface et 8 groupes SSE, avec vrais modèles sur données synthétiques, email reçu dans Mailpit et persistance après redémarrage de l’API. Aucun démarrage automatique de session n’est annoncé.
 
 Activation vérifiée après garde zéro capture, zéro tâche et aucune écriture audio récente : les cinq conteneurs sont sains, le compagnon natif répond au contrôle authentifié, les quatre sondes HTTP réussissent et toutes les empreintes des tables métier sont identiques avant/après. Une nouvelle transcription réelle du WAV français synthétique a réussi depuis les conteneurs nettoyés. Le résultat et les identifiants des réunions personnelles n’ont pas été utilisés comme données de test.
+
+### Recours Community-1 local, sans compte
+
+Sur Apple Silicon avec macOS 15+ et Swift/Xcode 6.2+, un recours complet est
+optionnel. Il intervient seulement si ECAPA puis la segmentation ne trouvent pas
+un nombre stable de voix. Il ne remplace pas les résultats déjà réussis.
+
+```sh
+backend/.venv/bin/python scripts/memora-prepare-community.py
+backend/.venv/bin/python scripts/memora-prepare-community.py --check-only
+```
+
+Configuration dans `.memora/backend.env` :
+
+```dotenv
+MEMORA_DIARIZATION_ENGINE=ecapa-segmented
+MEMORA_DIARIZATION_RECOVERY=community-coreml
+```
+
+`MEMORA_COMMUNITY_MODEL_DIR` et `MEMORA_COMMUNITY_TOOL_DIR` permettent de déplacer
+les répertoires `.memora/models/community-coreml` et `.memora/tooling/community-coreml`.
+Le script install respecte ces chemins. La préparation télécharge uniquement une
+distribution publique épinglée et compile un outil natif ; elle ne change aucun
+service ni aucune réunion. Pour une copie locale des téléchargements examinés,
+`--from-lab CHEMIN` attend `source.tar.gz` et `models/`. Après configuration,
+redémarrer les services avec le lanceur habituel, hors capture/traitement. Les
+anciens résultats restent inchangés : relancer explicitement la séparation puis
+le rapport depuis la réunion concernée.
+
+Les deux méthodes restant faillibles, des passages courts ou multivoix peuvent
+rester sans attribution. L’incertitude de comptage est conservée comme telle,
+sans être présentée comme une panne du serveur. L’indication du nombre connu
+reste possible ; elle n’établit pas l’identité ni l’exactitude de chaque passage.
+Les [mesures et limites](DIARIZATION_RESEARCH.md) distinguent comptage et attribution.
+Recette Docker isolée avec ce recours :
+`backend/.venv/bin/python scripts/memora-verify-docker.py --diarization-engine ecapa-segmented --community-recovery`.
